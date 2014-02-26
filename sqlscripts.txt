@@ -1,0 +1,159 @@
+select a.pdbName,a.id,a.cr1,a.cr2,a.cr_diff from asym_interface as a where  cr1>0 and cr2>0  and cr1<10 and cr2 < 10 order by cr_diff desc limit 10;
+
+SELECT 
+a.pdbName,
+a.id,
+a.cr1,
+a.cr2,
+a.cr_diff,
+get_core(i.id,1),
+get_core(i.id,2)
+FROM asym_interface as a 
+INNER JOIN PdbScore as p on a.pdbName=p.pdbName 
+INNER JOIN Interface as i on p.uid=i.pdbScoreItem_uid and a.id=i.id 
+WHERE a.cr1>0 and a.cr2>0  and a.cr1<10 and a.cr2 < 10 order by cr_diff ;
+
+DROP FUNCTION IF EXISTS get_core(id INT(11),s INT(11))
+DELIMITER $$
+CREATE FUNCTION get_core(id INT(11),s INT(11)) 
+RETURNS INT(11)
+BEGIN
+DECLARE x INT(11);
+SET x=(SELECT COUNT(*) FROM InterfaceResidue where interfaceItem_uid=id and assignment >=2 
+and structure = s);
+RETURN x;
+END$$
+DELIMITER ;
+
+
+
+
+create view asym_interface as select pdbName,id,area,cr1,cr2,abs(cr1-cr2) cr_diff,cs1,cs2,abs(cs1-cs2) cs_diff from full_table where resolution<2.0 and (abs(cr1-cr2)>0.5 or abs(cs1-cs2)>2.0) and c=1 and RFree<0.3 and CoreRim!="nopred" and CoreSur!="nopred";
+
+DROP VIEW IF EXISTS asym_score;
+CREATE VIEW asym_score AS
+SELECT
+pdbName,
+id,
+cr1,
+cr2,
+abs(cr1-cr2) cr_diff,
+cs1,
+cs2,
+abs(cs1-cs2) cs_diff,
+operatorType,
+isInfinite,
+homologs1 h1,
+homologs2 h2
+FROM full_table
+WHERE
+resolution<2.0 AND
+c=1 AND
+RFree < 0.3 AND
+CoreRim!="nopred" AND
+CoreSur!="nopred";
+
+DROP VIEW IF EXISTS cr_asym_score;
+CREATE VIEW cr_asym_score AS
+SELECT
+a.pdbName,
+a.id,
+a.cr1,
+a.cr2,
+a.cr_diff,
+a.operatorType,
+a.isInfinite,
+a.h1,
+a.h2
+FROM asym_score AS a
+INNER JOIN PdbScore as p ON p.pdbName=a.pdbName 
+INNER JOIN Interface as i ON i.pdbScoreItem_uid=p.uid AND i.id=a.id
+where a.cr_diff>0.5 and cr1<01 and cr2<10 and get_core(i.uid,1)>=4 and get_core(i.uid,2)>=4; 
+
+
+DROP VIEW IF EXISTS cs_asym_score;
+CREATE VIEW cs_asym_score AS
+SELECT
+a.pdbName,
+a.id,
+a.cs1,
+a.cs2,
+a.cs_diff,
+a.operatorType,
+a.isInfinite,
+a.h1,
+a.h2
+FROM asym_score AS a
+INNER JOIN PdbScore as p ON p.pdbName=a.pdbName 
+INNER JOIN Interface as i ON i.pdbScoreItem_uid=p.uid AND i.id=a.id
+where a.cs_diff>2.0 and cs1<01 and cs2<10 and get_core(i.uid,1)>=4 and get_core(i.uid,2)>=4;
+
+
+
+select * from cs_asym_score where operatorType!=3 and operatorType!=4 and operatorType!=5 and operatorType!=6 and operatorType!="3S" and operatorType!="4S" and operatorType!="5S" and operatorType!="6S" and h1>30 and ((cs1<-1 and cs2>-1) or (cs1>-1 and cs2<-1)) order by cs_diff into outfile '/tmp/cs_asym3.list';
+
+
+select 
+p.pdbName,
+i.id,
+s.unweightedRatio1Scores cr1,
+s.unweightedRatio2Scores cr2,
+abs(s.unweightedRatio1Scores-s.unweightedRatio2Scores) diff_cr,
+get_core(i.uid,1) core1,
+get_core(i.uid,2) core2
+from PdbScore as p
+inner join Interface as i on
+i.pdbScoreItem_uid=p.uid
+inner join InterfaceScore as s on 
+s.interfaceItem_uid=i.uid 
+where s.method="Entropy" and
+get_core(i.uid,1)>=4 and
+get_core(i.uid,2)>=4 and
+abs(s.unweightedRatio1Scores-s.unweightedRatio2Scores)>0.5 and
+s.unweightedRatio1Scores<10 and
+s.unweightedRatio2Scores<10 
+limit 10;
+
+select * from cr_asym_score where operatorType!=3 and operatorType!=4 and operatorType!=5 and operatorType!=6 and operatorType!="3S" and operatorType!="4S" and operatorType!="5S" and operatorType!="6S" and h1>30 and ((cr1<0.75 and cr2>0.75) or (cr1>0.75 and cr2<0.75)) order by cr_diff into outfile '/tmp/cr_asym3.list';
+
+select * from cs_asym_score where operatorType!=3 and operatorType!=4 and operatorType!=5 and operatorType!=6 and operatorType!="3S" and operatorType!="4S" and operatorType!="5S" and operatorType!="6S" and h1>30 and ((cs1<-1 and cs2>-1) or (cs1>-1 and cs2<-1)) order by cs_diff into outfile '/tmp/cs_asym3.list';
+
+
+
+
+
+
+
+SELECT
+a.pdbName,
+a.id,
+a.cr1,
+a.cr2,
+a.cr_diff,
+a.cs1,
+a.cs2,
+a.cs_diff,
+a.operatorType,
+a.isInfinite,
+a.h1,
+a.h2
+FROM asym_score AS a
+INNER JOIN PdbScore as p ON p.pdbName=a.pdbName 
+INNER JOIN Interface as i ON i.pdbScoreItem_uid=p.uid AND i.id=a.id
+where 
+a.cs_diff>2.0 and cs1<01 and cs2<10 and
+a.cr_diff>0.5 and cr1<01 and cr2<10 and
+get_core(i.uid,1)>=4 and get_core(i.uid,2)>=4 and 
+a.h1>30 and a.h2>20 and
+a.operatorType!=3 and a.operatorType!=4 and a.operatorType!=5 and a.operatorType!=6 and a.operatorType!="3S" and a.operatorType!="4S" and a.operatorType!="5S" and a.operatorType!="6S" and
+((cr1<0.75 and cr2>0.75) or (cr1>0.75 and cr2<0.75)) and
+((cs1<-1 and cs2>-1) or (cs1>-1 and cs2<-1))
+order by a.cr_diff,a.cs_diff;
+
+
+
+
+
+
+
+
