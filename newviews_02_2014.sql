@@ -295,11 +295,11 @@ select w.* from detailedView as w inner join benchmark.ponstingl_xtal as dc on w
 
 drop view if exists many_bio2;
 create view many_bio2 as
-select * from detailedView where size1>10 and size2>10 and resolution<2.5 and area>1000 and area<2000 and chain1 is not NULL and chain2 is not NULL group by chain1,chain2,pdbName,clusterId union select * from nmr_bio2 where resolution<2.5;
+select * from detailedView where size1>10 and size2>10 and resolution<2.5 and area>1000 and area<2000 and chain1 is not NULL and chain2 is not NULL  union select * from nmr_bio2 where resolution<2.5;
 
 drop view if exists many_xtal2;
 create view many_xtal2 as
-select * from detailedView where resolution<2.5 and isInfinite=1 and area>1000 and chain1 is not NULL and chain2 is not NULL group by chain1,chain2,pdbName,clusterId;
+select * from detailedView where resolution<2.5 and isInfinite=1 and area>1000 and chain1 is not NULL and chain2 is not NULL;
 
 
 
@@ -310,3 +310,96 @@ select x.pdbName pdbx, x.id idx, x.clusterId clusterIdx, x.area areax, x.chain1 
 
 
 
+
+drop table if exists xtal_xtal_table;
+create table xtal_xtal_table as 
+select x.pdbName pdbx,
+x.id idx,
+x.clusterId clusterIdx,
+x.area areax,
+x.chain1 chain1x,
+x.chain2 chain2x,
+n.pdbName pdbn,
+n.id idn,
+n.clusterId clusterIdn,
+n.area arean,
+n.chain1 chain1n,
+n.chain2 chain2n,
+(n.size1+n.size2) sizen,
+(x.size1+x.size2) sizex,
+n.final finaln,
+x.final finalx 
+from many_xtal2 as x 
+inner join many_xtal2 as n on 
+((n.chain1=x.chain1 and n.chain2=x.chain2 and IsSameSegment(n.s1,n.e1,x.s1,x.e1,5) and IsSameSegment(n.s2,n.e2,x.s2,x.e2,5)) or 
+(n.chain1=x.chain2 and n.chain2=x.chain1 and IsSameSegment(n.s1,n.e1,x.s2,x.e2,5) and IsSameSegment(n.s2,n.e2,x.s1,x.e1,5))) and 
+IsSameArea(n.area,x.area,300)  and not (x.pdbName=n.pdbName and x.id=n.id);
+
+
+
+drop table if exists bio_bio_table;
+create table bio_bio_table as 
+select x.pdbName pdbx,
+x.id idx,
+x.clusterId clusterIdx,
+x.area areax,
+x.chain1 chain1x,
+x.chain2 chain2x,
+n.pdbName pdbn,
+n.id idn,
+n.clusterId clusterIdn,
+n.area arean,
+n.chain1 chain1n,
+n.chain2 chain2n,
+(n.size1+n.size2) sizen,
+(x.size1+x.size2) sizex,
+n.final finaln,
+x.final finalx 
+from many_bio2 as x 
+inner join many_bio2 as n on 
+((n.chain1=x.chain1 and n.chain2=x.chain2 and IsSameSegment(n.s1,n.e1,x.s1,x.e1,5) and IsSameSegment(n.s2,n.e2,x.s2,x.e2,5)) or 
+(n.chain1=x.chain2 and n.chain2=x.chain1 and IsSameSegment(n.s1,n.e1,x.s2,x.e2,5) and IsSameSegment(n.s2,n.e2,x.s1,x.e1,5))) and 
+IsSameArea(n.area,x.area,300)  and not (x.pdbName=n.pdbName and x.id=n.id);
+
+
+drop view if exists dc_bio3;
+create view dc_bio3 as 
+select w.* from detailedView as w inner join benchmark.dc_bio as dc on w.pdbName=dc.pdb and w.id=dc.interfaceid;
+drop view if exists dc_xtal3;
+create view dc_xtal3 as 
+select w.* from detailedView as w inner join benchmark.dc_xtal as dc on w.pdbName=dc.pdb and w.id=dc.interfaceid; 
+
+drop view if exists po_bio3;
+create view po_bio3 as 
+select w.* from detailedView as w inner join benchmark.ponstingl_bio as dc on w.pdbName=dc.pdb and w.id=dc.interfaceid;
+drop view if exists po_xtal3;
+create view po_xtal3 as 
+select w.* from detailedView as w inner join benchmark.ponstingl_xtal as dc on w.pdbName=dc.pdb and w.id=dc.interfaceid; 
+
+drop view if exists many_bio3;
+create view many_bio3 as
+select w.* from detailedView as w inner join benchmark.many_bio as dc on w.pdbName=dc.pdb and w.id=dc.interfaceid;
+
+drop view if exists many_xtal3;
+create view many_xtal3 as
+select w.* from detailedView as w inner join benchmark.many_xtal as dc on w.pdbName=dc.pdb and w.id=dc.interfaceid; 
+
+
+
+
+
+
+
+drop view if exists dc_bio4;
+create view dc_bio4 as 
+select w.* from detailedView as w inner join benchmark.dc_bio as dc on w.pdbName=dc.pdb and w.id=dc.interfaceid;
+drop view if exists dc_xtal4;
+create view dc_xtal4 as 
+select w.* from detailedView as w inner join benchmark.dc_xtal as dc on w.pdbName=dc.pdb and w.id=dc.interfaceid; 
+
+drop view if exists po_bio4;
+create view po_bio4 as 
+select w.* from detailedView as w inner join benchmark.ponstingl_bio as dc on w.pdbName=dc.pdb and w.id=dc.interfaceid;
+drop view if exists po_xtal4;
+create view po_xtal4 as 
+select w.* from detailedView as w inner join benchmark.ponstingl_xtal as dc on w.pdbName=dc.pdb and w.id=dc.interfaceid; 
