@@ -1,9 +1,9 @@
-setwd('~/pdb_benchmarks/')
+setwd('~/pdbstatistics/')
 library(RMySQL)
 library(ggplot2)
 
 
-mydb=dbConnect(MySQL(),host="hostname",username="username",password="passwd",dbname="dbname")
+mydb=dbConnect(MySQL(),host="mpc1153",username="root",password="edb+1153",dbname="crk_2014_02")
 on.exit(dbDisconnect(mydb))
 
 dbListTables(mydb)
@@ -12,8 +12,8 @@ dbListTables(mydb)
 #fetch(result)
 loadBenchmark = function(db, #database name
                          method, #method cr or cs 
-                         db_bio=paste(db,"_bio2",sep=""), # bio db name
-                         db_xtal=paste(db,"_xtal2",sep=""), # xtal db name
+                         db_bio=paste(db,"_bio",sep=""), # bio db name
+                         db_xtal=paste(db,"_xtal",sep=""), # xtal db name
                          data=NA #dataframe returned from previous call
                          )
 {
@@ -43,10 +43,11 @@ data=loadBenchmark("po","cr",data=data)
 data=loadBenchmark("many","cr",data=data)
 #data=loadBenchmark("many","cs",data=data)
 # Figure from paper
+#data=loadBenchmark("many","cs")
 plot1 = ggplot(data) + geom_boxplot(aes(x=benchmark,y=area,facet=benchmark, color=truth)); plot1
 
 # Jitter plot, also highlighting false positives
-plot2 = ggplot(data) + geom_jitter( aes(x=benchmark,y=area,facet=benchmark, color=truth,shape=outcome), alpha=.5 ); plot2
+plot2 = ggplot(data) + geom_jitter( aes(x=benchmark,y=area,facet=benchmark, color=outcome,shape=truth,size=3.5),alpha=.5 ); plot2
 
 # Distributions
 plot3 = ggplot(data,aes(facet=benchmark)) + ggtitle("Interface Area") + geom_density( aes(x=area, color=benchmark,linetype=truth, fill = benchmark), alpha=.2 ) + geom_vline(xintercept=1000, color="red",linetype=2,alpha=.5) + geom_vline(xintercept=2000, color="red",linetype=1,alpha=.5); plot3 #all plots together

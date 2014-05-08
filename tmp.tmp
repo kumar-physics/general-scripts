@@ -1,0 +1,4 @@
+select residueType,assignment,avg(entropyScore),stddev(entropyScore) 
+from InterfaceResidue where residueType in
+('ALA','ARG','ASN','ASP','CYS','GLU','GLN','GLY','HIS','ILE',
+'LEU','LYS','MET','PHE','PRO','SER','THR','TRP','TYR','VAL') group by residueType,assignment;
