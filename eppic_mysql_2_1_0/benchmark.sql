@@ -93,14 +93,70 @@ alter table po_xtal add column source varchar(255) default "po_xtal";
 
 
 
-
-
-
-
-
-
-
-
+DROP procedure IF EXISTS eppic_benchmark;
+DELIMITER //
+CREATE procedure eppic_benchmark(in dbname varchar(255),in method varchar(255)) 
+BEGIN
+declare tp,tn,fp,fn,p,n,cc int(11);
+declare Sensitivity,Specificity,Accuracy,MCC double;
+select 1 into cc;
+if (dbname='dc' and method='cs') then
+select count(*) into p  from dc_bio;
+select count(*) into n  from dc_xtal;
+select count(*) into tp  from dc_bio where cs='bio';
+select count(*) into tn  from dc_xtal where cs='xtal';
+select count(*) into fn  from dc_bio where cs='xtal';
+select count(*) into fp  from dc_xtal where cs='bio';
+elseif (dbname='dc' and method='cr') then
+select count(*) into p  from dc_bio;
+select count(*) into n  from dc_xtal;
+select count(*) into tp  from dc_bio where cr='bio';
+select count(*) into tn  from dc_xtal where cr='xtal';
+select count(*) into fn  from dc_bio where cr='xtal';
+select count(*) into fp  from dc_xtal where cr='bio';
+elseif (dbname='po' and method='cr') then
+select count(*) into p  from po_bio;
+select count(*) into n  from po_xtal;
+select count(*) into tp  from po_bio where cr='bio';
+select count(*) into tn  from po_xtal where cr='xtal';
+select count(*) into fn  from po_bio where cr='xtal';
+select count(*) into fp  from po_xtal where cr='bio';
+elseif (dbname='po' and method='cs') then
+select count(*) into p  from po_bio;
+select count(*) into n  from po_xtal;
+select count(*) into tp  from po_bio where cs='bio';
+select count(*) into tn  from po_xtal where cs='xtal';
+select count(*) into fn  from po_bio where cs='xtal';
+select count(*) into fp  from po_xtal where cs='bio';
+elseif (dbname='many' and method='cs') then
+select count(*) into p  from many_bio;
+select count(*) into n  from many_xtal;
+select count(*) into tp  from many_bio where cs='bio';
+select count(*) into tn  from many_xtal where cs='xtal';
+select count(*) into fn  from many_bio where cs='xtal';
+select count(*) into fp  from many_xtal where cs='bio';
+elseif (dbname='many' and method='cr') then
+select count(*) into p  from many_bio;
+select count(*) into n  from many_xtal;
+select count(*) into tp  from many_bio where cr='bio';
+select count(*) into tn  from many_xtal where cr='xtal';
+select count(*) into fn  from many_bio where cr='xtal';
+select count(*) into fp  from many_xtal where cr='bio';
+else
+select 0 into cc;
+select 'Entered parameters are wrong';
+end if;
+if cc then
+select tp+fn into p;
+select fp+tn into n;
+select tp/p into Sensitivity;
+select tn/n into Specificity;
+select (tp+tn)/(p+n) into Accuracy;
+select ((tp*tn)-(fp*fn))/sqrt(p*n*(tp+fp)*(tn+fn)) into MCC;
+select Sensitivity,Specificity,Accuracy,MCC;
+end if;
+END//
+DELIMITER ;
 
 
 
