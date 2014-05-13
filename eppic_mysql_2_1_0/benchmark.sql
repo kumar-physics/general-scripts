@@ -40,7 +40,7 @@ select * from nmr_xray.eppic_nmr_xray where area>400 and resolution < 2.5 and rf
 
 drop table dun_bio;
 create table dun_bio as select d.* from detailedTable as d inner join benchmark.dun_bio as b on 
-b.pdbCode=d.pdbCode and b.interfaceId=d.interfaceId;
+b.pdbCode=d.pdbCode and b.interfaceId=d.interfaceId group by d.pdbcode,d.interfaceId;
 drop table if exists nmr_bio;
 create table nmr_bio as select d.* from detailedTable as d inner join benchmark.nmr_bio as b on 
 b.pdbCode=d.pdbCode and b.interfaceId=d.interfaceId where d.area < 2000;
@@ -56,6 +56,7 @@ create table many_bio as select * from dun_bio union all select * from nmr_bio;
 
 drop table if exists many_xtal;
 create table many_xtal as select * from detailedTable where resolution < 2.5 and rfreeValue < 0.3 and area > 630  and isInfinite=1 group by c1_80,c2_80; 
+alter table many_xtal add column source varchar(255) default "infinite";
 
 alter table nmr_bio add column source varchar(255) default "nmr";
 
