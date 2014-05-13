@@ -153,8 +153,91 @@ select tp/p into Sensitivity;
 select tn/n into Specificity;
 select (tp+tn)/(p+n) into Accuracy;
 select ((tp*tn)-(fp*fn))/sqrt(p*n*(tp+fp)*(tn+fn)) into MCC;
-select Sensitivity,Specificity,Accuracy,MCC;
+select dbname,method,Sensitivity,Specificity,Accuracy,MCC;
 end if;
+END//
+DELIMITER ;
+
+
+DROP procedure IF EXISTS stat_benchmark;
+DELIMITER //
+CREATE procedure stat_benchmark(in dbname varchar(255),in method varchar(255)) 
+BEGIN
+declare BioTotal,BioPred,BioNopred,XtalTotal,XtalPred,XtalNopred int(11);
+if (dbname='dc' and method='cs') then
+select count(*) into BioTotal  from dc_bio;
+select count(*) into BioNopred  from dc_bio where cs='nopred';
+select BioTotal-BioNopred into BioPred;
+select count(*) into XtalTotal  from dc_xtal;
+select count(*) into XtalNopred  from dc_xtal where cs='nopred';
+select XtalTotal-XtalNopred into XtalPred;
+elseif (dbname='dc' and method='cr') then
+select count(*) into BioTotal  from dc_bio;
+select count(*) into BioNopred  from dc_bio where cr='nopred';
+select BioTotal-BioNopred into BioPred;
+select count(*) into XtalTotal  from dc_xtal;
+select count(*) into XtalNopred  from dc_xtal where cr='nopred';
+select XtalTotal-XtalNopred into XtalPred;
+elseif (dbname='po' and method='cr') then
+select count(*) into BioTotal  from po_bio;
+select count(*) into BioNopred  from po_bio where cr='nopred';
+select BioTotal-BioNopred into BioPred;
+select count(*) into XtalTotal  from po_xtal;
+select count(*) into XtalNopred  from po_xtal where cr='nopred';
+select XtalTotal-XtalNopred into XtalPred;
+elseif (dbname='po' and method='cs') then
+select count(*) into BioTotal  from po_bio;
+select count(*) into BioNopred  from po_bio where cs='nopred';
+select BioTotal-BioNopred into BioPred;
+select count(*) into XtalTotal  from po_xtal;
+select count(*) into XtalNopred  from po_xtal where cs='nopred';
+select XtalTotal-XtalNopred into XtalPred;
+elseif (dbname='many' and method='cs') then
+select count(*) into BioTotal  from many_bio;
+select count(*) into BioNopred  from many_bio where cs='nopred';
+select BioTotal-BioNopred into BioPred;
+select count(*) into XtalTotal  from many_xtal;
+select count(*) into XtalNopred  from many_xtal where cs='nopred';
+select XtalTotal-XtalNopred into XtalPred;
+elseif (dbname='many' and method='cr') then
+select count(*) into BioTotal  from many_bio;
+select count(*) into BioNopred  from many_bio where cr='nopred';
+select BioTotal-BioNopred into BioPred;
+select count(*) into XtalTotal  from many_xtal;
+select count(*) into XtalNopred  from many_xtal where cr='nopred';
+select XtalTotal-XtalNopred into XtalPred;
+else
+select "Entered paramers are wrong";
+end if;
+select dbname,method,BioTotal,XtalTotal,BioPred,XtalPred,BioNopred,XtalNopred;
+END//
+DELIMITER ;
+
+
+DROP procedure IF EXISTS get_benchmark_stat;
+DELIMITER //
+CREATE procedure get_benchmark_stat()
+BEGIN
+call stat_benchmark('dc','cr');
+call stat_benchmark('dc','cs'); 
+call stat_benchmark('po','cr');
+call stat_benchmark('po','cs'); 
+call stat_benchmark('many','cr');
+call stat_benchmark('many','cs'); 
+END//
+DELIMITER ;
+
+
+DROP procedure IF EXISTS get_eppic_stat;
+DELIMITER //
+CREATE procedure get_eppic_stat()
+BEGIN
+call eppic_benchmark('dc','cr');
+call eppic_benchmark('dc','cs'); 
+call eppic_benchmark('po','cr');
+call eppic_benchmark('po','cs'); 
+call eppic_benchmark('many','cr');
+call eppic_benchmark('many','cs'); 
 END//
 DELIMITER ;
 
