@@ -51,12 +51,12 @@ alter table dun_bio add column source varchar(255) default "dunbrack";
 
 alter table nmr_bio add column source varchar(255) default "nmr";
 
-drop table if exists many_bio;
-create table many_bio as select * from dun_bio union all select * from nmr_bio;
+drop table if exists many_bio_table;
+create table many_bio_table as select * from dun_bio union all select * from nmr_bio;
 
-drop table if exists many_xtal;
-create table many_xtal as select * from detailedTable where resolution < 2.5 and rfreeValue < 0.3 and area > 630  and isInfinite=1 group by c1_80,c2_80; 
-alter table many_xtal add column source varchar(255) default "infinite";
+drop table if exists many_xtal_table;
+create table many_xtal_table as select * from detailedTable where resolution < 2.5 and rfreeValue < 0.3 and area > 400  and isInfinite=1 group by c1_80,c2_80; 
+alter table many_xtal_table add column source varchar(255) default "infinite";
 
 alter table nmr_bio add column source varchar(255) default "nmr";
 
@@ -214,9 +214,9 @@ END//
 DELIMITER ;
 
 
-DROP procedure IF EXISTS get_benchmark_stat;
+DROP procedure IF EXISTS get_benchmark_size;
 DELIMITER //
-CREATE procedure get_benchmark_stat()
+CREATE procedure get_benchmark_size()
 BEGIN
 call stat_benchmark('dc','cr');
 call stat_benchmark('dc','cs'); 
@@ -228,9 +228,9 @@ END//
 DELIMITER ;
 
 
-DROP procedure IF EXISTS get_eppic_stat;
+DROP procedure IF EXISTS get_benchmark_stat;
 DELIMITER //
-CREATE procedure get_eppic_stat()
+CREATE procedure get_benchmark_stat()
 BEGIN
 call eppic_benchmark('dc','cr');
 call eppic_benchmark('dc','cs'); 
@@ -242,7 +242,9 @@ END//
 DELIMITER ;
 
 
-
-
+drop view if exists many_bio;
+create view many_bio as select * from many_bio_table where area>400;
+drop view if exists many_xtal;
+create view many_xtal as select * from many_xtal_table where area>400;
 
 
