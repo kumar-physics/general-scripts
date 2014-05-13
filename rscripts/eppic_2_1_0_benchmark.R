@@ -31,5 +31,9 @@ loadBenchmark = function(db, #database name
 d=loadBenchmark('dc')
 d=loadBenchmark('po',data=d)
 d=loadBenchmark('many',data=d)
-
-plot1 = ggplot(d) + facet_wrap(~benchmark)+geom_histogram(aes(x=area,facet=benchmark,color=truth,fill=truth,binwidth=1000),position='identity',alpha=0.5); plot1
+d1=subset(d,cs!='nopred')
+plot1 = ggplot(d) + facet_wrap(~benchmark)+geom_histogram(aes(x=area,facet=benchmark,color=truth,fill=truth,binwidth=500),position='identity',alpha=0.5); plot1
+plot1a = ggplot(d1) + facet_wrap(~benchmark)+geom_histogram(aes(x=area,facet=benchmark,color=truth,fill=truth,binwidth=500),position='identity',alpha=0.5); plot1a
+plot1 = ggplot(d) + facet_wrap(~benchmark,scale='free')+geom_histogram(aes(x=area,color=truth,fill=truth),binwidth=100,position='identity',alpha=0.5); plot1
+plot1a = ggplot(d1) + facet_wrap(~benchmark,scale='free')+geom_histogram(aes(x=area,color=truth,fill=truth),binwidth=100,position='identity',alpha=0.5); plot1a
+plot2 = ggplot(d1) + facet_wrap(~benchmark,scale='free')+geom_point(aes(x=area,y=csScore,color=truth,fill=truth,shape=cs),position='identity',alpha=0.5,size=3.0); plot2
