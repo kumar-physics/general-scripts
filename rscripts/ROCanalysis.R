@@ -32,14 +32,14 @@ data=loadBenchmark("dc")
 data=loadBenchmark("po",data=data)
 data=loadBenchmark("many",data=data)
 head(data)
+colnames(data)[55]='dataset'
 
-
-dc_cr<-subset(data,benchmark=="dc" & cr!="nopred",select=c(crScore,truth,cr))
-dc_cs<-subset(data,benchmark=="dc" & cs!="nopred",select=c(csScore,truth,cs))
-po_cr<-subset(data,benchmark=="po" & cr!="nopred",select=c(crScore,truth,cr))
-po_cs<-subset(data,benchmark=="po" & cs!="nopred",select=c(csScore,truth,cs))
-many_cr<-subset(data,benchmark=="many" & cr!="nopred" & crScore<500,select=c(crScore,truth,cr))
-many_cs<-subset(data,benchmark=="many" & cs!="nopred"& crScore<500,select=c(csScore,truth,cs))
+dc_cr<-subset(data,dataset=="dc" & cr!="nopred",select=c(crScore,truth,cr))
+dc_cs<-subset(data,dataset=="dc" & cs!="nopred",select=c(csScore,truth,cs))
+po_cr<-subset(data,dataset=="po" & cr!="nopred",select=c(crScore,truth,cr))
+po_cs<-subset(data,dataset=="po" & cs!="nopred",select=c(csScore,truth,cs))
+many_cr<-subset(data,dataset=="many" & cr!="nopred" & crScore<500,select=c(crScore,truth,cr))
+many_cs<-subset(data,dataset=="many" & cs!="nopred"& crScore<500,select=c(csScore,truth,cs))
 
 
 
@@ -48,7 +48,7 @@ roc = function(score,truth,tag,dat=NA){
   sensitivity<-NULL
   specificity<-NULL
   accuracy<-NULL
-  benchmark<-NULL
+  dataset<-NULL
   mcc<-NULL
   s=data.frame(score,truth)
   attach(s)
@@ -64,7 +64,7 @@ roc = function(score,truth,tag,dat=NA){
     }
     fn=p-tp
     fp=n-tn
-    benchmark<-c(benchmark,tag)
+    dataset<-c(dataset,tag)
     cutoff<-c(cutoff,d$score[i])
     sensitivity<-c(sensitivity,tp/p)
     specificity<-c(specificity,tn/n)
@@ -72,9 +72,9 @@ roc = function(score,truth,tag,dat=NA){
     mcc<-c(mcc,(((tp*tn)-(fp*fn))/(sqrt(p)*sqrt(n)*sqrt(tp+fp)*sqrt(tn+fn))))
   }
   if (all(is.na(dat))){
-    dat=data.frame(cutoff,sensitivity,specificity,accuracy,mcc,benchmark)
+    dat=data.frame(cutoff,sensitivity,specificity,accuracy,mcc,dataset)
   }else{
-    dat=rbind(dat,data.frame(cutoff,sensitivity,specificity,accuracy,mcc,benchmark))
+    dat=rbind(dat,data.frame(cutoff,sensitivity,specificity,accuracy,mcc,dataset))
   } 
 }
 cs=roc(dc_cs$csScore,dc_cs$truth,'dc')
@@ -84,15 +84,61 @@ cr=roc(dc_cr$crScore,dc_cr$truth,'dc')
 cr=roc(po_cr$crScore,po_cr$truth,'po',dat=cr)
 cr=roc(many_cr$crScore,many_cr$truth,'many',dat=cr)
 
-plot1cr=ggplot(cr)+geom_line(aes(x=cutoff,y=sensitivity,color=benchmark,fill=benchmark))+geom_line(aes(x=cutoff,y=specificity,color=benchmark,fill=benchmark))+ggtitle('EPPIC core-rim');plot1cr
-plot2cr=ggplot(cr)+geom_line(aes(x=cutoff,y=mcc,color=benchmark,fill=benchmark));plot2cr
-plot3cr=ggplot(cr)+geom_line(aes(x=cutoff,y=accuracy,color=benchmark,fill=benchmark));plot3cr
-plot4cr=ggplot(cr)+geom_line(aes(x=1-specificity,y=sensitivity,color=benchmark,fill=benchmark))+ggtitle('EPPIC core-rim');plot4cr
 
-plot1cs=ggplot(cs)+geom_line(aes(x=cutoff,y=sensitivity,color=benchmark,fill=benchmark))+geom_line(aes(x=cutoff,y=specificity,color=benchmark,fill=benchmark));plot1cs
-plot2cs=ggplot(cs)+geom_line(aes(x=cutoff,y=mcc,color=benchmark,fill=benchmark));plot2cs
-plot3cs=ggplot(cs)+geom_line(aes(x=cutoff,y=accuracy,color=benchmark,fill=benchmark));plot3cs
-plot4cs=ggplot(cs)+geom_line(aes(x=1-specificity,y=sensitivity,color=benchmark,fill=benchmark))+ggtitle('EPPIC core-surface');plot4cs
+tmp1<-subset(cs,select=c(cutoff,sensitivity,dataset))
+colnames(tmp1)[2]='score'
+tmp1$benchmark='sensitivity'
+tmp2<-subset(cs,select=c(cutoff,specificity,dataset))
+colnames(tmp2)[2]='score'
+tmp2$benchmark='specificity'
+cs1=rbind(tmp1,tmp2)
+
+tmp1<-subset(cr,select=c(cutoff,sensitivity,dataset))
+colnames(tmp1)[2]='score'
+tmp1$benchmark='sensitivity'
+tmp2<-subset(cr,select=c(cutoff,specificity,dataset))
+colnames(tmp2)[2]='score'
+tmp2$benchmark='specificity'
+cr1=rbind(tmp1,tmp2)
+
+
+
+
+
+plot1cr=ggplot(cr1,aes(cutoff))+geom_line(aes(y=score,color=dataset,linetype=benchmark))+xlim(0,3)+ggtitle('EPPIC core-rim');plot1cr
+plot2cr=ggplot(cr)+geom_line(aes(x=cutoff,y=mcc,color=dataset,fill=dataset));plot2cr
+plot3cr=ggplot(cr)+geom_line(aes(x=cutoff,y=accuracy,color=dataset));plot3cr
+plot4cr=ggplot(cr)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+ggtitle('EPPIC core-rim');plot4cr
+
+plot1cs=ggplot(cs1,aes(cutoff))+geom_line(aes(y=score,color=dataset,linetype=benchmark));plot1cs
+plot2cs=ggplot(cs)+geom_line(aes(x=cutoff,y=mcc,color=dataset));plot2cs
+plot3cs=ggplot(cs)+geom_line(aes(x=cutoff,y=accuracy,color=dataset));plot3cs
+plot4cs=ggplot(cs)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+ggtitle('EPPIC core-surface');plot4cs
+
+pdf('cr-ss.pdf')
+plot1cr
+dev.off()
+pdf('cs-ss.pdf')
+plot1cs
+dev.off()
+pdf('cr-mcc.pdf')
+plot2cr
+dev.off()
+pdf('cs-mcc.pdf')
+plot2cs
+dev.off()
+pdf('cr-acc.pdf')
+plot3cr
+dev.off()
+pdf('cs-acc.pdf')
+plot3cr
+dev.off()
+pdf('core-rim-roc.pdf')
+plot4cr
+dev.off()
+pdf('core-surface-roc.pdf')
+plot4cs
+dev.off()
 
 
 # roc_cr = function(dataset,
