@@ -185,31 +185,37 @@ plot1cr=ggplot(cr1,aes(cutoff))+geom_line(aes(y=score,color=dataset,linetype=ben
 plot2cr=ggplot(cr)+geom_line(aes(x=cutoff,y=mcc,color=dataset,fill=dataset));plot2cr
 plot3cr=ggplot(cr)+geom_line(aes(x=cutoff,y=accuracy,color=dataset));plot3cr
 plot4cr=ggplot(cr)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+ggtitle('EPPIC core-rim');plot4cr
-plot5cr=ggplot(crr)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+ggtitle('EPPIC core-rim')+geom_text(aes(x=1-specificity,y=sensitivity,label=l,color=dataset));plot5cr
+plot5cr=ggplot(crr)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+geom_text(aes(x=1-specificity,y=sensitivity,label=l,color=dataset));plot5cr
 
 plot1cs=ggplot(cs1,aes(cutoff))+geom_line(aes(y=score,color=dataset,linetype=benchmark));plot1cs
 plot2cs=ggplot(cs)+geom_line(aes(x=cutoff,y=mcc,color=dataset));plot2cs
 plot3cs=ggplot(cs)+geom_line(aes(x=cutoff,y=accuracy,color=dataset));plot3cs
 plot4cs=ggplot(cs)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+ggtitle('EPPIC core-surface');plot4cs
-plot5cs=ggplot(css)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+ggtitle('EPPIC core-surface')+geom_text(aes(x=1-specificity,y=sensitivity,label=l,color=dataset));plot5cs
+plot5cs=ggplot(css)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+geom_text(aes(x=1-specificity,y=sensitivity,label=l,color=dataset));plot5cs
 
 
 
 plot1gm=ggplot(gm1,aes(cutoff))+geom_line(aes(y=score,color=dataset,linetype=benchmark));plot1gm
 plot2gm=ggplot(gm)+geom_line(aes(x=cutoff,y=mcc,color=dataset));plot2gm
 plot3gm=ggplot(gm)+geom_line(aes(x=cutoff,y=accuracy,color=dataset));plot3gm
-plot4gm=ggplot(gm)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+ggtitle('EPPIC geometry');plot4gm
+plot4gm=ggplot(gm)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset));plot4gm
 
 
-plot5gm=ggplot(gmm)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+ggtitle('EPPIC geometry')+geom_text(aes(x=1-specificity,y=sensitivity,label=l,color=dataset));plot5gm
+plot5gm=ggplot(gmm)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+geom_text(aes(x=1-specificity,y=sensitivity,label=l,color=dataset));plot5gm
 
 
-
+pdf('gm-ss.pdf')
+plot1gm
+dev.off()
 pdf('cr-ss.pdf')
 plot1cr
 dev.off()
 pdf('cs-ss.pdf')
 plot1cs
+dev.off()
+
+pdf('gm-mcc.pdf')
+plot2gm
 dev.off()
 pdf('cr-mcc.pdf')
 plot2cr
@@ -217,17 +223,26 @@ dev.off()
 pdf('cs-mcc.pdf')
 plot2cs
 dev.off()
+
+
+pdf('gm-acc.pdf')
+plot3gm
+dev.off()
 pdf('cr-acc.pdf')
 plot3cr
 dev.off()
 pdf('cs-acc.pdf')
 plot3cs
 dev.off()
+
+pdf('geometry-roc.pdf')
+plot5gm
+dev.off()
 pdf('core-rim-roc.pdf')
-plot4cr
+plot5cr
 dev.off()
 pdf('core-surface-roc.pdf')
-plot4cs
+plot5cs
 dev.off()
 
 

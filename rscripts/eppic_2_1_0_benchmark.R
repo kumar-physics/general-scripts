@@ -42,8 +42,33 @@ plot2 = ggplot(d1) + facet_wrap(~dataset,scale='free')+geom_point(aes(x=area,y=c
 plot2a = ggplot(d2) + facet_wrap(~dataset,scale='free')+geom_point(aes(x=area,y=csScore,color=truth,fill=truth,shape=final),size=5.0,alpha=0.5)+scale_fill_manual(values=c("green","red"))+scale_color_manual(values=c("green","red")); plot2a
 
 plot3 = ggplot(d) + facet_wrap(~dataset)+geom_density(aes(x=area,color=truth,fill=truth),position='identity',alpha=0.5)+scale_fill_manual(values=c("green","red"))+scale_color_manual(values=c("green","red")); plot3
+plot3a = ggplot(d) + facet_wrap(~dataset,scale='free')+geom_density(aes(x=area,color=truth,fill=truth),position='identity',alpha=0.5)+scale_fill_manual(values=c("green","red"))+scale_color_manual(values=c("green","red")); plot3a
 
 
+
+pdf('area_dist.pdf')
+plot1
+dev.off()
+
+pdf('area_dist_free.pdf')
+plot1a
+dev.off()
+
+pdf('area_density.pdf')
+plot3
+dev.off()
+
+pdf('area_density_free.pdf')
+plot3a
+dev.off()
+
+pdf('resulst_scatter.pdf')
+plot2
+dev.off()
+
+pdf('error_scatter.pdf')
+plot2a
+dev.off()
 
 
 
