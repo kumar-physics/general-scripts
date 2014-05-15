@@ -36,10 +36,13 @@ colnames(data)[55]='dataset'
 
 dc_cr<-subset(data,dataset=="dc" & cr!="nopred",select=c(crScore,truth,cr))
 dc_cs<-subset(data,dataset=="dc" & cs!="nopred",select=c(csScore,truth,cs))
+dc_gm<-subset(data,dataset=="dc" & gm!="nopred",select=c(gmScore,truth,gm))
 po_cr<-subset(data,dataset=="po" & cr!="nopred",select=c(crScore,truth,cr))
 po_cs<-subset(data,dataset=="po" & cs!="nopred",select=c(csScore,truth,cs))
+po_gm<-subset(data,dataset=="po" & gm!="nopred",select=c(gmScore,truth,gm))
 many_cr<-subset(data,dataset=="many" & cr!="nopred" & crScore<500,select=c(crScore,truth,cr))
-many_cs<-subset(data,dataset=="many" & cs!="nopred"& crScore<500,select=c(csScore,truth,cs))
+many_cs<-subset(data,dataset=="many" & cs!="nopred" & crScore<500,select=c(csScore,truth,cs))
+many_gm<-subset(data,dataset=="many" & gm!="nopred" & crScore<500,select=c(gmScore,truth,gm))
 
 
 
@@ -76,43 +79,131 @@ roc = function(score,truth,tag,dat=NA){
     dat=rbind(dat,data.frame(cutoff,sensitivity,specificity,accuracy,mcc,dataset))
   } 
 }
+
+roc_gm = function(score,truth,tag,dat=NA){
+  cutoff<-NULL
+  sensitivity<-NULL
+  specificity<-NULL
+  accuracy<-NULL
+  dataset<-NULL
+  mcc<-NULL
+  s=data.frame(score,truth)
+  attach(s)
+  d<-s[order(score),]
+  p=subset(count(d,'truth'),truth=='bio')$freq
+  n=subset(count(d,'truth'),truth=='xtal')$freq
+  for (i in length(d$score):1){
+    tp=subset(count(subset(d,score>=d$score[i]),'truth'),truth=='bio')$freq
+    tn=subset(count(subset(d,score<d$score[i]),'truth'),truth=='xtal')$freq
+    if (length(tn)==0){
+      tn=0
+    }
+    if (length(tp)==0){
+      tp=0
+    }
+    fn=p-tp
+    fp=n-tn
+    dataset<-c(dataset,tag)
+    cutoff<-c(cutoff,d$score[i])
+    sensitivity<-c(sensitivity,tp/p)
+    specificity<-c(specificity,tn/n)
+    accuracy<-c(accuracy,(tp+tn)/(p+n))
+    mcc<-c(mcc,(((tp*tn)-(fp*fn))/(sqrt(p)*sqrt(n)*sqrt(tp+fp)*sqrt(tn+fn))))
+  }
+  if (all(is.na(dat))){
+    dat=data.frame(cutoff,sensitivity,specificity,accuracy,mcc,dataset)
+  }else{
+    dat=rbind(dat,data.frame(cutoff,sensitivity,specificity,accuracy,mcc,dataset))
+  } 
+}
+
+labelthem = function(dat,n,d=NA){
+  dat$l=''
+  dcn=round(length(subset(dat,dataset=='dc')$cutoff)/n)
+  pon=round(length(subset(dat,dataset=='po')$cutoff)/n)
+  manyn=round(length(subset(dat,dataset=='many')$cutoff)/n)         
+  for (i in 1:length(dat$cutoff)){
+    if (((dat$dataset[i]=='dc') & !(i %% dcn)) | ((dat$dataset[i]=='po') & !(i %% pon)) | 
+          ((dat$dataset[i]=='many') & !(i %% manyn))) {
+      dat$l[i]=round(dat$cutoff[i],digits=2)
+    }
+  }
+  if (all(is.na(d))){
+    d=dat
+  }else{
+    d=rbind(dat,d)
+  } 
+}
+
+
 cs=roc(dc_cs$csScore,dc_cs$truth,'dc')
 cs=roc(po_cs$csScore,po_cs$truth,'po',dat=cs)
 cs=roc(many_cs$csScore,many_cs$truth,'many',dat=cs)
 cr=roc(dc_cr$crScore,dc_cr$truth,'dc')
 cr=roc(po_cr$crScore,po_cr$truth,'po',dat=cr)
 cr=roc(many_cr$crScore,many_cr$truth,'many',dat=cr)
+gm=roc_gm(dc_gm$gmScore,dc_gm$truth,'dc')
+gm=roc_gm(po_gm$gmScore,po_gm$truth,'po',dat=gm)
+gm=roc_gm(many_gm$gmScore,many_gm$truth,'many',dat=gm)
 
 
-tmp1<-subset(cs,select=c(cutoff,sensitivity,dataset))
-colnames(tmp1)[2]='score'
-tmp1$benchmark='sensitivity'
-tmp2<-subset(cs,select=c(cutoff,specificity,dataset))
-colnames(tmp2)[2]='score'
-tmp2$benchmark='specificity'
-cs1=rbind(tmp1,tmp2)
-
-tmp1<-subset(cr,select=c(cutoff,sensitivity,dataset))
-colnames(tmp1)[2]='score'
-tmp1$benchmark='sensitivity'
-tmp2<-subset(cr,select=c(cutoff,specificity,dataset))
-colnames(tmp2)[2]='score'
-tmp2$benchmark='specificity'
-cr1=rbind(tmp1,tmp2)
-
+ss_format = function(d,dat=NA){
+    tmp1<-subset(d,select=c(cutoff,sensitivity,dataset))
+    colnames(tmp1)[2]='score'
+    tmp1$benchmark='sensitivity'
+    tmp2<-subset(d,select=c(cutoff,specificity,dataset))
+    colnames(tmp2)[2]='score'
+    tmp2$benchmark='specificity'
+    tmp=rbind(tmp1,tmp2)
+    if (all(is.na(dat))){
+      dat=tmp
+    }else{
+      dat=rbind(dat,tmp)
+    } 
+}
 
 
+roc_format = function(d,n,dat=NA){
+
+  if (all(is.na(dat))){
+    dat=labelthem(d,n)
+  }else{
+    dat=rbind(dat,labelthem(d,n))
+  } 
+}
+
+css=roc_format(cs,10)
+crr=roc_format(cr,10)
+gmm=roc_format(gm,10)
+
+gm1=ss_format(gm)
+cr1=ss_format(cr)
+cs1=ss_format(cs)
 
 
 plot1cr=ggplot(cr1,aes(cutoff))+geom_line(aes(y=score,color=dataset,linetype=benchmark))+xlim(0,3)+ggtitle('EPPIC core-rim');plot1cr
 plot2cr=ggplot(cr)+geom_line(aes(x=cutoff,y=mcc,color=dataset,fill=dataset));plot2cr
 plot3cr=ggplot(cr)+geom_line(aes(x=cutoff,y=accuracy,color=dataset));plot3cr
 plot4cr=ggplot(cr)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+ggtitle('EPPIC core-rim');plot4cr
+plot5cr=ggplot(crr)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+ggtitle('EPPIC core-rim')+geom_text(aes(x=1-specificity,y=sensitivity,label=l,color=dataset));plot5cr
 
 plot1cs=ggplot(cs1,aes(cutoff))+geom_line(aes(y=score,color=dataset,linetype=benchmark));plot1cs
 plot2cs=ggplot(cs)+geom_line(aes(x=cutoff,y=mcc,color=dataset));plot2cs
 plot3cs=ggplot(cs)+geom_line(aes(x=cutoff,y=accuracy,color=dataset));plot3cs
 plot4cs=ggplot(cs)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+ggtitle('EPPIC core-surface');plot4cs
+plot5cs=ggplot(css)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+ggtitle('EPPIC core-surface')+geom_text(aes(x=1-specificity,y=sensitivity,label=l,color=dataset));plot5cs
+
+
+
+plot1gm=ggplot(gm1,aes(cutoff))+geom_line(aes(y=score,color=dataset,linetype=benchmark));plot1gm
+plot2gm=ggplot(gm)+geom_line(aes(x=cutoff,y=mcc,color=dataset));plot2gm
+plot3gm=ggplot(gm)+geom_line(aes(x=cutoff,y=accuracy,color=dataset));plot3gm
+plot4gm=ggplot(gm)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+ggtitle('EPPIC geometry');plot4gm
+
+
+plot5gm=ggplot(gmm)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+ggtitle('EPPIC geometry')+geom_text(aes(x=1-specificity,y=sensitivity,label=l,color=dataset));plot5gm
+
+
 
 pdf('cr-ss.pdf')
 plot1cr
