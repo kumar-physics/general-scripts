@@ -114,6 +114,13 @@ select count(*) into tp  from dc_bio where cr='bio';
 select count(*) into tn  from dc_xtal where cr='xtal';
 select count(*) into fn  from dc_bio where cr='xtal';
 select count(*) into fp  from dc_xtal where cr='bio';
+elseif (dbname='dc' and method='final') then
+select count(*) into p  from dc_bio;
+select count(*) into n  from dc_xtal;
+select count(*) into tp  from dc_bio where final='bio';
+select count(*) into tn  from dc_xtal where final='xtal';
+select count(*) into fn  from dc_bio where final='xtal';
+select count(*) into fp  from dc_xtal where final='bio';
 elseif (dbname='po' and method='cr') then
 select count(*) into p  from po_bio;
 select count(*) into n  from po_xtal;
@@ -128,6 +135,13 @@ select count(*) into tp  from po_bio where cs='bio';
 select count(*) into tn  from po_xtal where cs='xtal';
 select count(*) into fn  from po_bio where cs='xtal';
 select count(*) into fp  from po_xtal where cs='bio';
+elseif (dbname='po' and method='final') then
+select count(*) into p  from po_bio;
+select count(*) into n  from po_xtal;
+select count(*) into tp  from po_bio where final='bio';
+select count(*) into tn  from po_xtal where final='xtal';
+select count(*) into fn  from po_bio where final='xtal';
+select count(*) into fp  from po_xtal where final='bio';
 elseif (dbname='many' and method='cs') then
 select count(*) into p  from many_bio;
 select count(*) into n  from many_xtal;
@@ -142,6 +156,98 @@ select count(*) into tp  from many_bio where cr='bio';
 select count(*) into tn  from many_xtal where cr='xtal';
 select count(*) into fn  from many_bio where cr='xtal';
 select count(*) into fp  from many_xtal where cr='bio';
+elseif (dbname='many' and method='final') then
+select count(*) into p  from many_bio;
+select count(*) into n  from many_xtal;
+select count(*) into tp  from many_bio where final='bio';
+select count(*) into tn  from many_xtal where final='xtal';
+select count(*) into fn  from many_bio where final='xtal';
+select count(*) into fp  from many_xtal where final='bio';
+else
+select 0 into cc;
+select 'Entered parameters are wrong';
+end if;
+if cc then
+select tp/p into Sensitivity;
+select tn/n into Specificity;
+select (tp+tn)/(p+n) into Accuracy;
+select ((tp*tn)-(fp*fn))/sqrt(p*n*(tp+fp)*(tn+fn)) into MCC;
+select dbname,method,Sensitivity,Specificity,Accuracy,MCC;
+end if;
+END//
+DELIMITER ;
+
+
+DROP procedure IF EXISTS eppic_benchmark2;
+DELIMITER //
+CREATE procedure eppic_benchmark2(in dbname varchar(255),in method varchar(255)) 
+BEGIN
+declare tp,tn,fp,fn,p,n,cc int(11);
+declare Sensitivity,Specificity,Accuracy,MCC double;
+select 1 into cc;
+if (dbname='dc' and method='cs') then
+select count(*) into p  from dc_bio where cs!='nopred';
+select count(*) into n  from dc_xtal where cs!='nopred';
+select count(*) into tp  from dc_bio where cs='bio';
+select count(*) into tn  from dc_xtal where cs='xtal';
+select count(*) into fn  from dc_bio where cs='xtal';
+select count(*) into fp  from dc_xtal where cs='bio';
+elseif (dbname='dc' and method='cr') then
+select count(*) into p  from dc_bio where cs!='nopred';
+select count(*) into n  from dc_xtal where cs!='nopred';
+select count(*) into tp  from dc_bio where cr='bio';
+select count(*) into tn  from dc_xtal where cr='xtal';
+select count(*) into fn  from dc_bio where cr='xtal';
+select count(*) into fp  from dc_xtal where cr='bio';
+elseif (dbname='dc' and method='final') then
+select count(*) into p  from dc_bio where cs!='nopred';
+select count(*) into n  from dc_xtal where cs!='nopred';
+select count(*) into tp  from dc_bio where final='bio';
+select count(*) into tn  from dc_xtal where final='xtal';
+select count(*) into fn  from dc_bio where final='xtal';
+select count(*) into fp  from dc_xtal where final='bio';
+elseif (dbname='po' and method='cr') then
+select count(*) into p  from po_bio where cs!='nopred';
+select count(*) into n  from po_xtal where cs!='nopred';
+select count(*) into tp  from po_bio where cr='bio';
+select count(*) into tn  from po_xtal where cr='xtal';
+select count(*) into fn  from po_bio where cr='xtal';
+select count(*) into fp  from po_xtal where cr='bio';
+elseif (dbname='po' and method='cs') then
+select count(*) into p  from po_bio where cs!='nopred';
+select count(*) into n  from po_xtal where cs!='nopred';
+select count(*) into tp  from po_bio where cs='bio';
+select count(*) into tn  from po_xtal where cs='xtal';
+select count(*) into fn  from po_bio where cs='xtal';
+select count(*) into fp  from po_xtal where cs='bio';
+elseif (dbname='po' and method='final') then
+select count(*) into p  from po_bio where cs!='nopred';
+select count(*) into n  from po_xtal where cs!='nopred';
+select count(*) into tp  from po_bio where final='bio';
+select count(*) into tn  from po_xtal where final='xtal';
+select count(*) into fn  from po_bio where final='xtal';
+select count(*) into fp  from po_xtal where final='bio';
+elseif (dbname='many' and method='cs') then
+select count(*) into p  from many_bio where cs!='nopred';
+select count(*) into n  from many_xtal where cs!='nopred';
+select count(*) into tp  from many_bio where cs='bio';
+select count(*) into tn  from many_xtal where cs='xtal';
+select count(*) into fn  from many_bio where cs='xtal';
+select count(*) into fp  from many_xtal where cs='bio';
+elseif (dbname='many' and method='cr') then
+select count(*) into p  from many_bio where cs!='nopred';
+select count(*) into n  from many_xtal where cs!='nopred';
+select count(*) into tp  from many_bio where cr='bio';
+select count(*) into tn  from many_xtal where cr='xtal';
+select count(*) into fn  from many_bio where cr='xtal';
+select count(*) into fp  from many_xtal where cr='bio';
+elseif (dbname='many' and method='final') then
+select count(*) into p  from many_bio where cs!='nopred';
+select count(*) into n  from many_xtal where cs!='nopred';
+select count(*) into tp  from many_bio where final='bio';
+select count(*) into tn  from many_xtal where final='xtal';
+select count(*) into fn  from many_bio where final='xtal';
+select count(*) into fp  from many_xtal where final='bio';
 else
 select 0 into cc;
 select 'Entered parameters are wrong';
@@ -157,6 +263,10 @@ select dbname,method,Sensitivity,Specificity,Accuracy,MCC;
 end if;
 END//
 DELIMITER ;
+
+
+
+
 
 
 DROP procedure IF EXISTS stat_benchmark;
@@ -234,17 +344,68 @@ CREATE procedure get_benchmark_stat()
 BEGIN
 call eppic_benchmark('dc','cr');
 call eppic_benchmark('dc','cs'); 
+call eppic_benchmark('dc','final');
 call eppic_benchmark('po','cr');
 call eppic_benchmark('po','cs'); 
+call eppic_benchmark('po','final');
 call eppic_benchmark('many','cr');
 call eppic_benchmark('many','cs'); 
+call eppic_benchmark('many','final');
 END//
 DELIMITER ;
 
 
-drop view if exists many_bio;
-create view many_bio as select * from many_bio_table where area>400;
-drop view if exists many_xtal;
-create view many_xtal as select * from many_xtal_table where area>400;
+DROP procedure IF EXISTS get_benchmark_stat2;
+DELIMITER //
+CREATE procedure get_benchmark_stat2()
+BEGIN
+call eppic_benchmark2('dc','cr');
+call eppic_benchmark2('dc','cs'); 
+call eppic_benchmark2('dc','final');
+call eppic_benchmark2('po','cr');
+call eppic_benchmark2('po','cs'); 
+call eppic_benchmark2('po','final');
+call eppic_benchmark2('many','cr');
+call eppic_benchmark2('many','cs'); 
+call eppic_benchmark2('many','final');
+END//
+DELIMITER ;
 
+
+
+drop view if exists many_bio;
+create view many_bio as select * from many_bio_table where area>500;
+
+drop view if exists many_xtal;
+create view many_xtal as select * from many_xtal_table where area>600 and area < 2000;
+
+
+
+
+
+
+
+update many_bio_table set source='dunbrack,nmr' where pdbCode='1a7g' and interfaceId=1 and source='dunbrack';
+delete from many_bio_table where pdbCode='1a7g' and interfaceId=1 and source='nmr';
+
+update many_bio_table set source='dunbrack,nmr' where pdbCode='1a7w' and interfaceId=1 and source='dunbrack';
+delete from many_bio_table where pdbCode='1a7w' and interfaceId=1 and source='nmr';
+
+update many_bio_table set source='dunbrack,nmr' where pdbCode='1by9' and interfaceId=1 and source='dunbrack';
+delete from many_bio_table where pdbCode='1by9' and interfaceId=1 and source='nmr';
+
+update many_bio_table set source='dunbrack,nmr' where pdbCode='1cz8' and interfaceId=3 and source='dunbrack';
+delete from many_bio_table where pdbCode='1cz8' and interfaceId=3 and source='nmr';
+
+update many_bio_table set source='dunbrack,nmr' where pdbCode='1ecs' and interfaceId=1 and source='dunbrack';
+delete from many_bio_table where pdbCode='1ecs' and interfaceId=1 and source='nmr';
+
+update many_bio_table set source='dunbrack,nmr' where pdbCode='1j55' and interfaceId=1 and source='dunbrack';
+delete from many_bio_table where pdbCode='1j55' and interfaceId=1 and source='nmr';
+
+update many_bio_table set source='dunbrack,nmr' where pdbCode='1pdo' and interfaceId=1 and source='dunbrack';
+delete from many_bio_table where pdbCode='1pdo' and interfaceId=1 and source='nmr';
+
+update many_bio_table set source='dunbrack,nmr' where pdbCode='1udv' and interfaceId=1 and source='dunbrack';
+delete from many_bio_table where pdbCode='1udv' and interfaceId=1 and source='nmr';
 

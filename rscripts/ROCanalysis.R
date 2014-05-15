@@ -57,10 +57,9 @@ roc = function(score,truth,tag,dat=NA){
   n=subset(count(d,'truth'),truth=='xtal')$freq
   for (i in 1:length(d$score)){
     tp=subset(count(subset(d,score<=d$score[i]),'truth'),truth=='bio')$freq
-    if (i==length(d$score)){
+    tn=subset(count(subset(d,score>d$score[i]),'truth'),truth=='xtal')$freq
+    if (length(tn)==0){
       tn=0
-    }else{
-      tn=subset(count(subset(d,score>d$score[i]),'truth'),truth=='xtal')$freq
     }
     fn=p-tp
     fp=n-tn
@@ -131,7 +130,7 @@ pdf('cr-acc.pdf')
 plot3cr
 dev.off()
 pdf('cs-acc.pdf')
-plot3cr
+plot3cs
 dev.off()
 pdf('core-rim-roc.pdf')
 plot4cr

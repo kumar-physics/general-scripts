@@ -33,19 +33,17 @@ d=loadBenchmark('po',data=d)
 d=loadBenchmark('many',data=d)
 colnames(d)[55]='dataset'
 d1=subset(d,cs!='nopred')
+d2=subset(d,cs!='nopred' & final!=truth)
 
-plot1 = ggplot(d) + facet_wrap(~dataset)+geom_histogram(aes(x=area,color=truth,fill=truth,binwidth=500),position='identity',alpha=0.5); plot1
+plot1 = ggplot(d) + facet_wrap(~dataset)+geom_histogram(aes(x=area,fill=truth),binwidth=100,position='identity',alpha=0.5)+scale_fill_manual(values=c("green","red"))+scale_color_manual(values=c("green","red")); plot1
+plot1a = ggplot(d) + facet_wrap(~dataset,scale='free')+geom_histogram(aes(x=area,fill=truth),binwidth=100,position='identity',alpha=0.5)+scale_fill_manual(values=c("green","red"))+scale_color_manual(values=c("green","red")); plot1a
 
-plot2 = ggplot(d1) + facet_wrap(~dataset,scale='free')+geom_point(aes(x=area,y=csScore,color=truth,fill=truth,shape=final),size=5.0,alpha=0.5); plot2
+plot2 = ggplot(d1) + facet_wrap(~dataset,scale='free')+geom_point(aes(x=area,y=csScore,color=truth,fill=truth,shape=final),size=5.0,alpha=0.5)+scale_fill_manual(values=c("green","red"))+scale_color_manual(values=c("green","red")); plot2
+plot2a = ggplot(d2) + facet_wrap(~dataset,scale='free')+geom_point(aes(x=area,y=csScore,color=truth,fill=truth,shape=final),size=5.0,alpha=0.5)+scale_fill_manual(values=c("green","red"))+scale_color_manual(values=c("green","red")); plot2a
 
-plot3 = ggplot(d) + facet_wrap(~dataset)+geom_density(aes(x=area,color=truth,fill=truth,binwidth=500),position='identity',alpha=0.5); plot3
-
-plot4 = ggplot(d1) + facet_wrap(~dataset,scale='free')+geom_point(aes(x=area,y=gmScore,color=truth,fill=truth,shape=final),size=5.0,alpha=0.5); plot4
-
-plot3 = ggplot(d) + facet_wrap(~dataset)+geom_density(aes(x=area,color=truth,fill=truth,binwidth=500),position='identity',alpha=0.5); plot3
+plot3 = ggplot(d) + facet_wrap(~dataset)+geom_density(aes(x=area,color=truth,fill=truth),position='identity',alpha=0.5)+scale_fill_manual(values=c("green","red"))+scale_color_manual(values=c("green","red")); plot3
 
 
-plot1a = ggplot(d1) + facet_wrap(~benchmark)+geom_histogram(aes(x=area,facet=benchmark,color=truth,fill=truth,binwidth=500),position='identity',alpha=0.5); plot1a
-plot1 = ggplot(d) + facet_wrap(~benchmark,scale='free')+geom_histogram(aes(x=area,color=truth,fill=truth),binwidth=100,position='identity',alpha=0.5); plot1
-plot1a = ggplot(d1) + facet_wrap(~benchmark,scale='free')+geom_histogram(aes(x=area,color=truth,fill=truth),binwidth=100,position='identity',alpha=0.5); plot1a
-plot2 = ggplot(d1) + facet_wrap(~benchmark,scale='free')+geom_point(aes(x=area,y=gmScore,color=truth,fill=truth,shape=gm),position='identity',alpha=0.5,size=3.0); plot2
+
+
+
