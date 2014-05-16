@@ -55,7 +55,7 @@ drop table if exists many_bio_table;
 create table many_bio_table as select * from dun_bio union all select * from nmr_bio;
 
 drop table if exists many_xtal_table;
-create table many_xtal_table as select * from detailedTable where resolution < 2.5 and rfreeValue < 0.3 and area > 400  and isInfinite=1 group by c1_80,c2_80; 
+create table many_xtal_table as select * from detailedTable where resolution < 2.5 and rfreeValue < 0.3 and area > 400  and infinite=1 group by c1_80,c2_80; 
 alter table many_xtal_table add column source varchar(255) default "infinite";
 
 alter table nmr_bio add column source varchar(255) default "nmr";

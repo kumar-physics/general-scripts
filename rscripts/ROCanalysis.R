@@ -2,7 +2,7 @@ setwd('~/pdbstatistics/')
 library(RMySQL)
 library(ggplot2)
 library(plyr)
-mydb=dbConnect(MySQL(),host="mpc1153",username="root",password="edb+1153",dbname="eppic_test_2_1_0")
+mydb=dbConnect(MySQL(),host=,username=,password=,dbname="eppic_test_2_1_0")
 on.exit(dbDisconnect(mydb))
 
 
@@ -215,7 +215,7 @@ plot5cr=ggplot(crr)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+
 plot1cs=ggplot(cs1,aes(cutoff))+geom_line(aes(y=score,color=dataset,linetype=benchmark));plot1cs
 plot2cs=ggplot(cs)+geom_line(aes(x=cutoff,y=mcc,color=dataset));plot2cs
 plot3cs=ggplot(cs)+geom_line(aes(x=cutoff,y=accuracy,color=dataset));plot3cs
-plot4cs=ggplot(cs)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+ggtitle('EPPIC core-surface');plot4cs
+plot4cs=ggplot(cs)+geom_line(aes(x=1-specificity,y=sensitivity,fect=dataset,color=cutoff))+ggtitle('EPPIC core-surface') + scale_colour_gradientn(colours=rainbow(4));plot4cs
 plot5cs=ggplot(css)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+geom_text(aes(x=1-specificity,y=sensitivity,label=l,color=dataset));plot5cs
 plot6cs=ggplot(css)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+geom_text(aes(x=min(1-specificity),y=max(sensitivity),label=cutoff,color=dataset));plot6cs
 

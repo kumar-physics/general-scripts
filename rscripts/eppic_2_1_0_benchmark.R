@@ -3,7 +3,7 @@ library(RMySQL)
 library(ggplot2)
 
 
-mydb=dbConnect(MySQL(),host="mpc1153",username="root",password="edb+1153",dbname="eppic_test_2_1_0")
+mydb=dbConnect(MySQL(),host=,username=,password=,dbname="eppic_test_2_1_0")
 on.exit(dbDisconnect(mydb))
 
 loadBenchmark = function(db, #database name
@@ -17,8 +17,8 @@ loadBenchmark = function(db, #database name
   result=dbSendQuery(mydb,sprintf("select * from %s;",db_xtal))
   xtal=fetch(result,n=-1)
   
-  bio$benchmark=db
-  xtal$benchmark=db
+  bio$benchmark=sprintf("%s(%d,%d)",db,length(bio$pdbCode),length(xtal$pdbCode))
+  xtal$benchmark=sprintf("%s(%d,%d)",db,length(bio$pdbCode),length(xtal$pdbCode))
   bio$truth="bio"
   xtal$truth="xtal"
   

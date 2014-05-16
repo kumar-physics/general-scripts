@@ -3,7 +3,7 @@ library(RMySQL)
 library(ggplot2)
 
 
-mydb=dbConnect(MySQL(),host="mpc1153",username="root",password="edb+1153",dbname="eppic_test_2_1_0")
+mydb=dbConnect(MySQL(),host=,username=,password=,dbname="eppic_test_2_1_0")
 on.exit(dbDisconnect(mydb))
 
 loadBenchmark = function(db, #database name

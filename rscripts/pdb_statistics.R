@@ -3,7 +3,7 @@ library(RMySQL)
 library(ggplot2)
 
 
-mydb=dbConnect(MySQL(),host="mpc1153",username="root",password="edb+1153",dbname="crk_2014_01")
+mydb=dbConnect(MySQL(),host=,username=,password=,dbname="crk_2014_01")
 on.exit(dbDisconnect(mydb))
 
 allpdb=dbSendQuery(mydb,"select pdbName,expMethod,resolution,spaceGroup,overall from detailedView group by pdbName;")
