@@ -121,13 +121,31 @@ labelthem = function(dat,n,d=NA){
   dat$l=''
   dcn=round(length(subset(dat,dataset=='dc')$cutoff)/n)
   pon=round(length(subset(dat,dataset=='po')$cutoff)/n)
-  manyn=round(length(subset(dat,dataset=='many')$cutoff)/n)         
+  manyn=round(length(subset(dat,dataset=='many')$cutoff)/n)    
+  dcmin=-1
+  pomin=-1
+  manymin=-1
   for (i in 1:length(dat$cutoff)){
+    if ((dat$dataset[i]=='dc') & ((abs((1-dat$specificity[i])-(dat$sensitivity[i])))>dcmin)){
+      dcmin=abs((1-dat$specificity[i])-(dat$sensitivity[i]))
+      c=i
+    }
+    if ((dat$dataset[i]=='po') & ((abs((1-dat$specificity[i])-(dat$sensitivity[i])))>pomin)){
+      pomin=abs((1-dat$specificity[i])-(dat$sensitivity[i]))
+      p=i
+    }
+    if ((dat$dataset[i]=='many') & ((abs((1-dat$specificity[i])-(dat$sensitivity[i])))>manymin)){
+      manymin=abs((1-dat$specificity[i])-(dat$sensitivity[i]))
+      m=i
+    }
     if (((dat$dataset[i]=='dc') & !(i %% dcn)) | ((dat$dataset[i]=='po') & !(i %% pon)) | 
           ((dat$dataset[i]=='many') & !(i %% manyn))) {
       dat$l[i]=round(dat$cutoff[i],digits=2)
     }
   }
+  dat$l[c]=sprintf("best(%.2f)",round(dat$cutoff[c],digits=2))
+  dat$l[p]=sprintf("best(%.2f)",round(dat$cutoff[p],digits=2))
+  dat$l[m]=sprintf("best(%.2f)",round(dat$cutoff[m],digits=2))
   if (all(is.na(d))){
     d=dat
   }else{
@@ -163,6 +181,7 @@ ss_format = function(d,dat=NA){
 }
 
 
+
 roc_format = function(d,n,dat=NA){
 
   if (all(is.na(dat))){
@@ -192,6 +211,7 @@ plot2cs=ggplot(cs)+geom_line(aes(x=cutoff,y=mcc,color=dataset));plot2cs
 plot3cs=ggplot(cs)+geom_line(aes(x=cutoff,y=accuracy,color=dataset));plot3cs
 plot4cs=ggplot(cs)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+ggtitle('EPPIC core-surface');plot4cs
 plot5cs=ggplot(css)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+geom_text(aes(x=1-specificity,y=sensitivity,label=l,color=dataset));plot5cs
+plot6cs=ggplot(css)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+geom_text(aes(x=min(1-specificity),y=max(sensitivity),label=cutoff,color=dataset));plot6cs
 
 
 
