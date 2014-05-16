@@ -144,8 +144,14 @@ labelthem = function(dat,n,d=NA){
     }
   }
   dat$l[c]=sprintf("best(%.2f)",round(dat$cutoff[c],digits=2))
+  dat$l[(c+1):(c+6)]=''
+  dat$l[(c-6):(c-1)]=''
   dat$l[p]=sprintf("best(%.2f)",round(dat$cutoff[p],digits=2))
+  dat$l[(p+1):(p+6)]=''
+  dat$l[(p-6):(p-1)]=''
   dat$l[m]=sprintf("best(%.2f)",round(dat$cutoff[m],digits=2))
+  dat$l[(m+1):(m+6)]=''
+  dat$l[(m-6):(m-1)]=''
   if (all(is.na(d))){
     d=dat
   }else{
@@ -191,9 +197,9 @@ roc_format = function(d,n,dat=NA){
   } 
 }
 
-css=roc_format(cs,10)
-crr=roc_format(cr,10)
-gmm=roc_format(gm,10)
+css=roc_format(cs,20)
+crr=roc_format(cr,20)
+gmm=roc_format(gm,20)
 
 gm1=ss_format(gm)
 cr1=ss_format(cr)
