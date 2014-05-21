@@ -11,6 +11,18 @@ RETURN res;
 END $$
 DELIMITER ;
 
+DROP FUNCTION IF EXISTS get_result2;
+DELIMITER $$
+CREATE FUNCTION get_result2(interfaceid INT,met VARCHAR(255)) RETURNS VARCHAR(255)
+BEGIN
+DECLARE res VARCHAR(255);
+SET res=(SELECT callName FROM InterfaceClusterScore WHERE interfaceCluster_uid=interfaceid and method = met group by callName);
+RETURN res;
+END $$
+DELIMITER ;
+
+
+
 DROP FUNCTION IF EXISTS get_score;
 DELIMITER $$
 CREATE FUNCTION get_score(interfaceid INT,met VARCHAR(255)) RETURNS DOUBLE
@@ -20,6 +32,19 @@ SET res=(SELECT score FROM InterfaceScore WHERE interfaceItem_uid=interfaceid an
 RETURN res;
 END $$
 DELIMITER ;
+
+
+DROP FUNCTION IF EXISTS get_score2;
+DELIMITER $$
+CREATE FUNCTION get_score2(interfaceid INT,met VARCHAR(255)) RETURNS DOUBLE
+BEGIN
+DECLARE res DOUBLE;
+SET res=(SELECT score FROM InterfaceClusterScore WHERE interfaceCluster_uid=interfaceid and method = met);
+RETURN res;
+END $$
+DELIMITER ;
+
+
 
 DROP FUNCTION IF EXISTS get_side_score;
 DELIMITER $$
@@ -140,9 +165,9 @@ get_side_score(i.uid,"eppic-cs",1) cs1,
 get_side_score(i.uid,"eppic-cs",2) cs2,
 get_score(i.uid,"eppic-cs") csScore,
 get_result(i.uid,"eppic") final,
-get_result(i.uid,"pisa") pisa,
-get_result(i.uid,"authors") authors,
-get_result(i.uid,"pqs") pqs,
+get_result2(i.interfaceCluster_uid,"pisa") pisa,
+get_result2(i.interfaceCluster_uid,"authors") authors,
+get_result2(i.interfaceCluster_uid,"pqs") pqs,
 s1.c100 c1_100,
 s1.c95 c1_95,
 s1.c90 c1_90,
@@ -163,7 +188,8 @@ inner join SeqCluster as s1 on s1.pdbCode=i.pdbCode and s1.repChain = get_repcha
 inner join SeqCluster as s2 on s2.pdbCode=i.pdbCode and s2.repChain = get_repchain(p.pdbCode,i.chain2)
 inner join Job as j on j.inputName = i.pdbCode and j.uid= p.job_uid where length(j.jobId)=4;
 
-
+drop table if exists detailedTable;
+create table detailedTable as select * from detailedView;
 
 
 
@@ -216,8 +242,30 @@ where ((binary e.chain1 = d.chain1 and binary e.chain2 = d.chain2) or (binary e.
 
 
 
+DROP FUNCTION IF EXISTS IsMultimer;
+DELIMITER $$
+CREATE FUNCTION IsMultimer(pdb VARCHAR(255)) RETURNS bool
+BEGIN
+DECLARE res1 bool;
+DECLARE res int(11);
+SET res=(SELECT count(*) FROM detailedTable WHERE pdbCode=pdb and final = "bio");
+if (res=0) then
+set res1=False;
+else
+set res1=True;
+end if;
+return res1;
+END $$
+DELIMITER ; 
 
 
+
+
+alter table detailedTable add  assembly varchar(255) default "Monomer";
+update detailedTable set assembly="Multimer" where IsMultimer(pdbCode);
+
+alter table PdbInfo add assembly varchar(255) default "Monomer";
+update PdbInfo set assembly="Multimer" where IsMultimer(pdbCode);
 
 
 

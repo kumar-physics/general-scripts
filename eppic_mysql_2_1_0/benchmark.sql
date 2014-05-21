@@ -180,74 +180,95 @@ DELIMITER ;
 
 DROP procedure IF EXISTS eppic_benchmark2;
 DELIMITER //
-CREATE procedure eppic_benchmark2(in dbname varchar(255),in method varchar(255)) 
+CREATE procedure eppic_benchmark2(in dbname varchar(255),in method varchar(255), in h int(11)) 
 BEGIN
 declare tp,tn,fp,fn,p,n,cc int(11);
 declare Sensitivity,Specificity,Accuracy,MCC double;
 select 1 into cc;
 if (dbname='dc' and method='cs') then
-select count(*) into p  from dc_bio where cs!='nopred';
-select count(*) into n  from dc_xtal where cs!='nopred';
-select count(*) into tp  from dc_bio where cs='bio';
-select count(*) into tn  from dc_xtal where cs='xtal';
-select count(*) into fn  from dc_bio where cs='xtal';
-select count(*) into fp  from dc_xtal where cs='bio';
+select count(*) into p  from dc_bio where h1>=h and h2>=h and  cs!='nopred';
+select count(*) into n  from dc_xtal where h1>=h and h2>=h and  cs!='nopred';
+select count(*) into tp  from dc_bio where h1>=h and h2>=h and  cs='bio';
+select count(*) into tn  from dc_xtal where h1>=h and h2>=h and  cs='xtal';
+select count(*) into fn  from dc_bio where h1>=h and h2>=h and  cs='xtal';
+select count(*) into fp  from dc_xtal where h1>=h and h2>=h and  cs='bio';
 elseif (dbname='dc' and method='cr') then
-select count(*) into p  from dc_bio where cs!='nopred';
-select count(*) into n  from dc_xtal where cs!='nopred';
-select count(*) into tp  from dc_bio where cr='bio';
-select count(*) into tn  from dc_xtal where cr='xtal';
-select count(*) into fn  from dc_bio where cr='xtal';
-select count(*) into fp  from dc_xtal where cr='bio';
+select count(*) into p  from dc_bio where h1>=h and h2>=h and  cs!='nopred';
+select count(*) into n  from dc_xtal where h1>=h and h2>=h and  cs!='nopred';
+select count(*) into tp  from dc_bio where h1>=h and h2>=h and  cr='bio';
+select count(*) into tn  from dc_xtal where h1>=h and h2>=h and  cr='xtal';
+select count(*) into fn  from dc_bio where h1>=h and h2>=h and  cr='xtal';
+select count(*) into fp  from dc_xtal where h1>=h and h2>=h and  cr='bio';
+elseif (dbname='dc' and method='gm') then
+select count(*) into p  from dc_bio where h1>=h and h2>=h and  gm!='nopred';
+select count(*) into n  from dc_xtal where h1>=h and h2>=h and  gm!='nopred';
+select count(*) into tp  from dc_bio where h1>=h and h2>=h and  gm='bio';
+select count(*) into tn  from dc_xtal where h1>=h and h2>=h and  gm='xtal';
+select count(*) into fn  from dc_bio where h1>=h and h2>=h and  gm='xtal';
+select count(*) into fp  from dc_xtal where h1>=h and h2>=h and  gm='bio';
 elseif (dbname='dc' and method='final') then
-select count(*) into p  from dc_bio where cs!='nopred';
-select count(*) into n  from dc_xtal where cs!='nopred';
-select count(*) into tp  from dc_bio where final='bio';
-select count(*) into tn  from dc_xtal where final='xtal';
-select count(*) into fn  from dc_bio where final='xtal';
-select count(*) into fp  from dc_xtal where final='bio';
+select count(*) into p  from dc_bio where h1>=h and h2>=h and  cs!='nopred';
+select count(*) into n  from dc_xtal where h1>=h and h2>=h and  cs!='nopred';
+select count(*) into tp  from dc_bio where h1>=h and h2>=h and  final='bio';
+select count(*) into tn  from dc_xtal where h1>=h and h2>=h and  final='xtal';
+select count(*) into fn  from dc_bio where h1>=h and h2>=h and  final='xtal';
+select count(*) into fp  from dc_xtal where h1>=h and h2>=h and  final='bio';
 elseif (dbname='po' and method='cr') then
-select count(*) into p  from po_bio where cs!='nopred';
-select count(*) into n  from po_xtal where cs!='nopred';
-select count(*) into tp  from po_bio where cr='bio';
-select count(*) into tn  from po_xtal where cr='xtal';
-select count(*) into fn  from po_bio where cr='xtal';
-select count(*) into fp  from po_xtal where cr='bio';
+select count(*) into p  from po_bio where h1>=h and h2>=h and  cs!='nopred';
+select count(*) into n  from po_xtal where h1>=h and h2>=h and  cs!='nopred';
+select count(*) into tp  from po_bio where h1>=h and h2>=h and  cr='bio';
+select count(*) into tn  from po_xtal where h1>=h and h2>=h and  cr='xtal';
+select count(*) into fn  from po_bio where h1>=h and h2>=h and  cr='xtal';
+select count(*) into fp  from po_xtal where h1>=h and h2>=h and  cr='bio';
 elseif (dbname='po' and method='cs') then
-select count(*) into p  from po_bio where cs!='nopred';
-select count(*) into n  from po_xtal where cs!='nopred';
-select count(*) into tp  from po_bio where cs='bio';
-select count(*) into tn  from po_xtal where cs='xtal';
-select count(*) into fn  from po_bio where cs='xtal';
-select count(*) into fp  from po_xtal where cs='bio';
+select count(*) into p  from po_bio where h1>=h and h2>=h and  cs!='nopred';
+select count(*) into n  from po_xtal where h1>=h and h2>=h and  cs!='nopred';
+select count(*) into tp  from po_bio where h1>=h and h2>=h and  cs='bio';
+select count(*) into tn  from po_xtal where h1>=h and h2>=h and  cs='xtal';
+select count(*) into fn  from po_bio where h1>=h and h2>=h and  cs='xtal';
+select count(*) into fp  from po_xtal where h1>=h and h2>=h and  cs='bio';
 elseif (dbname='po' and method='final') then
-select count(*) into p  from po_bio where cs!='nopred';
-select count(*) into n  from po_xtal where cs!='nopred';
-select count(*) into tp  from po_bio where final='bio';
-select count(*) into tn  from po_xtal where final='xtal';
-select count(*) into fn  from po_bio where final='xtal';
-select count(*) into fp  from po_xtal where final='bio';
+select count(*) into p  from po_bio where h1>=h and h2>=h and  cs!='nopred';
+select count(*) into n  from po_xtal where h1>=h and h2>=h and  cs!='nopred';
+select count(*) into tp  from po_bio where h1>=h and h2>=h and  final='bio';
+select count(*) into tn  from po_xtal where h1>=h and h2>=h and  final='xtal';
+select count(*) into fn  from po_bio where h1>=h and h2>=h and  final='xtal';
+select count(*) into fp  from po_xtal where h1>=h and h2>=h and  final='bio';
+elseif (dbname='po' and method='gm') then
+select count(*) into p  from po_bio where h1>=h and h2>=h and  gm!='nopred';
+select count(*) into n  from po_xtal where h1>=h and h2>=h and  gm!='nopred';
+select count(*) into tp  from po_bio where h1>=h and h2>=h and  gm='bio';
+select count(*) into tn  from po_xtal where h1>=h and h2>=h and  gm='xtal';
+select count(*) into fn  from po_bio where h1>=h and h2>=h and  gm='xtal';
+select count(*) into fp  from po_xtal where h1>=h and h2>=h and  gm='bio';
 elseif (dbname='many' and method='cs') then
-select count(*) into p  from many_bio where cs!='nopred';
-select count(*) into n  from many_xtal where cs!='nopred';
-select count(*) into tp  from many_bio where cs='bio';
-select count(*) into tn  from many_xtal where cs='xtal';
-select count(*) into fn  from many_bio where cs='xtal';
-select count(*) into fp  from many_xtal where cs='bio';
+select count(*) into p  from many_bio where h1>=h and h2>=h and  cs!='nopred';
+select count(*) into n  from many_xtal where h1>=h and h2>=h and  cs!='nopred';
+select count(*) into tp  from many_bio where h1>=h and h2>=h and  cs='bio';
+select count(*) into tn  from many_xtal where h1>=h and h2>=h and  cs='xtal';
+select count(*) into fn  from many_bio where h1>=h and h2>=h and  cs='xtal';
+select count(*) into fp  from many_xtal where h1>=h and h2>=h and  cs='bio';
 elseif (dbname='many' and method='cr') then
-select count(*) into p  from many_bio where cs!='nopred';
-select count(*) into n  from many_xtal where cs!='nopred';
-select count(*) into tp  from many_bio where cr='bio';
-select count(*) into tn  from many_xtal where cr='xtal';
-select count(*) into fn  from many_bio where cr='xtal';
-select count(*) into fp  from many_xtal where cr='bio';
+select count(*) into p  from many_bio where h1>=h and h2>=h and  cs!='nopred';
+select count(*) into n  from many_xtal where h1>=h and h2>=h and  cs!='nopred';
+select count(*) into tp  from many_bio where h1>=h and h2>=h and  cr='bio';
+select count(*) into tn  from many_xtal where h1>=h and h2>=h and  cr='xtal';
+select count(*) into fn  from many_bio where h1>=h and h2>=h and  cr='xtal';
+select count(*) into fp  from many_xtal where h1>=h and h2>=h and  cr='bio';
 elseif (dbname='many' and method='final') then
-select count(*) into p  from many_bio where cs!='nopred';
-select count(*) into n  from many_xtal where cs!='nopred';
-select count(*) into tp  from many_bio where final='bio';
-select count(*) into tn  from many_xtal where final='xtal';
-select count(*) into fn  from many_bio where final='xtal';
-select count(*) into fp  from many_xtal where final='bio';
+select count(*) into p  from many_bio where h1>=h and h2>=h and  cs!='nopred';
+select count(*) into n  from many_xtal where h1>=h and h2>=h and  cs!='nopred';
+select count(*) into tp  from many_bio where h1>=h and h2>=h and  final='bio';
+select count(*) into tn  from many_xtal where h1>=h and h2>=h and  final='xtal';
+select count(*) into fn  from many_bio where h1>=h and h2>=h and  final='xtal';
+select count(*) into fp  from many_xtal where h1>=h and h2>=h and  final='bio';
+elseif (dbname='many' and method='gm') then
+select count(*) into p  from many_bio where h1>=h and h2>=h and  gm!='nopred';
+select count(*) into n  from many_xtal where h1>=h and h2>=h and  gm!='nopred';
+select count(*) into tp  from many_bio where h1>=h and h2>=h and  gm='bio';
+select count(*) into tn  from many_xtal where h1>=h and h2>=h and  gm='xtal';
+select count(*) into fn  from many_bio where h1>=h and h2>=h and  gm='xtal';
+select count(*) into fp  from many_xtal where h1>=h and h2>=h and  gm='bio';
 else
 select 0 into cc;
 select 'Entered parameters are wrong';
@@ -324,16 +345,78 @@ END//
 DELIMITER ;
 
 
+DROP procedure IF EXISTS stat_benchmark2;
+DELIMITER //
+CREATE procedure stat_benchmark2(in dbname varchar(255),in method varchar(255), in h int(11)) 
+BEGIN
+declare BioTotal,BioPred,BioNopred,XtalTotal,XtalPred,XtalNopred int(11);
+if (dbname='dc' and method='cs') then
+select count(*) into BioTotal  from dc_bio where h1>=h and h2>=h;
+select count(*) into BioNopred  from dc_bio where cs='nopred' and h1>=h and h2>=h;
+select BioTotal-BioNopred into BioPred;
+select count(*) into XtalTotal  from dc_xtal where h1>=h and h2>=h;
+select count(*) into XtalNopred  from dc_xtal where cs='nopred' and h1>=h and h2>=h;
+select XtalTotal-XtalNopred into XtalPred;
+elseif (dbname='dc' and method='cr') then
+select count(*) into BioTotal  from dc_bio where h1>=h and h2>=h;
+select count(*) into BioNopred  from dc_bio where cr='nopred' and h1>=h and h2>=h;
+select BioTotal-BioNopred into BioPred;
+select count(*) into XtalTotal  from dc_xtal where h1>=h and h2>=h;
+select count(*) into XtalNopred  from dc_xtal where cr='nopred' and h1>=h and h2>=h;
+select XtalTotal-XtalNopred into XtalPred;
+elseif (dbname='po' and method='cr') then
+select count(*) into BioTotal  from po_bio where h1>=h and h2>=h;
+select count(*) into BioNopred  from po_bio where cr='nopred' and h1>=h and h2>=h;
+select BioTotal-BioNopred into BioPred;
+select count(*) into XtalTotal  from po_xtal where h1>=h and h2>=h;
+select count(*) into XtalNopred  from po_xtal where cr='nopred' and h1>=h and h2>=h;
+select XtalTotal-XtalNopred into XtalPred;
+elseif (dbname='po' and method='cs') then
+select count(*) into BioTotal  from po_bio where h1>=h and h2>=h;
+select count(*) into BioNopred  from po_bio where cs='nopred' and h1>=h and h2>=h;
+select BioTotal-BioNopred into BioPred;
+select count(*) into XtalTotal  from po_xtal where h1>=h and h2>=h;
+select count(*) into XtalNopred  from po_xtal where cs='nopred' and h1>=h and h2>=h;
+select XtalTotal-XtalNopred into XtalPred;
+elseif (dbname='many' and method='cs') then
+select count(*) into BioTotal  from many_bio where h1>=h and h2>=h;
+select count(*) into BioNopred  from many_bio where cs='nopred' and h1>=h and h2>=h;
+select BioTotal-BioNopred into BioPred;
+select count(*) into XtalTotal  from many_xtal where h1>=h and h2>=h;
+select count(*) into XtalNopred  from many_xtal where cs='nopred' and h1>=h and h2>=h;
+select XtalTotal-XtalNopred into XtalPred ;
+elseif (dbname='many' and method='cr') then
+select count(*) into BioTotal  from many_bio where h1>=h and h2>=h;
+select count(*) into BioNopred  from many_bio where cr='nopred' and h1>=h and h2>=h;
+select BioTotal-BioNopred into BioPred;
+select count(*) into XtalTotal  from many_xtal where h1>=h and h2>=h;
+select count(*) into XtalNopred  from many_xtal where cr='nopred' and h1>=h and h2>=h;
+select XtalTotal-XtalNopred into XtalPred ;
+else
+select "Entered paramers are wrong";
+end if;
+select dbname,method,BioTotal,XtalTotal,BioPred,XtalPred,BioNopred,XtalNopred;
+END//
+DELIMITER ;
+
+
+
+
+
+
+
+
+
 DROP procedure IF EXISTS get_benchmark_size;
 DELIMITER //
-CREATE procedure get_benchmark_size()
+CREATE procedure get_benchmark_size(in h int(11))
 BEGIN
-call stat_benchmark('dc','cr');
-call stat_benchmark('dc','cs'); 
-call stat_benchmark('po','cr');
-call stat_benchmark('po','cs'); 
-call stat_benchmark('many','cr');
-call stat_benchmark('many','cs'); 
+call stat_benchmark2('dc','cr',h);
+call stat_benchmark2('dc','cs',h); 
+call stat_benchmark2('po','cr',h);
+call stat_benchmark2('po','cs',h); 
+call stat_benchmark2('many','cr',h);
+call stat_benchmark2('many','cs',h); 
 END//
 DELIMITER ;
 
@@ -357,17 +440,20 @@ DELIMITER ;
 
 DROP procedure IF EXISTS get_benchmark_stat2;
 DELIMITER //
-CREATE procedure get_benchmark_stat2()
+CREATE procedure get_benchmark_stat2(in h int(11))
 BEGIN
-call eppic_benchmark2('dc','cr');
-call eppic_benchmark2('dc','cs'); 
-call eppic_benchmark2('dc','final');
-call eppic_benchmark2('po','cr');
-call eppic_benchmark2('po','cs'); 
-call eppic_benchmark2('po','final');
-call eppic_benchmark2('many','cr');
-call eppic_benchmark2('many','cs'); 
-call eppic_benchmark2('many','final');
+call eppic_benchmark2('dc','gm',h);
+call eppic_benchmark2('dc','cr',h);
+call eppic_benchmark2('dc','cs',h); 
+call eppic_benchmark2('dc','final',h);
+call eppic_benchmark2('po','gm',h);
+call eppic_benchmark2('po','cr',h);
+call eppic_benchmark2('po','cs',h); 
+call eppic_benchmark2('po','final',h);
+call eppic_benchmark2('many','gm',h);
+call eppic_benchmark2('many','cr',h);
+call eppic_benchmark2('many','cs',h); 
+call eppic_benchmark2('many','final',h);
 END//
 DELIMITER ;
 
