@@ -32,7 +32,7 @@ data=loadBenchmark("dc")
 data=loadBenchmark("po",data=data)
 data=loadBenchmark("many",data=data)
 head(data)
-colnames(data)[55]='dataset'
+colnames(data)[57]='dataset'
 
 dc_cr<-subset(data,dataset=="dc" & cr!="nopred",select=c(crScore,truth,cr))
 dc_cs<-subset(data,dataset=="dc" & cs!="nopred",select=c(csScore,truth,cs))
@@ -44,6 +44,9 @@ many_cr<-subset(data,dataset=="many" & cr!="nopred" & crScore<500,select=c(crSco
 many_cs<-subset(data,dataset=="many" & cs!="nopred" & crScore<500,select=c(csScore,truth,cs))
 many_gm<-subset(data,dataset=="many" & gm!="nopred" & crScore<500,select=c(gmScore,truth,gm))
 
+# many_cr<-subset(data,dataset=="many" & cr!="nopred" & crScore<500 & co1>0.59 & co2>0.59,select=c(crScore,truth,cr))
+# many_cs<-subset(data,dataset=="many" & cs!="nopred" & crScore<500 & co1>0.59 & co2>0.59,select=c(csScore,truth,cs))
+# many_gm<-subset(data,dataset=="many" & gm!="nopred" & crScore<500 & co1>0.59 & co2>0.59,select=c(gmScore,truth,gm))
 
 
 roc = function(score,truth,tag,dat=NA){
@@ -143,13 +146,13 @@ labelthem = function(dat,n,d=NA){
       dat$l[i]=round(dat$cutoff[i],digits=2)
     }
   }
-  dat$l[c]=sprintf("best(%.2f)",round(dat$cutoff[c],digits=2))
+  dat$l[c]=sprintf("best(%.2f,%.2f,%.2f)",round(dat$cutoff[c],digits=2),round(dat$sensitivity[c],digits=2),round(dat$specificity[c],digits=2))
   dat$l[(c+1):(c+6)]=''
   dat$l[(c-6):(c-1)]=''
-  dat$l[p]=sprintf("best(%.2f)",round(dat$cutoff[p],digits=2))
+  dat$l[p]=sprintf("best(%.2f,%.2f,%.2f)",round(dat$cutoff[p],digits=2),round(dat$sensitivity[p],digits=2),round(dat$specificity[p],digits=2))
   dat$l[(p+1):(p+6)]=''
   dat$l[(p-6):(p-1)]=''
-  dat$l[m]=sprintf("best(%.2f)",round(dat$cutoff[m],digits=2))
+  dat$l[m]=sprintf("best(%.2f,%.2f,%.2f)",round(dat$cutoff[m],digits=2),round(dat$sensitivity[m],digits=2),round(dat$specificity[m],digits=2))
   dat$l[(m+1):(m+6)]=''
   dat$l[(m-6):(m-1)]=''
   if (all(is.na(d))){
@@ -197,9 +200,9 @@ roc_format = function(d,n,dat=NA){
   } 
 }
 
-css=roc_format(cs,20)
-crr=roc_format(cr,20)
-gmm=roc_format(gm,20)
+css=roc_format(cs,2)
+crr=roc_format(cr,2)
+gmm=roc_format(gm,2)
 
 gm1=ss_format(gm)
 cr1=ss_format(cr)
@@ -217,16 +220,11 @@ plot2cs=ggplot(cs)+geom_line(aes(x=cutoff,y=mcc,color=dataset));plot2cs
 plot3cs=ggplot(cs)+geom_line(aes(x=cutoff,y=accuracy,color=dataset));plot3cs
 plot4cs=ggplot(cs)+geom_line(aes(x=1-specificity,y=sensitivity,fect=dataset,color=cutoff))+ggtitle('EPPIC core-surface') + scale_colour_gradientn(colours=rainbow(4));plot4cs
 plot5cs=ggplot(css)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+geom_text(aes(x=1-specificity,y=sensitivity,label=l,color=dataset));plot5cs
-plot6cs=ggplot(css)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+geom_text(aes(x=min(1-specificity),y=max(sensitivity),label=cutoff,color=dataset));plot6cs
-
-
 
 plot1gm=ggplot(gm1,aes(cutoff))+geom_line(aes(y=score,color=dataset,linetype=benchmark));plot1gm
 plot2gm=ggplot(gm)+geom_line(aes(x=cutoff,y=mcc,color=dataset));plot2gm
 plot3gm=ggplot(gm)+geom_line(aes(x=cutoff,y=accuracy,color=dataset));plot3gm
 plot4gm=ggplot(gm)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset));plot4gm
-
-
 plot5gm=ggplot(gmm)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+geom_text(aes(x=1-specificity,y=sensitivity,label=l,color=dataset));plot5gm
 
 
@@ -271,84 +269,3 @@ pdf('core-surface-roc.pdf')
 plot5cs
 dev.off()
 
-
-# roc_cr = function(dataset,
-#                range,
-#                tag,
-#                dat=NA){
-#   cutoff<-NULL
-#   sensitivity<-NULL
-#   specificity<-NULL
-#   accuracy<-NULL
-#   benchmark<-NULL
-#   mcc<-NULL
-#   p=length(subset(dataset,truth=="bio" & cr!="nopred")$truth)
-#   n=length(subset(dataset,truth=="xtal" & cr!="nopred")$truth)
-#   for(i in 1:length(range)){
-#     tp=length(subset(dataset,truth=="bio"  & cr!="nopred" & crScore<=range[i])$truth)
-#     tn=length(subset(dataset,truth=="xtal"  & cr!="nopred" & crScore>range[i])$truth)
-#     fn=p-tp
-#     fp=n-tn
-#     benchmark<-c(benchmark,tag)
-#     cutoff<-c(cutoff,range[i])
-#     sensitivity<-c(sensitivity,tp/p)
-#     specificity<-c(specificity,tn/n)
-#     accuracy<-c(accuracy,(tp+tn)/(p+n))
-#     mcc<-c(mcc,(((tp*tn)-(fp*fn))/(sqrt(p)*sqrt(n)*sqrt(tp+fp)*sqrt(tn+fn))))
-#   }
-#   if (all(is.na(dat))){
-#     dat=data.frame(cutoff,sensitivity,specificity,accuracy,mcc,benchmark)
-#   }else{
-#     dat=rbind(dat,data.frame(cutoff,sensitivity,specificity,accuracy,mcc,benchmark))
-#   }
-# } 
-# 
-# roc_cs = function(dataset,
-#                   range,
-#                   tag,
-#                   dat=NA){
-#   cutoff<-NULL
-#   sensitivity<-NULL
-#   specificity<-NULL
-#   accuracy<-NULL
-#   benchmark<-NULL
-#   mcc<-NULL
-#   p=length(subset(dataset,truth=="bio" & cs!="nopred")$truth)
-#   n=length(subset(dataset,truth=="xtal" & cs!="nopred")$truth)
-#   for(i in 1:length(range)){
-#     tp=length(subset(dataset,truth=="bio"  & cs!="nopred" & csScore<=range[i])$truth)
-#     tn=length(subset(dataset,truth=="xtal"  & cs!="nopred" & csScore>range[i])$truth)
-#     fn=p-tp
-#     fp=n-tn
-#     benchmark<-c(benchmark,tag)
-#     cutoff<-c(cutoff,range[i])
-#     sensitivity<-c(sensitivity,tp/p)
-#     specificity<-c(specificity,tn/n)
-#     accuracy<-c(accuracy,(tp+tn)/(p+n))
-#     mcc<-c(mcc,(((tp*tn)-(fp*fn))/(sqrt(p)*sqrt(n)*sqrt(tp+fp)*sqrt(tn+fn))))
-#   }
-#   if (all(is.na(dat))){
-#     dat=data.frame(cutoff,sensitivity,specificity,accuracy,mcc,benchmark)
-#   }else{
-#     dat=rbind(dat,data.frame(cutoff,sensitivity,specificity,accuracy,mcc,benchmark))
-#   }
-# } 
-# 
-# cs=roc_cs(dc_cs,cs_range,"dc")
-# cs=roc_cs(po_cs,cs_range,"po",dat=cs)
-# cs=roc_cs(many_cs,cs_range,"many",dat=cs)
-# cr=roc_cr(dc_cr,cr_range,"dc")
-# cr=roc_cr(po_cr,cr_range,"po",dat=cr)
-# cr=roc_cr(many_cr,cr_range,"many",dat=cr)
-# 
-# 
-# plot1cr=ggplot(cr)+geom_line(aes(x=cutoff,y=sensitivity,color=benchmark,fill=benchmark))+geom_line(aes(x=cutoff,y=specificity,color=benchmark,fill=benchmark));plot1cr
-# plot2cr=ggplot(cr)+geom_line(aes(x=cutoff,y=mcc,color=benchmark,fill=benchmark));plot2cr
-# plot3cr=ggplot(cr)+geom_line(aes(x=cutoff,y=accuracy,color=benchmark,fill=benchmark));plot3cr
-# plot4cr=ggplot(cr)+geom_line(aes(x=1-specificity,y=sensitivity,color=benchmark,fill=benchmark));plot4cr
-# 
-# plot1cs=ggplot(cs)+geom_line(aes(x=cutoff,y=sensitivity,color=benchmark,fill=benchmark))+geom_line(aes(x=cutoff,y=specificity,color=benchmark,fill=benchmark));plot1cs
-# plot2cs=ggplot(cs)+geom_line(aes(x=cutoff,y=mcc,color=benchmark,fill=benchmark));plot2cs
-# plot3cs=ggplot(cs)+geom_line(aes(x=cutoff,y=accuracy,color=benchmark,fill=benchmark));plot3cs
-# plot4cs=ggplot(cs)+geom_line(aes(x=1-specificity,y=sensitivity,color=benchmark,fill=benchmark));plot4cs
-# 

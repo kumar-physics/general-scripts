@@ -204,6 +204,63 @@ DELIMITER ;
 
 
 
+DROP procedure IF EXISTS build_report;
+DELIMITER //
+CREATE procedure build_report()
+BEGIN
+declare t,c,i,x,b,n,tc,tcm,tcm60,tcm50,tcm6010,tcm5010 int(11);
+select count(*) into t from Job where length(jobId)=4;
+select count(*) into c from Job where length(jobId)=4 and status="Finished";
+select count(*) into i from detailedTable;
+select count(*) into b from detailedTable where final='bio';
+select count(*) into x from detailedTable where final='xtal';
+select count(*) into n from detailedTable where final='nopred';
+select count(*) into tc from ChainCluster as c inner join PdbInfo as p on p.uid=c.pdbInfo_uid 
+inner join Job as j on j.uid=p.job_uid where length(j.jobId)=4;
+select count(*) into tcm from ChainCluster as c inner join PdbInfo as p on p.uid=c.pdbInfo_uid 
+inner join Job as j on j.uid=p.job_uid where length(j.jobId)=4 and c.hasUniProtRef;
+select count(*) into tcm60 from ChainCluster as c inner join PdbInfo as p on p.uid=c.pdbInfo_uid 
+inner join Job as j on j.uid=p.job_uid where length(j.jobId)=4 and c.hasUniProtRef and c.seqIdCutoff>0.59;
+select count(*) into tcm50 from ChainCluster as c inner join PdbInfo as p on p.uid=c.pdbInfo_uid 
+inner join Job as j on j.uid=p.job_uid where length(j.jobId)=4 and c.hasUniProtRef and c.seqIdCutoff>0.49;
+select count(*) into tcm6010 from ChainCluster as c inner join PdbInfo as p on p.uid=c.pdbInfo_uid 
+inner join Job as j on j.uid=p.job_uid where length(j.jobId)=4 and c.hasUniProtRef and c.seqIdCutoff>0.59 and c.numHomologs>=10;
+select count(*) into tcm5010 from ChainCluster as c inner join PdbInfo as p on p.uid=c.pdbInfo_uid 
+inner join Job as j on j.uid=p.job_uid where length(j.jobId)=4 and c.hasUniProtRef and c.seqIdCutoff>0.49 and c.numHomologs>=10;
+select t Total_number_of_pdbs,c Eppic_precomputed,t-c Nonstandard_and_clashes,(c/t)*100 Eppic_precomputed_percentage;
+select i Total_number_of_Interfaces,x final_xtal,(x/i)*100 final_xtal_percentage,b final_bio,(b/i)*100 final_bio_percentage;
+select tc total_no_chains,tcm has_uniprot_match,tcm6010 idcutoff60_10homologs,(tcm6010/tcm)*100 percentage,tcm5010 idcutoff50_10homologs,(tcm5010/tcm)*100 percentage;
+call get_eppic_performance(0);
+END//
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

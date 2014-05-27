@@ -20,11 +20,12 @@ create table po_xtal as select d.* from detailedTable as d inner join benchmark.
 b.pdb=d.pdbCode and b.interfaceid=d.interfaceId;
 
 drop table if exists dun_bio; 
-create table dun_bio as select * from dunbrack.eppic_dun_table where ratio>0.8 and area > 400 and area < 2000 and resolution < 2.5 and rfreeValue < 0.3  group by pfam,c1_80,c2_80;
+create table dun_bio as select e.* from detailedTable as e inner join dunbrack.eppic_dun_table as d
+on d.pdbCode=e.pdbCode and d.interfaceId=e.interfaceId where d.ratio>0.8 and e.area > 400 and e.area < 2000 and e.resolution < 2.5 and e.rfreeValue < 0.3  group by d.pfam,d.c1_80,d.c2_80;
 
 drop table if exists nmr_bio;
 create table nmr_bio as 
-select * from nmr_xray.eppic_nmr_xray where area>400 and resolution < 2.5 and rfreeValue < 0.3 and seqiden>0.8 group by c1_80,c2_80;
+select e.* from detailedTable as e inner join nmr_xray.nmr_xray as x on x.pdbx=e.pdbCode and x.idx=e.interfaceId where e.area>400 and e.resolution < 2.5 and e.rfreeValue < 0.3 and x.seqiden>0.8 group by e.c1_80,e.c2_80;
 
 drop table if exists many_xtal_table;
 create table many_xtal_table as select * from detailedTable where resolution < 2.5 and rfreeValue < 0.3 and area > 400  and infinite=1 group by c1_80,c2_80; 
