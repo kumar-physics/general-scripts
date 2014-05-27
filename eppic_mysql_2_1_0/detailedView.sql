@@ -1,6 +1,6 @@
 
 
-
+/* to get the results from InterfaceScore table */
 DROP FUNCTION IF EXISTS get_result;
 DELIMITER $$
 CREATE FUNCTION get_result(interfaceid INT,met VARCHAR(255)) RETURNS VARCHAR(255)
@@ -11,18 +11,7 @@ RETURN res;
 END $$
 DELIMITER ;
 
-DROP FUNCTION IF EXISTS get_result2;
-DELIMITER $$
-CREATE FUNCTION get_result2(interfaceid INT,met VARCHAR(255)) RETURNS VARCHAR(255)
-BEGIN
-DECLARE res VARCHAR(255);
-SET res=(SELECT callName FROM InterfaceClusterScore WHERE interfaceCluster_uid=interfaceid and method = met group by callName);
-RETURN res;
-END $$
-DELIMITER ;
-
-
-
+/*to get the eppic scores from InterfaceScore table*/
 DROP FUNCTION IF EXISTS get_score;
 DELIMITER $$
 CREATE FUNCTION get_score(interfaceid INT,met VARCHAR(255)) RETURNS DOUBLE
@@ -33,19 +22,7 @@ RETURN res;
 END $$
 DELIMITER ;
 
-
-DROP FUNCTION IF EXISTS get_score2;
-DELIMITER $$
-CREATE FUNCTION get_score2(interfaceid INT,met VARCHAR(255)) RETURNS DOUBLE
-BEGIN
-DECLARE res DOUBLE;
-SET res=(SELECT score FROM InterfaceClusterScore WHERE interfaceCluster_uid=interfaceid and method = met);
-RETURN res;
-END $$
-DELIMITER ;
-
-
-
+/*to get the eppic scores of each side from InterfaceScore table*/
 DROP FUNCTION IF EXISTS get_side_score;
 DELIMITER $$
 CREATE FUNCTION get_side_score(interfaceid INT,met VARCHAR(255),side INT) RETURNS DOUBLE
@@ -60,7 +37,7 @@ RETURN res;
 END $$
 DELIMITER ;
 
-
+/* to get the number of homologs */
 DROP FUNCTION IF EXISTS get_homologs;
 DELIMITER $$
 CREATE FUNCTION get_homologs(pdb varchar(4),chain VARCHAR(255)) RETURNS INT(12)
@@ -74,6 +51,7 @@ RETURN x;
 END$$
 DELIMITER ;
 
+/* to get the representative chain */
 DROP FUNCTION IF EXISTS get_repchain;
 DELIMITER $$
 CREATE FUNCTION get_repchain(pdb varchar(4),chain VARCHAR(255)) RETURNS varchar(255)
@@ -88,7 +66,7 @@ END$$
 DELIMITER ;
 
 
-
+/* to get the uniprot id */
 drop function if exists get_uniprot_id;
 DELIMITER $$
 create function get_uniprot_id(pdb varchar(4),chain varchar(255)) returns varchar(255)
@@ -101,7 +79,7 @@ RETURN res;
 END $$
 DELIMITER ;
 
-
+/* to get the uniprot id cutoff used */
 drop function if exists get_uniprot_id_cutoff;
 DELIMITER $$
 create function get_uniprot_id_cutoff(pdb varchar(4),chain varchar(255)) returns varchar(255)
@@ -115,7 +93,7 @@ END $$
 DELIMITER ;
 
 
-
+/* to get the uniprot start */
 
 drop function if exists get_uniprot_start;
 DELIMITER $$
@@ -129,6 +107,8 @@ RETURN res;
 END $$
 DELIMITER ;
 
+
+/* to get the uniprot end */
 drop function if exists get_uniprot_end;
 DELIMITER $$
 create function get_uniprot_end(pdb varchar(4),chain varchar(255)) returns varchar(255)
@@ -206,84 +186,14 @@ inner join SeqCluster as s1 on s1.pdbCode=i.pdbCode and s1.repChain = get_repcha
 inner join SeqCluster as s2 on s2.pdbCode=i.pdbCode and s2.repChain = get_repchain(p.pdbCode,i.chain2)
 inner join Job as j on j.inputName = i.pdbCode and j.uid= p.job_uid where length(j.jobId)=4;
 
+
+/* after creating the view, its better to create table in order to get faster results */
 drop table if exists detailedTable;
 create table detailedTable as select * from detailedView;
 
+create index pdbidx on detailedTable(pdbCode,c1,c2);
 
 
-
-
-
-
-
-
-#dunbrack stuff
-
-create table dunbrack_10_60(
-pfam varchar(255),
-pdbCode varchar(4),
-interfaceId int(11),
-chain1 varchar(4),
-chain2 varchar(4),
-dn_op1 varchar(255),
-dn_op2 varchar(255),
-dn_area double,
-m int(11),
-n int(11),
-ratio double,
-ep_op1 varchar(255),
-ep_op2 varchar(255),
-ep_op3 varchar(255),
-ep_op4 varchar(255)
-)
-
-drop view eppic_dunbrack;
-create view eppic_dunbrack as
-select e.*,d.interfaceId du_id,d.chain1 dn_chain1,d.chain2 dn_chain2,d.dn_op1,d.dn_op2,d.ep_op1,d.ep_op2,d.ep_op3,d.ep_op4,d.dn_area,d.m,d.n,d.ratio,d.pfam from eppic_test_2_1_0.detailedTable as e inner join dunbrack_10_60 as d on d.pdbCode=e.pdbCode
-where ((binary e.chain1 = d.chain1 and binary e.chain2 = d.chain2) or (binary e.chain1 = d.chain2 and binary e.chain2 = d.chain1)) and (
-(d.ep_op1 = 'X,Y,Z' and d.ep_op2 = 'X,Y,Z' and e.operator = 'X,Y,Z' ) or
-(d.ep_op1 = 'X,Y,Z' and d.ep_op2 != 'X,Y,Z' and e.operator != 'X,Y,Z' and (e.operator = d.ep_op1 or e.operator = d.ep_op2 or e.operator = d.ep_op3 or e.operator = d.ep_op4)) or
-(d.ep_op1 != 'X,Y,Z' and d.ep_op2 = 'X,Y,Z' and e.operator != 'X,Y,Z' and (e.operator = d.ep_op1 or e.operator = d.ep_op2 or e.operator = d.ep_op3 or e.operator = d.ep_op4))) group by e.pdbCode,e.interfaceId;
-
-
-
-
-
-
-select e.*,d.interfaceId du_id,d.chain1 dn_chain1,d.chain2 dn_chain2,d.dn_op1,d.dn_op2,d.ep_op1,d.ep_op2,d.ep_op3,d.ep_op4,d.dn_area,d.m,d.n,d.ratio,d.pfam from eppic_test_2_1_0.detailedTable as e inner join dunbrack_10_60 as d on d.pdbCode=e.pdbCode
-where ((binary e.chain1 = d.chain1 and binary e.chain2 = d.chain2) or (binary e.chain1 = d.chain2 and binary e.chain2 = d.chain1)) and (
-(d.ep_op1 = 'X,Y,Z' and d.ep_op2 = 'X,Y,Z' and e.operator = 'X,Y,Z' ) or
-(d.ep_op1 = 'X,Y,Z' and d.ep_op2 != 'X,Y,Z' and e.operator != 'X,Y,Z' and (e.operator = d.ep_op1 or e.operator = d.ep_op2 or e.operator = d.ep_op3 or e.operator = d.ep_op4)) or
-(d.ep_op1 != 'X,Y,Z' and d.ep_op2 = 'X,Y,Z' and e.operator != 'X,Y,Z' and (e.operator = d.ep_op1 or e.operator = d.ep_op2 or e.operator = d.ep_op3 or e.operator = d.ep_op4))) and e.pdbCode='1ftj';
-
-
-
-
-
-DROP FUNCTION IF EXISTS IsMultimer;
-DELIMITER $$
-CREATE FUNCTION IsMultimer(pdb VARCHAR(255)) RETURNS bool
-BEGIN
-DECLARE res1 bool;
-DECLARE res int(11);
-SET res=(SELECT count(*) FROM detailedTable WHERE pdbCode=pdb and final = "bio");
-if (res=0) then
-set res1=False;
-else
-set res1=True;
-end if;
-return res1;
-END $$
-DELIMITER ; 
-
-
-
-
-alter table detailedTable add  assembly varchar(255) default "Monomer";
-update detailedTable set assembly="Multimer" where IsMultimer(pdbCode);
-
-alter table PdbInfo add assembly varchar(255) default "Monomer";
-update PdbInfo set assembly="Multimer" where IsMultimer(pdbCode);
 
 
 

@@ -2,7 +2,7 @@ setwd('~/pdbstatistics/')
 library(RMySQL)
 library(ggplot2)
 library(plyr)
-mydb=dbConnect(MySQL(),host=,username=,password=,dbname="eppic_test_2_1_0")
+mydb=dbConnect(MySQL(),dbname="eppic_test_2_1_0")
 on.exit(dbDisconnect(mydb))
 
 
