@@ -200,9 +200,9 @@ roc_format = function(d,n,dat=NA){
   } 
 }
 
-css=roc_format(cs,2)
-crr=roc_format(cr,2)
-gmm=roc_format(gm,2)
+css=roc_format(cs,3)
+crr=roc_format(cr,3)
+gmm=roc_format(gm,3)
 
 gm1=ss_format(gm)
 cr1=ss_format(cr)
