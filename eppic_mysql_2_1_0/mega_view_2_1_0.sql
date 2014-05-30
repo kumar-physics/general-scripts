@@ -287,3 +287,64 @@ update PdbInfo set assembly="Multimer" where IsMultimer(pdbCode);
 
 
 
+
+
+DROP TABLE IF EXISTS EppicTable;
+CREATE Table EppicTable as
+SELECT 
+p.pdbCode,
+p.expMethod,
+p.resolution,
+p.rfreeValue,
+p.spaceGroup,
+get_uniprot_id(p.pdbCode,i.chain1) c1,
+get_uniprot_start(p.pdbCode,i.chain1) s1,
+get_uniprot_end(p.pdbCode,i.chain1) e1,
+get_uniprot_id_cutoff(p.pdbCode,i.chain1) co1,
+get_uniprot_id(p.pdbCode,i.chain2) c2,
+get_uniprot_start(p.pdbCode,i.chain2) s2,
+get_uniprot_end(p.pdbCode,i.chain2) e2,
+get_uniprot_id_cutoff(p.pdbCode,i.chain2) co2,
+get_homologs(p.pdbCode,i.chain1) h1,
+get_homologs(p.pdbCode,i.chain2) h2,
+get_repchain(p.pdbCode,i.chain1) repchain1,
+get_repchain(p.pdbCode,i.chain2) repchain2,
+i.chain1,
+i.chain2,
+i.interfaceId,
+i.area,
+i.infinite,
+i.operator,
+i.operatorType,
+i.clusterId,
+get_result(i.uid,"eppic-gm") gm,
+get_side_score(i.uid,"eppic-gm",1) gm1,
+get_side_score(i.uid,"eppic-gm",2) gm2,
+get_score(i.uid,"eppic-gm") gmScore,
+get_result(i.uid,"eppic-cr") cr,
+get_side_score(i.uid,"eppic-cr",1) cr1,
+get_side_score(i.uid,"eppic-cr",2) cr2,
+get_score(i.uid,"eppic-cr") crScore,
+get_result(i.uid,"eppic-cs") cs,
+get_side_score(i.uid,"eppic-cs",1) cs1,
+get_side_score(i.uid,"eppic-cs",2) cs2,
+get_score(i.uid,"eppic-cs") csScore,
+get_result(i.uid,"eppic") final,
+get_result2(i.interfaceCluster_uid,"pisa") pisa,
+get_result2(i.interfaceCluster_uid,"authors") authors,
+get_result2(i.interfaceCluster_uid,"pqs") pqs,
+from Interface as i 
+inner join PdbInfo as p on i.pdbCode = p.pdbCode 
+inner join Job as j on j.inputName = i.pdbCode and j.uid= p.job_uid where length(j.jobId)=4;
+
+
+
+
+
+
+
+
+
+
+
+
