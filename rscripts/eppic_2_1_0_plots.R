@@ -28,7 +28,11 @@ areaplot=ggplot(subset(eppic,area<=5000),aes(x=area))+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab('Count');areaplot
 
+areavscore=ggplot(subset(eppic,gmScore>0),aes(x=area,y=gmScore))+
+  geom_density2d(aes(geom="tile",color=final,fill= ..level.. ));areavscore
 
+
+areavscore
 
 exp2=transform(exp, expMethod = reorder(expMethod, -count))
 expplot=ggplot(exp2,aes(x=expMethod,y=count))+

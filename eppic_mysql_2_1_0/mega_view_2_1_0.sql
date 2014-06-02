@@ -332,7 +332,7 @@ get_score(i.uid,"eppic-cs") csScore,
 get_result(i.uid,"eppic") final,
 get_result2(i.interfaceCluster_uid,"pisa") pisa,
 get_result2(i.interfaceCluster_uid,"authors") authors,
-get_result2(i.interfaceCluster_uid,"pqs") pqs,
+get_result2(i.interfaceCluster_uid,"pqs") pqs
 from Interface as i 
 inner join PdbInfo as p on i.pdbCode = p.pdbCode 
 inner join Job as j on j.inputName = i.pdbCode and j.uid= p.job_uid where length(j.jobId)=4;
