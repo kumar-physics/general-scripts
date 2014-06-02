@@ -1,7 +1,7 @@
 setwd('~/pdb_statistics/')
 library(RMySQL)
 library(ggplot2)
-
+library(MASS)
 mydb=dbConnect(MySQL(),dbname="eppic_test_2_1_0")
 on.exit(dbDisconnect(mydb))
 
@@ -19,7 +19,13 @@ spacegroup=fetch(dbSendQuery(mydb,"select p.spaceGroup,p.assembly,count(*) count
 
 eppic=fetch(dbSendQuery(mydb,"select * from EppicTable;"),-1)
 op=fetch(dbSendQuery(mydb,"select operatorType,final,count(*) count from EppicTable where operatorType is not NULL group by operatorType,final;"),-1)
+eppic2=subset(eppic,gmScore>0,select =c(area,gmScore,final))
 
+areavscore=ggplot(eppic2)+
+  geom_density2d(aes(x=area,y=gmScore,color=final),bins=5000,alpha=0.5)+
+  scale_color_manual(values=c("green","red"),name="Eppic final")+
+  xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
+  ylab('Number of core residues');areavscore
 
 areaplot=ggplot(subset(eppic,area<=5000),aes(x=area))+
   geom_histogram(aes(color=final,fill=final),binwidth=100,alpha=0.5,position="identity")+
@@ -27,12 +33,6 @@ areaplot=ggplot(subset(eppic,area<=5000),aes(x=area))+
   scale_fill_manual(values=c("green","red"),name="Eppic final")+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab('Count');areaplot
-
-areavscore=ggplot(subset(eppic,gmScore>0),aes(x=area,y=gmScore))+
-  geom_density2d(aes(geom="tile",color=final,fill= ..level.. ));areavscore
-
-
-areavscore
 
 exp2=transform(exp, expMethod = reorder(expMethod, -count))
 expplot=ggplot(exp2,aes(x=expMethod,y=count))+
