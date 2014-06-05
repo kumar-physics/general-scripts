@@ -2,7 +2,7 @@ setwd('~/pdbstatistics/')
 library(RMySQL)
 library(ggplot2)
 library(plyr)
-mydb=dbConnect(MySQL(),dbname="eppic_test_2_1_0")
+mydb=dbConnect(MySQL(),dbname="eppic_2_1_0_2014_05")
 on.exit(dbDisconnect(mydb))
 
 
@@ -32,7 +32,41 @@ data=loadBenchmark("dc")
 data=loadBenchmark("po",data=data)
 data=loadBenchmark("many",data=data)
 head(data)
-colnames(data)[57]='dataset'
+colnames(data)[61]='dataset'
+d<-subset(data,select=c(area,dataset,truth))
+d$dataset[d$dataset=='dc']<-"DC"
+d$dataset[d$dataset=='po']<-'Ponstingl'
+d$dataset[d$dataset=='many']<-'Many'
+plot1 = ggplot(d) + 
+  facet_wrap(~dataset)+
+  geom_histogram(aes(x=area,fill=truth),binwidth=100,position='identity',alpha=0.5)+
+  scale_fill_manual(values=c("green","red"))+
+  scale_color_manual(values=c("green","red"))+
+  xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
+  ylab('Number of interfaces')+
+  theme(panel.background = element_blank(),
+        text = element_text(size=20,color='black'),
+        axis.text=element_text(color='black'),
+        panel.grid.major = element_line(colour = "gray"),
+        panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
+        panel.border =element_rect(colour = "black",fill=NA),
+        legend.title=element_blank()); plot1
+plot1a = ggplot(d) + 
+  facet_wrap(~dataset,scale='free')+
+  geom_histogram(aes(x=area,fill=truth),binwidth=100,position='identity',alpha=0.5)+
+  scale_fill_manual(values=c("green","red"))+
+  scale_color_manual(values=c("green","red"))+
+  xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
+  ylab('Number of interfaces')+
+  theme(panel.background = element_blank(),
+        text = element_text(size=20,color='black'),
+        axis.text=element_text(color='black'),
+        panel.grid.major = element_line(colour = "gray"),
+        panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
+        panel.border =element_rect(colour = "black",fill=NA),
+        legend.title=element_blank()); plot1a
+
+
 
 dc_cr<-subset(data,dataset=="dc" & cr!="nopred",select=c(crScore,truth,cr))
 dc_cs<-subset(data,dataset=="dc" & cs!="nopred",select=c(csScore,truth,cs))
@@ -200,6 +234,14 @@ roc_format = function(d,n,dat=NA){
   } 
 }
 
+
+cs$method='CoreSurface'
+cr$method='CoreRim'
+gm$method='Geometry'
+
+roc_data=rbind(gm,cr)
+roc_data=rbind(roc_data,cs)
+
 css=roc_format(cs,3)
 crr=roc_format(cr,3)
 gmm=roc_format(gm,3)
@@ -209,11 +251,27 @@ cr1=ss_format(cr)
 cs1=ss_format(cs)
 
 
+rocplot=ggplot(roc_data)+
+  facet_wrap(~method)+
+  geom_line(aes(x=1-specificity,y=sensitivity,color=dataset),size=1.0)+
+  scale_color_manual(values=c("#1b9e77","#d95f02","#7570b3"),name="Data set",
+                    breaks=c("dc", "po", "many"),
+                    labels=c("DC", "Ponstingl", "Many"))+
+  theme(panel.background = element_blank(),
+        text = element_text(size=20,color='black'),
+        axis.text=element_text(color='black'),
+        panel.grid.major = element_line(colour = "gray"),
+        panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
+        panel.border =element_rect(colour = "black",fill=NA));rocplot
+  
+
 plot1cr=ggplot(cr1,aes(cutoff))+geom_line(aes(y=score,color=dataset,linetype=benchmark))+xlim(0,3)+ggtitle('EPPIC core-rim');plot1cr
 plot2cr=ggplot(cr)+geom_line(aes(x=cutoff,y=mcc,color=dataset,fill=dataset));plot2cr
 plot3cr=ggplot(cr)+geom_line(aes(x=cutoff,y=accuracy,color=dataset));plot3cr
 plot4cr=ggplot(cr)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+ggtitle('EPPIC core-rim');plot4cr
 plot5cr=ggplot(crr)+geom_line(aes(x=1-specificity,y=sensitivity,color=dataset))+geom_text(aes(x=1-specificity,y=sensitivity,label=l,color=dataset));plot5cr
+
+
 
 plot1cs=ggplot(cs1,aes(cutoff))+geom_line(aes(y=score,color=dataset,linetype=benchmark));plot1cs
 plot2cs=ggplot(cs)+geom_line(aes(x=cutoff,y=mcc,color=dataset));plot2cs

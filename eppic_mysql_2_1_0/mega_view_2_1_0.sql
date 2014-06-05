@@ -193,13 +193,17 @@ s1.c80 c1_80,
 s1.c70 c1_70,
 s1.c60 c1_60,
 s1.c50 c1_50,
+s1.c40 c1_40,
+s1.c30 c1_30,
 s2.c100 c2_100,
 s2.c95 c2_95,
 s2.c90 c2_90,
 s2.c80 c2_80,
 s2.c70 c2_70,
 s2.c60 c2_60,
-s2.c50 c2_50
+s2.c50 c2_50,
+s2.c40 c2_40,
+s2.c30 c2_30
 from Interface as i 
 inner join PdbInfo as p on i.pdbCode = p.pdbCode 
 inner join SeqCluster as s1 on s1.pdbCode=i.pdbCode and s1.repChain = get_repchain(p.pdbCode,i.chain1)
@@ -276,6 +280,21 @@ return res1;
 END $$
 DELIMITER ; 
 
+DROP FUNCTION IF EXISTS assembly;
+DELIMITER $$
+CREATE FUNCTION assembly(pdb VARCHAR(255)) RETURNS varchar(255)
+BEGIN
+DECLARE res1 varchar(255);
+DECLARE res int(11);
+SET res=(SELECT count(*) FROM InterfaceScore WHERE pdbCode=pdb and method="eppic" and callName = "bio");
+if (res=0) then
+set res1="Monomer";
+else
+set res1="Multimer";
+end if;
+return res1;
+END $$
+DELIMITER ; 
 
 
 
@@ -337,6 +356,16 @@ from Interface as i
 inner join PdbInfo as p on i.pdbCode = p.pdbCode 
 inner join Job as j on j.inputName = i.pdbCode and j.uid= p.job_uid where length(j.jobId)=4;
 
+
+
+
+#pisa comparision
+
+Drop table if exists EppicvsPisa;
+create table EppicvsPisa as 
+select e.*,p.pisa_id,p.pisaCall from EppicTable as e
+inner join pisa_2014_05.InterfaceCalls as p on
+p.pdbCode=e.pdbCode and p.eppic_id=e.interfaceId;
 
 
 
