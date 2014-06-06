@@ -164,7 +164,6 @@ ep$remark[ep$pisa_db=='xtal' & ep$eppic=='bio']<-'bio xtal'
 # #pisadata<-melt(subset(d,select=c(area,xtalmatch,biomatch)),id.vars='area')
 # pisadata<-melt(d,id.vars='area')
 s<-length(subset(ep,remark=='xtal xtal' | remark=='bio bio' | remark=='xtal bio' | remark=='bio xtal')$area)
-pisaavg<-(length(subset(ep,remark=='xtal xtal' | remark=='bio bio')$area)/s)
 
 xx<-100*length(subset(ep,remark=='xtal xtal')$area)/s
 bb<-100*length(subset(ep,remark=='bio bio')$area)/s
@@ -220,15 +219,19 @@ gm$method='Geometry'
 roc_data=rbind(gm,cr)
 roc_data=rbind(roc_data,cs)
 
+xtal_color="#fc8d62"
+bio_color="#66c2a5"
+font_size=20
+alpha_value=0.75
 #jpeg plots font size 20
 setwd('~/publications/PDBwide_latex/figures/rplots')
 areavscore=ggplot(subset(eppic,gmScore>0,select =c(area,gmScore,final)))+
-  geom_density2d(aes(x=area,y=gmScore,color=final),bins=5000,alpha=0.5)+
-  scale_color_manual(values=c("green","red"),name="Eppic final")+
+  geom_density2d(aes(x=area,y=gmScore,color=final),bins=5000,alpha=alpha_value)+
+  scale_color_manual(values=c(bio_color,xtal_color),name="Eppic final")+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab('Number of core residues')+
   theme(panel.background = element_blank(),
-        text = element_text(size=20,color='black'),
+        text = element_text(size=font_size,color='black'),
         axis.text=element_text(color='black'),
         panel.grid.major = element_line(colour = "gray"),
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
@@ -236,64 +239,64 @@ areavscore=ggplot(subset(eppic,gmScore>0,select =c(area,gmScore,final)))+
         legend.position='bottom');
 
 areaplot=ggplot(subset(eppic,area<=5000),aes(x=area))+
-  geom_histogram(aes(fill=final),binwidth=100,alpha=0.5,position="identity")+
-  scale_color_manual(values=c("green","red"),name="Eppic final")+
-  scale_fill_manual(values=c("green","red"),name="Eppic final")+
+  geom_histogram(aes(fill=final),binwidth=100,alpha=alpha_value,position="identity")+
+  scale_color_manual(values=c(bio_color,xtal_color),name="Eppic final")+
+  scale_fill_manual(values=c(bio_color,xtal_color),name="Eppic final")+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab('Number of interfaces')+
   theme(panel.background = element_blank(),
-        text = element_text(size=20,color='black'),
+        text = element_text(size=font_size,color='black'),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');
 
 coreplot=ggplot(subset(eppic,area<=5000 & gmScore>0),aes(x=gmScore))+
-  geom_histogram(aes(fill=final),binwidth=1,alpha=0.5,position="identity")+
-  scale_color_manual(values=c("green","red"),name="Eppic final")+
-  scale_fill_manual(values=c("green","red"),name="Eppic final")+
+  geom_histogram(aes(fill=final),binwidth=1,alpha=alpha_value,position="identity")+
+  scale_color_manual(values=c(bio_color,xtal_color),name="Eppic final")+
+  scale_fill_manual(values=c(bio_color,xtal_color),name="Eppic final")+
   xlab('Number of core residues')+
   ylab('Number of interfaces')+
   theme(panel.background = element_blank(),
-        text = element_text(size=20,color='black'),
+        text = element_text(size=font_size,color='black'),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');
 
 expplot=ggplot(transform(exp, expMethod = reorder(expMethod, -count)))+
-  geom_bar(aes(x=expMethod,y=count,fill=assembly),alpha=0.5,position="dodge",stat='identity')+
-  scale_fill_manual(values=c("red","green"),name="Assembly")+
-  scale_color_manual(values=c("red","green"),name="Assembly")+
+  geom_bar(aes(x=expMethod,y=count,fill=assembly),alpha=alpha_value,position="dodge",stat='identity')+
+  scale_fill_manual(values=c(xtal_color,bio_color),name="Assembly")+
+  scale_color_manual(values=c(xtal_color,bio_color),name="Assembly")+
   xlab('')+
   ylab('Number of PDBs')+
   geom_text(aes(color=assembly,group=assembly,x=expMethod,y=count,label=count),position=position_dodge(1.0),vjust=-0.5)+
   theme(panel.background = element_blank(),
-        text = element_text(size=20,color='black'),
+        text = element_text(size=font_size,color='black'),
         axis.text.x=element_text(color='black',angle=90,hjust=1,vjust=0.5),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');
 
 spacegroupplot=ggplot(transform(spacegroup, spaceGroup = reorder(spaceGroup, -count)),aes(x=spaceGroup,y=count))+
-  geom_bar(aes(fill=assembly),alpha=0.5)+
-  scale_color_manual(values=c("red","green"),name="Assembly")+
-  scale_fill_manual(values=c("red","green"),name="Assembly")+
+  geom_bar(aes(fill=assembly),alpha=alpha_value)+
+  scale_color_manual(values=c(xtal_color,bio_color),name="Assembly")+
+  scale_fill_manual(values=c(xtal_color,bio_color),name="Assembly")+
   xlab('Space group')+
   ylab('Number of PDBs')+
   theme(panel.background = element_blank(),
-        text = element_text(size=20,color='black'),
+        text = element_text(size=font_size,color='black'),
         axis.text.x=element_text(color='black',angle=90,hjust=1,vjust=0.5),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');
 
 opplot=ggplot(transform(op, operatorType = reorder(operatorType, -count)),aes(x=operatorType,y=count))+
-  geom_bar(aes(fill=final),alpha=0.5)+
-  scale_color_manual(values=c("green","red"),name="Eppic final")+
-  scale_fill_manual(values=c("green","red"),name="Eppic final")+
+  geom_bar(aes(fill=final),alpha=alpha_value)+
+  scale_color_manual(values=c(bio_color,xtal_color),name="Eppic final")+
+  scale_fill_manual(values=c(bio_color,xtal_color),name="Eppic final")+
   xlab('Operator type')+
   ylab('Count')+
   theme(panel.background = element_blank(),
-        text = element_text(size=20,color='black'),
+        text = element_text(size=font_size,color='black'),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');
@@ -307,7 +310,7 @@ janinplot=ggplot()+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab("Probability")+
   theme(panel.background = element_blank(),
-        text = element_text(size=20,color='black'),
+        text = element_text(size=font_size,color='black'),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
         panel.grid.major = element_line(colour = "gray"),
@@ -318,13 +321,13 @@ janinplot=ggplot()+
 #Benchmark plots
 benchmark_areaplot = ggplot(d) + 
   facet_wrap(~dataset)+
-  geom_histogram(aes(x=area,fill=truth),binwidth=100,position='identity',alpha=0.5)+
-  scale_fill_manual(values=c("green","red"))+
-  scale_color_manual(values=c("green","red"))+
+  geom_histogram(aes(x=area,fill=truth),binwidth=100,position='identity',alpha=alpha_value)+
+  scale_fill_manual(values=c(bio_color,xtal_color))+
+  scale_color_manual(values=c(bio_color,xtal_color))+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab('Number of interfaces')+
   theme(panel.background = element_blank(),
-        text = element_text(size=20,color='black'),
+        text = element_text(size=font_size,color='black'),
         axis.text=element_text(color='black'),
         panel.grid.major = element_line(colour = "gray"),
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
@@ -333,13 +336,13 @@ benchmark_areaplot = ggplot(d) +
         legend.position='bottom'); 
 benchmark_area_free = ggplot(d) + 
   facet_wrap(~dataset,scale='free')+
-  geom_histogram(aes(x=area,fill=truth),binwidth=100,position='identity',alpha=0.5)+
-  scale_fill_manual(values=c("green","red"))+
-  scale_color_manual(values=c("green","red"))+
+  geom_histogram(aes(x=area,fill=truth),binwidth=100,position='identity',alpha=alpha_value)+
+  scale_fill_manual(values=c(bio_color,xtal_color))+
+  scale_color_manual(values=c(bio_color,xtal_color))+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab('Number of interfaces')+
   theme(panel.background = element_blank(),
-        text = element_text(size=20,color='black'),
+        text = element_text(size=font_size,color='black'),
         axis.text=element_text(color='black'),
         panel.grid.major = element_line(colour = "gray"),
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
@@ -354,7 +357,7 @@ rocplot=ggplot(roc_data)+
                      breaks=c("dc", "po", "many"),
                      labels=c("DC", "Ponstingl", "Many"))+
   theme(panel.background = element_blank(),
-        text = element_text(size=20,color='black'),
+        text = element_text(size=font_size,color='black'),
         axis.text=element_text(color='black'),
         panel.grid.major = element_line(colour = "gray"),
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
@@ -371,7 +374,7 @@ nmrplot=ggplot(nmr)+
   xlab('Number of chains')+
   ylab('Number of PDBs')+
   theme(panel.background = element_blank(),
-        text = element_text(size=20,color='black'),
+        text = element_text(size=font_size,color='black'),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
         panel.grid.major = element_line(colour = "gray"),
@@ -394,13 +397,13 @@ pisaplot=ggplot(pdata)+
   annotate("text", label = sprintf("%.2f %%",bx), x = 1300, y = 0.97)+
   #geom_hline(aes(yintercept=pisaavg,label='average'),linetype="dashed",show_guide=T)+
   theme(panel.background = element_blank(),
-        text = element_text(size=20,color='black'),
+        text = element_text(size=font_size,color='black'),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
         panel.grid.major = element_line(colour = "gray"),
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
         legend.title=element_blank(),
-        legend.position='bottom');pisaplot
+        legend.position='bottom');
 
 
 jpeg("pisa.jpg",width=1200,height=800)
@@ -459,9 +462,9 @@ rocplot=ggplot(roc_data)+
         legend.position='bottom');rocplot
 benchmark_areaplot = ggplot(d) + 
   facet_wrap(~dataset)+
-  geom_histogram(aes(x=area,fill=truth),binwidth=100,position='identity',alpha=0.5)+
-  scale_fill_manual(values=c("green","red"))+
-  scale_color_manual(values=c("green","red"))+
+  geom_histogram(aes(x=area,fill=truth),binwidth=100,position='identity',alpha=alpha_value)+
+  scale_fill_manual(values=c(bio_color,xtal_color))+
+  scale_color_manual(values=c(bio_color,xtal_color))+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab('Number of interfaces')+
   theme(panel.background = element_blank(),
@@ -474,9 +477,9 @@ benchmark_areaplot = ggplot(d) +
         legend.position='bottom'); benchmark_areaplot
 benchmark_area_free = ggplot(d) + 
   facet_wrap(~dataset,scale='free')+
-  geom_histogram(aes(x=area,fill=truth),binwidth=100,position='identity',alpha=0.5)+
-  scale_fill_manual(values=c("green","red"))+
-  scale_color_manual(values=c("green","red"))+
+  geom_histogram(aes(x=area,fill=truth),binwidth=100,position='identity',alpha=alpha_value)+
+  scale_fill_manual(values=c(bio_color,xtal_color))+
+  scale_color_manual(values=c(bio_color,xtal_color))+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab('Number of interfaces')+
   theme(panel.background = element_blank(),
@@ -488,8 +491,8 @@ benchmark_area_free = ggplot(d) +
         legend.title=element_blank(),
         legend.position='bottom'); benchmark_area_free
 areavscore=ggplot(subset(eppic,gmScore>0,select =c(area,gmScore,final)))+
-  geom_density2d(aes(x=area,y=gmScore,color=final),bins=5000,alpha=0.5)+
-  scale_color_manual(values=c("green","red"),name="Eppic final")+
+  geom_density2d(aes(x=area,y=gmScore,color=final),bins=5000,alpha=alpha_value)+
+  scale_color_manual(values=c(bio_color,xtal_color),name="Eppic final")+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab('Number of core residues')+
   theme(panel.background = element_blank(),
@@ -501,9 +504,9 @@ areavscore=ggplot(subset(eppic,gmScore>0,select =c(area,gmScore,final)))+
         legend.position='bottom');
 
 areaplot=ggplot(subset(eppic,area<=5000),aes(x=area))+
-  geom_histogram(aes(fill=final),binwidth=100,alpha=0.5,position="identity")+
-  scale_color_manual(values=c("green","red"),name="Eppic final")+
-  scale_fill_manual(values=c("green","red"),name="Eppic final")+
+  geom_histogram(aes(fill=final),binwidth=100,alpha=alpha_value,position="identity")+
+  scale_color_manual(values=c(bio_color,xtal_color),name="Eppic final")+
+  scale_fill_manual(values=c(bio_color,xtal_color),name="Eppic final")+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab('Number of interfaces')+
   theme(panel.background = element_blank(),
@@ -513,9 +516,9 @@ areaplot=ggplot(subset(eppic,area<=5000),aes(x=area))+
         legend.position='bottom');
 
 coreplot=ggplot(subset(eppic,area<=5000 & gmScore>0),aes(x=gmScore))+
-  geom_histogram(aes(fill=final),binwidth=1,alpha=0.5,position="identity")+
-  scale_color_manual(values=c("green","red"),name="Eppic final")+
-  scale_fill_manual(values=c("green","red"),name="Eppic final")+
+  geom_histogram(aes(fill=final),binwidth=1,alpha=alpha_value,position="identity")+
+  scale_color_manual(values=c(bio_color,xtal_color),name="Eppic final")+
+  scale_fill_manual(values=c(bio_color,xtal_color),name="Eppic final")+
   xlab('Number of core residues')+
   ylab('Number of interfaces')+
   theme(panel.background = element_blank(),
@@ -525,9 +528,9 @@ coreplot=ggplot(subset(eppic,area<=5000 & gmScore>0),aes(x=gmScore))+
         legend.position='bottom');
 
 expplot=ggplot(transform(exp, expMethod = reorder(expMethod, -count)))+
-  geom_bar(aes(x=expMethod,y=count,fill=assembly),alpha=0.5,position="dodge",stat='identity')+
-  scale_fill_manual(values=c("red","green"),name="Assembly")+
-  scale_color_manual(values=c("red","green"),name="Assembly")+
+  geom_bar(aes(x=expMethod,y=count,fill=assembly),alpha=alpha_value,position="dodge",stat='identity')+
+  scale_fill_manual(values=c(xtal_color,bio_color),name="Assembly")+
+  scale_color_manual(values=c(xtal_color,bio_color),name="Assembly")+
   xlab('')+
   ylab('Number of PDBs')+
   geom_text(aes(color=assembly,group=assembly,x=expMethod,y=count,label=count),position=position_dodge(1.0),vjust=-0.5)+
@@ -539,9 +542,9 @@ expplot=ggplot(transform(exp, expMethod = reorder(expMethod, -count)))+
         legend.position='bottom');
 
 spacegroupplot=ggplot(transform(spacegroup, spaceGroup = reorder(spaceGroup, -count)),aes(x=spaceGroup,y=count))+
-  geom_bar(aes(fill=assembly),alpha=0.5)+
-  scale_color_manual(values=c("red","green"),name="Assembly")+
-  scale_fill_manual(values=c("red","green"),name="Assembly")+
+  geom_bar(aes(fill=assembly),alpha=alpha_value)+
+  scale_color_manual(values=c(xtal_color,bio_color),name="Assembly")+
+  scale_fill_manual(values=c(xtal_color,bio_color),name="Assembly")+
   xlab('Space group')+
   ylab('Number of PDBs')+
   theme(panel.background = element_blank(),
@@ -552,9 +555,9 @@ spacegroupplot=ggplot(transform(spacegroup, spaceGroup = reorder(spaceGroup, -co
         legend.position='bottom');
 
 opplot=ggplot(transform(op, operatorType = reorder(operatorType, -count)),aes(x=operatorType,y=count))+
-  geom_bar(aes(fill=final),alpha=0.5)+
-  scale_color_manual(values=c("green","red"),name="Eppic final")+
-  scale_fill_manual(values=c("green","red"),name="Eppic final")+
+  geom_bar(aes(fill=final),alpha=alpha_value)+
+  scale_color_manual(values=c(bio_color,xtal_color),name="Eppic final")+
+  scale_fill_manual(values=c(bio_color,xtal_color),name="Eppic final")+
   xlab('Operator type')+
   ylab('Count')+
   theme(panel.background = element_blank(),
@@ -612,7 +615,7 @@ pisaplot=ggplot(pdata)+
   annotate("text", label = sprintf("%.2f %%",bx), x = 1300, y = 0.97)+
   #geom_hline(aes(yintercept=pisaavg,label='average'),linetype="dashed",show_guide=T)+
   theme(panel.background = element_blank(),
-        text = element_text(size=20,color='black'),
+        text = element_text(size=font_size,color='black'),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
         panel.grid.major = element_line(colour = "gray"),
@@ -659,3 +662,4 @@ dev.off()
 pdf("nmr_chains.pdf")
 nmrplot
 dev.off()
+
