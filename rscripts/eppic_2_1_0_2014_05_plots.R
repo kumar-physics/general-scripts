@@ -4,7 +4,13 @@ library(ggplot2)
 library(plyr)
 library(reshape2)
 #dbconnection
-mydb=dbConnect(MySQL(),dbname="eppic_2_1_0_2014_05")
+
+if(system("hostname",intern=T) == "delilah.psi.ch") { #spencer's system
+  system("ssh -fN -L 3307:localhost:3306 -o ExitOnForwardFailure=yes mpc")
+  mydb = dbConnect(MySQL(),group = "client_mpc",dbname="eppic_2_1_0_2014_05")
+} else {
+  mydb=dbConnect(MySQL(),dbname="eppic_2_1_0_2014_05")
+}
 on.exit(dbDisconnect(mydb))
 
 #functions
@@ -303,9 +309,12 @@ opplot=ggplot(transform(op, operatorType = reorder(operatorType, -count)),aes(x=
 
 janinplot=ggplot()+
   geom_line(data=janindata,aes(x=area,y=density,color='Janin'),size=1.0)+
-  geom_line(data=infinite,aes(x=area,y=..density..,color='Infinite assemblies'),stat='density',size=1.0)+
-  geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on evolution'),stat='density',size=1.0)+
-  geom_line(data=subset(eppic,gm=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on geometry'),stat='density',size=1.0)+
+  stat_bin(data=infinite,aes(x=area,color='Infinite assemblies',y=..density..),geom="line",binwidth=25,drop=T,size=1.0) + 
+  #geom_histogram(data=infinite,aes(x=area,y=..density..,fill='Infinite assemblies'),binwidth=25,alpha=.5) +
+  geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on evolution'),stat='bin',size=1.0,drop=T,binwidth=25)+
+  #geom_histogram(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>350),aes(x=area,y=..density..,fill='Xtal based on evolution'),binwidth=25,alpha=.5)+
+  geom_line(data=subset(eppic,gm=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on geometry'),stat='bin',size=1.0,drop=T,binwidth=25)+
+  #geom_histogram(data=subset(eppic,gm=='xtal' & area>350),aes(x=area,y=..density..,fill='Xtal based on geometry'),binwidth=25,alpha=.5)+
   ylim(0,0.006)+xlim(0,2500)+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab("Probability")+
