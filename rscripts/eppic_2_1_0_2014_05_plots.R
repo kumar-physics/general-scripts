@@ -307,7 +307,7 @@ opplot=ggplot(transform(op, operatorType = reorder(operatorType, -count)),aes(x=
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');
 
-janinplot=ggplot()+
+janinplot=ggplot()+  scale_color_brewer(palette="Dark2") +
   geom_line(data=janindata,aes(x=area,y=density,color='Janin'),size=1.0)+
   stat_bin(data=infinite,aes(x=area,color='Infinite assemblies',y=..density..),geom="line",binwidth=25,drop=T,size=1.0) + 
   #geom_histogram(data=infinite,aes(x=area,y=..density..,fill='Infinite assemblies'),binwidth=25,alpha=.5) +
@@ -328,7 +328,7 @@ janinplot=ggplot()+
         legend.position='bottom');
 
 #Benchmark plots
-benchmark_areaplot = ggplot(d) + 
+benchmark_areaplot = ggplot(d) +
   facet_wrap(~dataset)+
   geom_histogram(aes(x=area,fill=truth),binwidth=100,position='identity',alpha=alpha_value)+
   scale_fill_manual(values=c(bio_color,xtal_color))+
