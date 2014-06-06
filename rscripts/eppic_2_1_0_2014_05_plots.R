@@ -2,6 +2,7 @@
 library(RMySQL)
 library(ggplot2)
 library(plyr)
+library(reshape2)
 #dbconnection
 mydb=dbConnect(MySQL(),dbname="eppic_2_1_0_2014_05")
 on.exit(dbDisconnect(mydb))
@@ -142,10 +143,37 @@ nmr=fetch(dbSendQuery(mydb,"select (length(c.memberChains)+1)/2+1 chains,count(*
                       where p.expMethod='SOLUTION NMR' and length(j.jobId)=4) count 
                       order by chains;"),-1)
 
+
+ep=fetch(dbSendQuery(mydb,"select pdbCode,interfaceId,area,gmScore core,gm,cr,cs,final eppic,
+  pisa pisa_pdb,authors,pqs,pisaCall pisa_db from EppicvsPisa"),-1)
+
+ep$remark='No remark'
+ep$remark[ep$pisa_db=='xtal' & ep$eppic=='xtal']<-'xtal xtal'
+ep$remark[ep$pisa_db=='bio' & ep$eppic=='bio']<-'bio bio'
+ep$remark[ep$pisa_db=='bio' & ep$eppic=='xtal']<-'xtal bio'
+ep$remark[ep$pisa_db=='xtal' & ep$eppic=='bio']<-'bio xtal'
+#ep$remark[ep$eppic!=ep$pisa_db & ep$eppic!='nopred' & ep$pisa_db!='nopred']<-'mismatch'
+# hist1=hist(subset(ep,remark=='xtal xtal')$area,breaks=seq(0,15000,200))
+# hist2=hist(subset(ep,remark=='bio bio')$area,breaks=seq(0,15000,200))
+# hist3=hist(subset(ep,remark=='xtal bio')$area,breaks=seq(0,15000,200))
+# hist4=hist(subset(ep,remark=='bio xtal')$area,breaks=seq(0,15000,200))
+# d=data.frame(seq(100,15000,200),hist1$counts,hist2$counts,hist3$counts,hist4$counts)
+# colnames(d)=c('area','XtalXtal','BioBio','XtalBio','BioXtal')
+# d$xtalmatch=100*(d$xtal/(d$bio+d$xtal+d$mismatch))
+# d$biomatch=100*(d$bio/(d$bio+d$xtal+d$mismatch))
+# #pisadata<-melt(subset(d,select=c(area,xtalmatch,biomatch)),id.vars='area')
+# pisadata<-melt(d,id.vars='area')
+s<-length(subset(ep,remark=='xtal xtal' | remark=='bio bio' | remark=='xtal bio' | remark=='bio xtal')$area)
+pisaavg<-(length(subset(ep,remark=='xtal xtal' | remark=='bio bio')$area)/s)
+
+xx<-100*length(subset(ep,remark=='xtal xtal')$area)/s
+bb<-100*length(subset(ep,remark=='bio bio')$area)/s
+xb<-100*length(subset(ep,remark=='xtal bio')$area)/s
+bx<-100*length(subset(ep,remark=='bio xtal')$area)/s
+
 #creating data frames
 janin<-function(x){0.016*exp(-x/260)}
 janindata<-data.frame(area=0:2500,density=janin(0:2500))
-
 
 #benchmark data
 data=loadBenchmark("dc")
@@ -352,6 +380,33 @@ nmrplot=ggplot(nmr)+
         legend.position='bottom');
 
 
+pdata=subset(ep,remark!='No remark')
+pdata$remark<-factor(pdata$remark,levels=c("xtal xtal","bio bio","xtal bio","bio xtal"))
+pisaplot=ggplot(pdata)+
+  geom_bar(aes(x=area,y=(..count..),fill=remark),
+           position=position_fill(height=100),stat='bin',binwidth=200)+
+  xlim(0,5000)+
+  xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
+  ylab('Ratio of the interface calls with in a bin')+
+  annotate("text", label = sprintf("%.2f %%",xx), x = 500, y = 0.3)+
+  annotate("text", label = sprintf("%.2f %%",bb), x = 3000, y = 0.5 )+
+  annotate("text", label = sprintf("%.2f %%",xb), x = 1100, y = 0.8)+
+  annotate("text", label = sprintf("%.2f %%",bx), x = 1300, y = 0.97)+
+  #geom_hline(aes(yintercept=pisaavg,label='average'),linetype="dashed",show_guide=T)+
+  theme(panel.background = element_blank(),
+        text = element_text(size=20,color='black'),
+        axis.text=element_text(color='black'),
+        panel.border =element_rect(colour = "black",fill=NA),
+        panel.grid.major = element_line(colour = "gray"),
+        panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
+        legend.title=element_blank(),
+        legend.position='bottom');pisaplot
+
+
+jpeg("pisa.jpg",width=1200,height=800)
+pisaplot
+dev.off()
+
 jpeg("bench_area.jpg",width=1200,height=800)
 benchmark_areaplot
 dev.off()
@@ -542,6 +597,34 @@ nmrplot=ggplot(nmr)+
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
         legend.title=element_blank(),
         legend.position='bottom');
+
+pdata=subset(ep,remark!='No remark')
+pdata$remark<-factor(pdata$remark,levels=c("xtal xtal","bio bio","xtal bio","bio xtal"))
+pisaplot=ggplot(pdata)+
+  geom_bar(aes(x=area,y=(..count..),fill=remark),
+           position=position_fill(height=100),stat='bin',binwidth=200)+
+  xlim(0,5000)+
+  xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
+  ylab('Ratio of the interface calls with in a bin')+
+  annotate("text", label = sprintf("%.2f %%",xx), x = 500, y = 0.3)+
+  annotate("text", label = sprintf("%.2f %%",bb), x = 3000, y = 0.5 )+
+  annotate("text", label = sprintf("%.2f %%",xb), x = 1100, y = 0.8)+
+  annotate("text", label = sprintf("%.2f %%",bx), x = 1300, y = 0.97)+
+  #geom_hline(aes(yintercept=pisaavg,label='average'),linetype="dashed",show_guide=T)+
+  theme(panel.background = element_blank(),
+        text = element_text(size=20,color='black'),
+        axis.text=element_text(color='black'),
+        panel.border =element_rect(colour = "black",fill=NA),
+        panel.grid.major = element_line(colour = "gray"),
+        panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
+        legend.title=element_blank(),
+        legend.position='bottom');pisaplot
+
+
+
+pdf("pisa.pdf")
+pisaplot
+dev.off()
 
 pdf("bench_area.pdf")
 benchmark_areaplot
