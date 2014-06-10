@@ -4,7 +4,7 @@ library(ggplot2)
 library(plyr)
 library(reshape2)
 #dbconnection
-
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 if(system("hostname",intern=T) == "delilah.psi.ch") { #spencer's system
   system("ssh -fN -L 3307:localhost:3306 -o ExitOnForwardFailure=yes mpc")
   mydb = dbConnect(MySQL(),group = "client_mpc",dbname="eppic_2_1_0_2014_05")
@@ -308,15 +308,15 @@ opplot=ggplot(transform(op, operatorType = reorder(operatorType, -count)),aes(x=
         legend.position='bottom');
 
 janinplot=ggplot()+  scale_color_brewer(palette="Dark2") +
-  geom_line(data=janindata,aes(x=area,y=density,color='Janin'),size=1.0)+
-  geom_line(data=infinite,aes(x=area,y=..density..,color='Infinite assemblies'),stat='bin',binwidth=25,drop=T,size=1.0)+
-  geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on evolution'),stat='bin',binwidth=25,drop=T,size=1.0)+
-  geom_line(data=subset(eppic,gm=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on geometry'),stat='bin',binwidth=25,drop=T,size=1.0)+
-  stat_bin(data=infinite,aes(x=area,color='Infinite assemblies',y=..density..),geom="line",binwidth=25,drop=T,size=1.0) + 
+   geom_line(data=janindata,aes(x=area,y=density,color='Janin'),size=1.0)+
+   geom_line(data=infinite,aes(x=area,y=..density..,color='Infinite assemblies'),stat='bin',binwidth=25,drop=T,size=1.0)+
+   geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on evolution'),stat='bin',binwidth=25,drop=T,size=1.0)+
+   geom_line(data=subset(eppic,gm=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on geometry'),stat='bin',binwidth=25,drop=T,size=1.0)+
+#  stat_bin(data=infinite,aes(x=area,color='Infinite assemblies',y=..density..),geom="line",binwidth=25,drop=T,size=1.0) + 
   #geom_histogram(data=infinite,aes(x=area,y=..density..,fill='Infinite assemblies'),binwidth=25,alpha=.5) +
-  geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on evolution'),stat='bin',size=1.0,drop=T,binwidth=25)+
+#  geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on evolution'),stat='bin',size=1.0,drop=T,binwidth=25)+
   #geom_histogram(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>350),aes(x=area,y=..density..,fill='Xtal based on evolution'),binwidth=25,alpha=.5)+
-  geom_line(data=subset(eppic,gm=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on geometry'),stat='bin',size=1.0,drop=T,binwidth=25)+
+#  geom_line(data=subset(eppic,gm=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on geometry'),stat='bin',size=1.0,drop=T,binwidth=25)+
   #geom_histogram(data=subset(eppic,gm=='xtal' & area>350),aes(x=area,y=..density..,fill='Xtal based on geometry'),binwidth=25,alpha=.5)+
   ylim(0,0.006)+xlim(0,2500)+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
@@ -397,7 +397,7 @@ nmrplot=ggplot(nmr)+
 
 pdata=subset(ep,remark!='No remark')
 pdata$remark<-factor(pdata$remark,levels=c("xtal xtal","bio bio","xtal bio","bio xtal"))
-pisaplot=ggplot(pdata)+
+pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette)+
   geom_bar(aes(x=area,y=(..count..),fill=remark),
            position=position_fill(height=100),stat='bin',binwidth=200)+
   xlim(0,5000)+
@@ -580,23 +580,28 @@ opplot=ggplot(transform(op, operatorType = reorder(operatorType, -count)),aes(x=
 
 
 
-janinplot=ggplot()+
+janinplot=ggplot()+  scale_color_brewer(palette="Dark2") +
   geom_line(data=janindata,aes(x=area,y=density,color='Janin'),size=1.0)+
-  geom_line(data=infinite,aes(x=area,y=..density..,color='Infinite assemblies'),stat='density',size=1.0)+
-  geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on evolution'),stat='density',size=1.0)+
-  geom_line(data=subset(eppic,gm=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on geometry'),stat='density',size=1.0)+
+  geom_line(data=infinite,aes(x=area,y=..density..,color='Infinite assemblies'),stat='bin',binwidth=25,drop=T,size=1.0)+
+  geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on evolution'),stat='bin',binwidth=25,drop=T,size=1.0)+
+  geom_line(data=subset(eppic,gm=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on geometry'),stat='bin',binwidth=25,drop=T,size=1.0)+
+  #  stat_bin(data=infinite,aes(x=area,color='Infinite assemblies',y=..density..),geom="line",binwidth=25,drop=T,size=1.0) + 
+  #geom_histogram(data=infinite,aes(x=area,y=..density..,fill='Infinite assemblies'),binwidth=25,alpha=.5) +
+  #  geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on evolution'),stat='bin',size=1.0,drop=T,binwidth=25)+
+  #geom_histogram(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>350),aes(x=area,y=..density..,fill='Xtal based on evolution'),binwidth=25,alpha=.5)+
+  #  geom_line(data=subset(eppic,gm=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on geometry'),stat='bin',size=1.0,drop=T,binwidth=25)+
+  #geom_histogram(data=subset(eppic,gm=='xtal' & area>350),aes(x=area,y=..density..,fill='Xtal based on geometry'),binwidth=25,alpha=.5)+
   ylim(0,0.006)+xlim(0,2500)+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab("Probability")+
   theme(panel.background = element_blank(),
-        text = element_text(color='black'),
+        text = element_text(size=font_size,color='black'),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
         panel.grid.major = element_line(colour = "gray"),
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
         legend.title=element_blank(),
         legend.position='bottom');
-
 nmrplot=ggplot(nmr)+
   geom_bar(aes(x=chains,y=count),stat='identity',fill='#1b9e77')+
   scale_x_continuous(breaks=1:15)+
@@ -615,7 +620,7 @@ nmrplot=ggplot(nmr)+
 
 pdata=subset(ep,remark!='No remark')
 pdata$remark<-factor(pdata$remark,levels=c("xtal xtal","bio bio","xtal bio","bio xtal"))
-pisaplot=ggplot(pdata)+
+pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette)+
   geom_bar(aes(x=area,y=(..count..),fill=remark),
            position=position_fill(height=100),stat='bin',binwidth=200)+
   xlim(0,5000)+
