@@ -303,20 +303,20 @@ opplot=ggplot(transform(op, operatorType = reorder(operatorType, -count)),aes(x=
 
 janinplot=ggplot()+
   geom_line(data=janindata,aes(x=area,y=density,color='Janin'),size=1.0)+
-  geom_line(data=infinite,aes(x=area,y=..density..,color='Infinite assemblies'),stat='density',size=1.0)+
-  geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on evolution'),stat='density',size=1.0)+
-  geom_line(data=subset(eppic,gm=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on geometry'),stat='density',size=1.0)+
+  geom_line(data=infinite,aes(x=area,y=..density..,color='Infinite assemblies'),stat='bin',binwidth=25,drop=T,size=1.0)+
+  geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on evolution'),stat='bin',binwidth=25,drop=T,size=1.0)+
+  geom_line(data=subset(eppic,gm=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on geometry'),stat='bin',binwidth=25,drop=T,size=1.0)+
   ylim(0,0.006)+xlim(0,2500)+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab("Probability")+
   theme(panel.background = element_blank(),
-        text = element_text(size=font_size,color='black'),
+        text = element_text(size=20,color='black'),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
         panel.grid.major = element_line(colour = "gray"),
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
         legend.title=element_blank(),
-        legend.position='bottom');
+        legend.position='bottom');janinplot
 
 #Benchmark plots
 benchmark_areaplot = ggplot(d) + 
