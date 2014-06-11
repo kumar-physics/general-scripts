@@ -547,13 +547,13 @@ expplot=ggplot(transform(exp, expMethod = reorder(expMethod, -count)))+
   scale_color_manual(values=c(xtal_color,bio_color),name="Assembly")+
   xlab('')+
   ylab('Number of PDBs')+
-  geom_text(aes(color=assembly,group=assembly,x=expMethod,y=count,label=count),position=position_dodge(1.0),vjust=-0.5)+
+  geom_text(aes(color=assembly,group=assembly,x=expMethod,y=count,label=count),position=position_dodge(1.0),vjust=-0.1,size=3)+
   theme(panel.background = element_blank(),
         text = element_text(color='black'),
-        axis.text.x=element_text(color='black',angle=90,hjust=1,vjust=0.5),
+        axis.text.x=element_text(color='black',angle=90,hjust=0.8,vjust=0.5),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
-        legend.position='bottom');
+        legend.position='bottom');expplot
 
 spacegroupplot=ggplot(transform(spacegroup, spaceGroup = reorder(spaceGroup, -count)),aes(x=spaceGroup,y=count))+
   geom_bar(aes(fill=assembly),alpha=alpha_value)+
