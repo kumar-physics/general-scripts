@@ -372,6 +372,7 @@ rocplot=ggplot(roc_data)+
         text = element_text(size=font_size,color='black'),
         axis.text=element_text(color='black'),
         panel.grid.major = element_line(colour = "gray"),
+        axis.text.x=element_text(color='black',angle=90,hjust=1,vjust=0.5),
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');
@@ -469,6 +470,7 @@ rocplot=ggplot(roc_data)+
         text = element_text(color='black'),
         axis.text=element_text(color='black'),
         panel.grid.major = element_line(colour = "gray"),
+        axis.text.x=element_text(color='black',angle=90,hjust=1,vjust=0.5),
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');rocplot
