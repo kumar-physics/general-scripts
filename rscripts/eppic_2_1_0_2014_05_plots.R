@@ -158,17 +158,6 @@ ep$remark[ep$pisa_db=='xtal' & ep$eppic=='xtal']<-'xtal xtal'
 ep$remark[ep$pisa_db=='bio' & ep$eppic=='bio']<-'bio bio'
 ep$remark[ep$pisa_db=='bio' & ep$eppic=='xtal']<-'xtal bio'
 ep$remark[ep$pisa_db=='xtal' & ep$eppic=='bio']<-'bio xtal'
-#ep$remark[ep$eppic!=ep$pisa_db & ep$eppic!='nopred' & ep$pisa_db!='nopred']<-'mismatch'
-# hist1=hist(subset(ep,remark=='xtal xtal')$area,breaks=seq(0,15000,200))
-# hist2=hist(subset(ep,remark=='bio bio')$area,breaks=seq(0,15000,200))
-# hist3=hist(subset(ep,remark=='xtal bio')$area,breaks=seq(0,15000,200))
-# hist4=hist(subset(ep,remark=='bio xtal')$area,breaks=seq(0,15000,200))
-# d=data.frame(seq(100,15000,200),hist1$counts,hist2$counts,hist3$counts,hist4$counts)
-# colnames(d)=c('area','XtalXtal','BioBio','XtalBio','BioXtal')
-# d$xtalmatch=100*(d$xtal/(d$bio+d$xtal+d$mismatch))
-# d$biomatch=100*(d$bio/(d$bio+d$xtal+d$mismatch))
-# #pisadata<-melt(subset(d,select=c(area,xtalmatch,biomatch)),id.vars='area')
-# pisadata<-melt(d,id.vars='area')
 s<-length(subset(ep,remark=='xtal xtal' | remark=='bio bio' | remark=='xtal bio' | remark=='bio xtal')$area)
 
 xx<-100*length(subset(ep,remark=='xtal xtal')$area)/s
