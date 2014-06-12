@@ -398,9 +398,14 @@ nmrplot=ggplot(nmr)+
 
 pdata=subset(ep,remark!='No remark')
 pdata$remark<-factor(pdata$remark,levels=c("xtal xtal","bio bio","xtal bio","bio xtal"))
+pdata$issame="different interface call"
+pdata$issame[pdata$pisa_db==pdata$eppic]="same interface call"
+pdata$issame<-factor(pdata$issame,levels=c("same interface call","different interface call"))
 pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette)+
   geom_bar(aes(x=area,y=(..count..),fill=remark),
-           position=position_fill(height=100),stat='bin',binwidth=200)+
+            position=position_fill(height=100),stat='bin',binwidth=200)+
+  geom_line(aes(x=area,y=(..count..),color=issame,ymax = 1),
+            position=position_fill(height=100),stat='bin',binwidth=200)+
   xlim(0,5000)+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab('Ratio of the interface calls with in a bin')+
@@ -416,9 +421,7 @@ pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette)+
         panel.grid.major = element_line(colour = "gray"),
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
         legend.title=element_blank(),
-        legend.position='bottom');
-
-
+        legend.position='bottom');pisaplot
 jpeg("pisa.jpg",width=1200,height=800)
 pisaplot
 dev.off()
@@ -622,9 +625,14 @@ nmrplot=ggplot(nmr)+
 
 pdata=subset(ep,remark!='No remark')
 pdata$remark<-factor(pdata$remark,levels=c("xtal xtal","bio bio","xtal bio","bio xtal"))
+pdata$issame="different interface call"
+pdata$issame[pdata$pisa_db==pdata$eppic]="same interface call"
+pdata$issame<-factor(pdata$issame,levels=c("same interface call","different interface call"))
 pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette)+
   geom_bar(aes(x=area,y=(..count..),fill=remark),
            position=position_fill(height=100),stat='bin',binwidth=200)+
+  geom_line(aes(x=area,y=(..count..),color=issame,ymax = 1),
+            position=position_fill(height=100),stat='bin',binwidth=200)+
   xlim(0,5000)+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab('Ratio of the interface calls with in a bin')+
@@ -634,13 +642,13 @@ pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette)+
   annotate("text", label = sprintf("%.2f %%",bx), x = 1300, y = 0.97)+
   #geom_hline(aes(yintercept=pisaavg,label='average'),linetype="dashed",show_guide=T)+
   theme(panel.background = element_blank(),
-        text = element_text(size=font_size,color='black'),
+        text = element_text(color='black'),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
         panel.grid.major = element_line(colour = "gray"),
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
         legend.title=element_blank(),
-        legend.position='bottom');pisaplot
+        legend.position='bottom');
 
 
 

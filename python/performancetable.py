@@ -66,14 +66,15 @@ def prepare_table():
 	fo.write("\t\t& & Final & %.4f & %.4f & %.4f & %.4f & %.4f & %.4f & %.4f & %.4f \\\\ \hline\n"%(manyfinal[0],manyfinal50[0],manyfinal[1],manyfinal50[1],manyfinal[2],manyfinal50[2],manyfinal[3],dcfinal50[3]))	
 
 	fo.write("\n\t\end{tabular}\n\t\end{scriptsize}\n\end{table}\n")
-
-	fo.write("\n\\begin{table}[h!]\n\caption{NMR statistics as of May 27, 2014}\n\t\label{nmrtable}\n\t\t\\begin{tabular}{|c|c|}\n\hline")
-	fo.write("\n\t\t Chains &  PDBs \\\\ \hline ")
-	fo.write("\n\t\t %d & %d \\\\ "%(atof(nmr[0].split("\t")[0]),atof(nmr[0].split("\t")[1])))
-	fo.write("\n\t\t %d & %d \\\\ "%(atof(nmr[2].split("\t")[0]),atof(nmr[1].split("\t")[1])+atof(nmr[2].split("\t")[1])))
+	
+	ss=sum([atof(xx.split("\t")[1]) for xx in nmr])
+	fo.write("\n\\begin{table}[h!]\n\caption{NMR statistics as of May 27, 2014}\n\t\label{nmrtable}\n\t\t\\begin{tabular}{|c|c|c|}\n\hline")
+	fo.write("\n\t\t Chains &  PDBs & Percentage \\\\ \hline ")
+	fo.write("\n\t\t %d & %d & %.2f\\\\ "%(atof(nmr[0].split("\t")[0]),atof(nmr[0].split("\t")[1]),(atof(nmr[0].split("\t")[1])/ss)*100 ))
+	fo.write("\n\t\t %d & %d & %.2f\\\\ "%(atof(nmr[2].split("\t")[0]),atof(nmr[1].split("\t")[1])+atof(nmr[2].split("\t")[1]),((atof(nmr[1].split("\t")[1])+atof(nmr[2].split("\t")[1]))/ss)*100))
 	for nn in range(3,len(nmr)):
 		#w=nn.split("\t")
-		fo.write("\n\t\t %d & %d \\\\ "%(atof(nmr[nn].split("\t")[0]),atof(nmr[nn].split("\t")[1])))
+		fo.write("\n\t\t %d & %d & %.2f\\\\ "%(atof(nmr[nn].split("\t")[0]),atof(nmr[nn].split("\t")[1]),(atof(nmr[nn].split("\t")[1])/ss)*100))
 	fo.write("\hline\n\t\t\end{tabular}\n\end{table}")
 	fo.close()
 	
