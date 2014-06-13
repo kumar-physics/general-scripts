@@ -41,3 +41,14 @@ select p.pdbName,i.clusterId,count(*) count from Interface as i inner join PdbSc
 
 
 select p.pdbName,uniprot_2014_05.get_taxonomy(uniprotId) from HomologsInfoItem as h inner join PdbScore as p on p.uid=h.pdbScoreItem_uid inner join Job as j on j.uid=p.jobItem_uid where length(jobId)=4 and h.hasQueryMatch and uniprot_2014_05.get_taxonomy(uniprotId)="Not applicable";
+
+
+drop function if exists count_bio;
+DELIMITER $$
+create function count_bio(pdb varchar(255)) returns int(11)
+BEGIN
+DECLARE n int(11);
+select count(*) into n from InterfaceClusterScore where method='eppic' and callName='bio' and pdbCode=pdb;
+return n;
+END $$
+DELIMITER ;

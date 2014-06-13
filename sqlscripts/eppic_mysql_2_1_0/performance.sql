@@ -245,7 +245,8 @@ DELIMITER ;
 
 
 
-
+select count(*) from InterfaceScore as s inner join Interface as i
+on i.uid=s.interfaceItem_uid where method='eppic' and callName='bio' and s.pdbCode='4hnk' group by i.clusterId;
 
 
 
