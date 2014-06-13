@@ -41,10 +41,10 @@ def prepare_table():
 	#print pogm,pocr,pocs,pogm50,pocr50,pocs50
 	#print manygm,manycr,manycs,manygm50,manycr50,manycs50
 	#print dcgm,dcgm50
-	cmd="mysql eppic_2_1_0_2014_05 -N -B -e 'select (length(c.memberChains)+1)/2 chains,count(*) count from ChainCluster as c inner join PdbInfo as p on p.uid=c.pdbInfo_uid inner join Job as j on j.uid=p.job_uid where p.expMethod=\"SOLUTION NMR\" and length(j.jobId)=4 group by length(c.memberChains) union all select 1.00 chains, (select count(*) from PdbInfo as p inner join Job as j on j.uid=p.job_uid where p.expMethod=\"SOLUTION NMR\" and length(j.jobId)=4)-(select count(*) from ChainCluster as c inner join PdbInfo as p on p.uid=c.pdbInfo_uid inner join Job as j on j.uid=p.job_uid where p.expMethod=\"SOLUTION NMR\" and length(j.jobId)=4) count order by chains'"
+	cmd="mysql eppic_2_1_0_2014_05 -N -B -e 'select chainCount chains,count(*) count from chainCount where expMethod=\"SOLUTION NMR\" group by chainCount union all select 1 chains, (select count(*) from PdbInfo as p inner join Job as j on j.uid=p.job_uid where p.expMethod=\"SOLUTION NMR\" and length(j.jobId)=4) - (select count(*) from chainCount where expMethod=\"SOLUTION NMR\") count order by chains; '"
 	nmr=commands.getoutput(cmd).split("\n")
 	
-	fo=open("/home/baskaran_k/publications/PDBwide_latex/tables.tex",'w')
+	fo=open("../tables.tex",'w')
 	fo.write("\n\\begin{table}[h!]\n\t\\caption{Eppic performance}\n\t\label{benchmark}\n\t\\begin{scriptsize}\n\t\\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}\n\t\hline\n")
 	fo.write("\t\tDataSet & N & Method & Sensitivity & Sensitivity & Specificity & Specificity &  Accuracy & Accuracy & MCC & MCC\\\\\n")
 	fo.write("\t\t &($>$50 homo.)& & & $>$50 homo. & &  $>$50 homo.& & $>$ 50 homo. & &$>$50 homo. \\\\ \hline\n")
@@ -68,13 +68,13 @@ def prepare_table():
 	fo.write("\n\t\end{tabular}\n\t\end{scriptsize}\n\end{table}\n")
 	
 	ss=sum([atof(xx.split("\t")[1]) for xx in nmr])
-	fo.write("\n\\begin{table}[h!]\n\caption{NMR statistics as of May 27, 2014}\n\t\label{nmrtable}\n\t\t\\begin{tabular}{|c|c|c|}\n\hline")
+	fo.write("\n\\begin{table}[h!]\n\caption{NMR statistics as of May 27, 2014}\n\t\label{nmrtable}\n\t\t\\begin{tabular}{|r|r|c|}\n\hline")
 	fo.write("\n\t\t Chains &  PDBs & Percentage \\\\ \hline ")
-	fo.write("\n\t\t %d & %d & %.2f\\\\ "%(atof(nmr[0].split("\t")[0]),atof(nmr[0].split("\t")[1]),(atof(nmr[0].split("\t")[1])/ss)*100 ))
-	fo.write("\n\t\t %d & %d & %.2f\\\\ "%(atof(nmr[2].split("\t")[0]),atof(nmr[1].split("\t")[1])+atof(nmr[2].split("\t")[1]),((atof(nmr[1].split("\t")[1])+atof(nmr[2].split("\t")[1]))/ss)*100))
+	fo.write("\n\t\t %d & %d & %.2f \%%\\\\ "%(atof(nmr[0].split("\t")[0]),atof(nmr[0].split("\t")[1]),(atof(nmr[0].split("\t")[1])/ss)*100 ))
+	fo.write("\n\t\t %d & %d & %.2f \%%\\\\ "%(atof(nmr[2].split("\t")[0]),atof(nmr[1].split("\t")[1])+atof(nmr[2].split("\t")[1]),((atof(nmr[1].split("\t")[1])+atof(nmr[2].split("\t")[1]))/ss)*100))
 	for nn in range(3,len(nmr)):
 		#w=nn.split("\t")
-		fo.write("\n\t\t %d & %d & %.2f\\\\ "%(atof(nmr[nn].split("\t")[0]),atof(nmr[nn].split("\t")[1]),(atof(nmr[nn].split("\t")[1])/ss)*100))
+		fo.write("\n\t\t %d & %d & %.2f \%%\\\\ "%(atof(nmr[nn].split("\t")[0]),atof(nmr[nn].split("\t")[1]),(atof(nmr[nn].split("\t")[1])/ss)*100))
 	fo.write("\hline\n\t\t\end{tabular}\n\end{table}")
 	fo.close()
 	
