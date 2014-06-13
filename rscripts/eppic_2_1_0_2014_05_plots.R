@@ -12,7 +12,7 @@ if(system("hostname",intern=T) == "delilah.psi.ch") { #spencer's system
   mydb=dbConnect(MySQL(),dbname="eppic_2_1_0_2014_05")
 }
 on.exit(dbDisconnect(mydb))
-
+#just for testing
 #functions
 loadBenchmark = function(db, #database name
                          db_bio=paste(db,"_bio",sep=""), # bio db name
