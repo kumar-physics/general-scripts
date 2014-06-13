@@ -3,17 +3,22 @@ library(RMySQL)
 library(ggplot2)
 library(plyr)
 library(reshape2)
-#dbconnection
+
+#color blind free paletter
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+#dbconnection
 if(system("hostname",intern=T) == "delilah.psi.ch") { #spencer's system
   system("ssh -fN -L 3307:localhost:3306 -o ExitOnForwardFailure=yes mpc")
   mydb = dbConnect(MySQL(),group = "client_mpc",dbname="eppic_2_1_0_2014_05")
 } else {
-  mydb=dbConnect(MySQL(),dbname="eppic_2_1_0_2014_05")
+  mydb=dbConnect(MySQL(),dbname="eppic_2_1_0_2014_05") #~/.my.cnf file configured with right username and passwd
 }
 on.exit(dbDisconnect(mydb))
-#just for testing
+
+
 #functions
+#to load benchmark data
 loadBenchmark = function(db, #database name
                          db_bio=paste(db,"_bio",sep=""), # bio db name
                          db_xtal=paste(db,"_xtal",sep=""), # xtal db name
@@ -37,7 +42,7 @@ loadBenchmark = function(db, #database name
   }
 }
 
-
+# to calcualte roc curve
 roc = function(score,truth,tag,dat=NA){
   cutoff<-NULL
   sensitivity<-NULL
@@ -72,6 +77,7 @@ roc = function(score,truth,tag,dat=NA){
   } 
 }
 
+#due to discrete values of gmScore above script is slightly modified to avoid null cases
 roc_gm = function(score,truth,tag,dat=NA){
   cutoff<-NULL
   sensitivity<-NULL
@@ -132,7 +138,7 @@ infinite=fetch(dbSendQuery(mydb,"select pdbCode,interfaceId,area
 op=fetch(dbSendQuery(mydb,"select operatorType,final,count(*) count 
                      from EppicTable where operatorType is not NULL 
                      group by operatorType,final;"),-1)
-
+#NMR plot not required for paper
 nmr=fetch(dbSendQuery(mydb,"select (length(c.memberChains)+1)/2+1 chains,count(*) count
   from ChainCluster as c 
   inner join PdbInfo as p on p.uid=c.pdbInfo_uid 
