@@ -263,7 +263,7 @@ coreplot=ggplot(subset(eppic,area<=5000 & gmScore>0),aes(x=gmScore))+
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');
 
-expplot=ggplot(transform(exp, expMethod = reorder(expMethod, -count)))+
+expplot=ggplot(transform(subset(exp,count>400), expMethod = reorder(expMethod, -count)))+
   geom_bar(aes(x=expMethod,y=count,fill=assembly),alpha=alpha_value,position="dodge",stat='identity')+
   scale_fill_manual(values=c(xtal_color,bio_color),name="Assembly")+
   scale_color_manual(values=c(xtal_color,bio_color),name="Assembly")+
@@ -272,10 +272,10 @@ expplot=ggplot(transform(exp, expMethod = reorder(expMethod, -count)))+
   geom_text(aes(color=assembly,group=assembly,x=expMethod,y=count,label=count),position=position_dodge(1.0),vjust=-0.5)+
   theme(panel.background = element_blank(),
         text = element_text(size=font_size,color='black'),
-        axis.text.x=element_text(color='black',angle=90,hjust=1,vjust=0.5),
+        #axis.text.x=element_text(color='black',angle=90,hjust=1,vjust=0.5),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
-        legend.position='bottom');
+        legend.position='bottom');expplot
 
 spacegroupplot=ggplot(transform(spacegroup, spaceGroup = reorder(spaceGroup, -count)),aes(x=spaceGroup,y=count))+
   geom_bar(aes(fill=assembly),alpha=alpha_value)+
@@ -539,7 +539,7 @@ coreplot=ggplot(subset(eppic,area<=5000 & gmScore>0),aes(x=gmScore))+
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');
 
-expplot=ggplot(transform(exp, expMethod = reorder(expMethod, -count)))+
+expplot=ggplot(transform(subset(exp,count>400), expMethod = reorder(expMethod, -count)))+
   geom_bar(aes(x=expMethod,y=count,fill=assembly),alpha=alpha_value,position="dodge",stat='identity')+
   scale_fill_manual(values=c(xtal_color,bio_color),name="Assembly")+
   scale_color_manual(values=c(xtal_color,bio_color),name="Assembly")+
@@ -548,7 +548,7 @@ expplot=ggplot(transform(exp, expMethod = reorder(expMethod, -count)))+
   geom_text(aes(color=assembly,group=assembly,x=expMethod,y=count,label=count),position=position_dodge(1.0),vjust=-0.1,size=3)+
   theme(panel.background = element_blank(),
         text = element_text(color='black'),
-        axis.text.x=element_text(color='black',angle=90,hjust=0.8,vjust=0.5),
+        #axis.text.x=element_text(color='black',angle=90,hjust=0.8,vjust=0.5),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');expplot
