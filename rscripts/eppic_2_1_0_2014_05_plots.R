@@ -156,8 +156,8 @@ nmr=fetch(dbSendQuery(mydb,"select (length(c.memberChains)+1)/2+1 chains,count(*
                       order by chains;"),-1)
 
 
-ep=fetch(dbSendQuery(mydb,"select pdbCode,interfaceId,area,gmScore core,gm,cr,cs,final eppic,
-  pisa pisa_pdb,authors,pqs,pisaCall pisa_db from EppicvsPisa"),-1)
+ep=fetch(dbSendQuery(mydb,"select pdbCode,interfaceId,resolution,rfreeValue,area,gmScore core,gm,cr,cs,final eppic,
+  pisa pisa_pdb,authors,pqs,pisaCall pisa_db from EppicvsPisa where resolution<2.5 and rfreeValue<0.3" ),-1)
 
 ep$remark='No remark'
 ep$remark[ep$pisa_db=='xtal' & ep$eppic=='xtal']<-'xtal xtal'
@@ -170,6 +170,11 @@ xx<-100*length(subset(ep,remark=='xtal xtal')$area)/s
 bb<-100*length(subset(ep,remark=='bio bio')$area)/s
 xb<-100*length(subset(ep,remark=='xtal bio')$area)/s
 bx<-100*length(subset(ep,remark=='bio xtal')$area)/s
+pdata=subset(ep,remark!='No remark')
+pdata$remark<-factor(pdata$remark,levels=c("xtal xtal","bio bio","xtal bio","bio xtal"))
+pdata$issame="different interface call"
+pdata$issame[pdata$pisa_db==pdata$eppic]="same interface call"
+pdata$issame<-factor(pdata$issame,levels=c("same interface call","different interface call"))
 
 #creating data frames
 janin<-function(x){0.016*exp(-x/260)}
@@ -263,7 +268,7 @@ coreplot=ggplot(subset(eppic,area<=5000 & gmScore>0),aes(x=gmScore))+
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');
 
-expplot=ggplot(transform(exp, expMethod = reorder(expMethod, -count)))+
+expplot=ggplot(transform(subset(exp,count>400), expMethod = reorder(expMethod, -count)))+
   geom_bar(aes(x=expMethod,y=count,fill=assembly),alpha=alpha_value,position="dodge",stat='identity')+
   scale_fill_manual(values=c(xtal_color,bio_color),name="Assembly")+
   scale_color_manual(values=c(xtal_color,bio_color),name="Assembly")+
@@ -272,10 +277,10 @@ expplot=ggplot(transform(exp, expMethod = reorder(expMethod, -count)))+
   geom_text(aes(color=assembly,group=assembly,x=expMethod,y=count,label=count),position=position_dodge(1.0),vjust=-0.5)+
   theme(panel.background = element_blank(),
         text = element_text(size=font_size,color='black'),
-        axis.text.x=element_text(color='black',angle=90,hjust=1,vjust=0.5),
+        #axis.text.x=element_text(color='black',angle=90,hjust=1,vjust=0.5),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
-        legend.position='bottom');
+        legend.position='bottom');expplot
 
 spacegroupplot=ggplot(transform(spacegroup, spaceGroup = reorder(spaceGroup, -count)),aes(x=spaceGroup,y=count))+
   geom_bar(aes(fill=assembly),alpha=alpha_value)+
@@ -391,23 +396,19 @@ nmrplot=ggplot(nmr)+
         legend.position='bottom');
 
 
-pdata=subset(ep,remark!='No remark')
-pdata$remark<-factor(pdata$remark,levels=c("xtal xtal","bio bio","xtal bio","bio xtal"))
-pdata$issame="different interface call"
-pdata$issame[pdata$pisa_db==pdata$eppic]="same interface call"
-pdata$issame<-factor(pdata$issame,levels=c("same interface call","different interface call"))
+
 pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette)+
-  geom_bar(aes(x=area,y=(..count..),fill=remark),
+  geom_bar(aes(x=area,fill=remark),
             position=position_fill(height=100),stat='bin',binwidth=200)+
-  geom_line(aes(x=area,y=(..count..),color=issame,ymax = 1),
-            position=position_fill(height=100),stat='bin',binwidth=200)+
+  #geom_line(aes(x=area,y=..count..,color=issame,ymax=1),
+   #         position=position_fill(height=100),stat='bin',binwidth=200)+
   xlim(0,5000)+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab('Ratio of the interface calls with in a bin')+
   annotate("text", label = sprintf("%.2f %%",xx), x = 500, y = 0.3)+
   annotate("text", label = sprintf("%.2f %%",bb), x = 3000, y = 0.5 )+
-  annotate("text", label = sprintf("%.2f %%",xb), x = 1100, y = 0.8)+
-  annotate("text", label = sprintf("%.2f %%",bx), x = 1300, y = 0.97)+
+  annotate("text", label = sprintf("%.2f %%",xb), x = 1100, y = 0.85)+
+  annotate("text", label = sprintf("%.2f %%",bx), x = 1200, y = 0.97)+
   #geom_hline(aes(yintercept=pisaavg,label='average'),linetype="dashed",show_guide=T)+
   theme(panel.background = element_blank(),
         text = element_text(size=font_size,color='black'),
@@ -539,7 +540,7 @@ coreplot=ggplot(subset(eppic,area<=5000 & gmScore>0),aes(x=gmScore))+
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');
 
-expplot=ggplot(transform(exp, expMethod = reorder(expMethod, -count)))+
+expplot=ggplot(transform(subset(exp,count>400), expMethod = reorder(expMethod, -count)))+
   geom_bar(aes(x=expMethod,y=count,fill=assembly),alpha=alpha_value,position="dodge",stat='identity')+
   scale_fill_manual(values=c(xtal_color,bio_color),name="Assembly")+
   scale_color_manual(values=c(xtal_color,bio_color),name="Assembly")+
@@ -548,7 +549,7 @@ expplot=ggplot(transform(exp, expMethod = reorder(expMethod, -count)))+
   geom_text(aes(color=assembly,group=assembly,x=expMethod,y=count,label=count),position=position_dodge(1.0),vjust=-0.1,size=3)+
   theme(panel.background = element_blank(),
         text = element_text(color='black'),
-        axis.text.x=element_text(color='black',angle=90,hjust=0.8,vjust=0.5),
+        #axis.text.x=element_text(color='black',angle=90,hjust=0.8,vjust=0.5),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');expplot
@@ -618,23 +619,18 @@ nmrplot=ggplot(nmr)+
         legend.title=element_blank(),
         legend.position='bottom');
 
-pdata=subset(ep,remark!='No remark')
-pdata$remark<-factor(pdata$remark,levels=c("xtal xtal","bio bio","xtal bio","bio xtal"))
-pdata$issame="different interface call"
-pdata$issame[pdata$pisa_db==pdata$eppic]="same interface call"
-pdata$issame<-factor(pdata$issame,levels=c("same interface call","different interface call"))
 pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette)+
-  geom_bar(aes(x=area,y=(..count..),fill=remark),
+  geom_bar(aes(x=area,fill=remark),
            position=position_fill(height=100),stat='bin',binwidth=200)+
-  geom_line(aes(x=area,y=(..count..),color=issame,ymax = 1),
-            position=position_fill(height=100),stat='bin',binwidth=200)+
+  #geom_line(aes(x=area,y=..count..,color=issame,ymax=1),
+  #         position=position_fill(height=100),stat='bin',binwidth=200)+
   xlim(0,5000)+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab('Ratio of the interface calls with in a bin')+
   annotate("text", label = sprintf("%.2f %%",xx), x = 500, y = 0.3)+
   annotate("text", label = sprintf("%.2f %%",bb), x = 3000, y = 0.5 )+
-  annotate("text", label = sprintf("%.2f %%",xb), x = 1100, y = 0.8)+
-  annotate("text", label = sprintf("%.2f %%",bx), x = 1300, y = 0.97)+
+  annotate("text", label = sprintf("%.2f %%",xb), x = 1100, y = 0.85)+
+  annotate("text", label = sprintf("%.2f %%",bx), x = 1200, y = 0.97)+
   #geom_hline(aes(yintercept=pisaavg,label='average'),linetype="dashed",show_guide=T)+
   theme(panel.background = element_blank(),
         text = element_text(color='black'),
@@ -643,8 +639,7 @@ pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette)+
         panel.grid.major = element_line(colour = "gray"),
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
         legend.title=element_blank(),
-        legend.position='bottom');
-
+        legend.position='bottom');pisaplot
 
 
 pdf("pisa.pdf")
