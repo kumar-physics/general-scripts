@@ -135,4 +135,31 @@ INNER JOIN Job AS j ON j.uid=p.jobItem_uid AND length(j.jobId)=4 AND j.status="F
 
 
 
+DROP FUNCTION IF EXISTS is_same_chains;
+DELIMITER $$
+CREATE FUNCTION is_same_chains(pdb1 varchar(4),id1 int(11),pdb2 varchar(4),id2 int(11),range int(11))
+RETURNS bool
+BEGIN
+DECLARE res bool;
+DECLARE Ac1,Ac2,Bc1,Bc2 varchar(255);
+DECLARE As1,Ae1,As2,Ae2,Bs1,Be1,Bs2,Be2 int(11);
+select c1,s1,e1,c2,s2,e2 into Ac1,As1,Ae1,Bc1,Bs1,Be1 from EppicTable where pdbCode=pdb1 and interfaceId=id1;
+select c1,s1,e1,c2,s2,e2 into Ac2,As2,Ae2,Bc2,Bs2,Be2 from EppicTable where pdbCode=pdb2 and interfaceId=id2;
+if (((Ac1=Ac2) and (Bc1=Bc2) and abs(As1-As2)<range and abs(Ae1-Ae2)<range) or ((Ac1=Bc2) and (Bc1=Ac2) and abs(As1-Bs2)<range and abs(Ae1-Be2)<range))
+then
+set res=True;
+else
+set res=False;
+end if;
+return res;
+END $$
+DELIMITER ;
+
+
+
+select e.* from EppicTable as e inner join chainCount as c on c.pdbCode=e.pdbCode where c.expMethod="SOLUTION NMR";
+
+create table nmr_xray as select n.pdbCode pdbn,n.interfaceId idn ,n.area arean,n.chainCount,e.pdbCode pdbx,e.interfaceId idx,e.area areax from nmr_multichain as n inner join EppicTable as e on e.expMethod="X-RAY DIFFRACTION" and is_same_chains(n.pdbCode,n.interfaceId,e.pdbCode,e.InterfaceId,5);
+
+
 

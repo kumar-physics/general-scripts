@@ -74,6 +74,27 @@ RETURN x;
 END$$
 DELIMITER ;
 
+DROP FUNCTION IF EXISTS get_chainlength;
+DELIMITER $$
+CREATE FUNCTION get_chainlength(pdb varchar(4),chain VARCHAR(255)) RETURNS INT(12)
+BEGIN
+DECLARE x INT(12);
+SET x=(SELECT (pdbEnd-pdbStart)+1
+FROM ChainCluster 
+WHERE pdbCode=pdb 
+AND (repChain LIKE BINARY CONCAT("%",chain,"%") or memberChains LIKE BINARY CONCAT("%",chain,"%")) );
+RETURN x;
+END$$
+DELIMITER ;
+
+
+
+
+
+
+
+
+
 DROP FUNCTION IF EXISTS get_repchain;
 DELIMITER $$
 CREATE FUNCTION get_repchain(pdb varchar(4),chain VARCHAR(255)) RETURNS varchar(255)
