@@ -2,27 +2,25 @@ import sys,os,commands
 from numpy import mean
 from string import atof
 def get_data(db):
-	cmd="mysql %s -N -B -e 'select pdbCode,interfaceId,area,gmScore,gm,crScore,cr,csScore,cs,final,pisa,authors,pqs from EppicTable where resolution<2.5 and rfreeValue<0.3 and h1>30 and h2>30 and cs!=\"nopred\" and cr!=\"nopred\" and cs=cr and authors is not NULL and get_chainlength(pdbCode,chain1)>50 and get_chainlength(pdbCode,chain2)>50 order by csScore'"%(db)
+	cmd="mysql %s -N -B -e 'select pdbCode,interfaceId,area,gmScore,gm,crScore,cr,csScore,cs,final,pisa,authors,pqs from EppicTable where resolution<2.5 and rfreeValue<0.3 and resolution>0 and h1>30 and h2>30 and cs!=\"nopred\" and cr!=\"nopred\" and cs=cr and cs=gm and authors is not NULL and get_chainlength(pdbCode,chain1)>50 and get_chainlength(pdbCode,chain2)>50 order by csScore'"%(db)
 	dat=commands.getoutput(cmd).split("\n")
 	print "datapoints\tpercentage\tcall\txmin\txmax\txmean\tbmin\tbmax\tbmean"
 	r=range(0,len(dat)/2,100)
-	#for i in range(100,len(dat)/2,100):
-		#dat2=dat[:i]+dat[-i:]
-		#xt=get_values(dat[-i:])
-		#bo=get_values(dat[:i])
-	for i in range(1,len(r)):
-		dat2=dat[r[i-1]:r[i]]+dat[-r[i]:(len(dat)-r[i-1])]
-		#print r[i-1],r[i],-r[i],len(dat)-r[i],len(dat[-r[i]:(len(dat)-r[i-1])])
-		bo=get_values(dat[r[i-1]:r[i]])
-		xt=get_values(dat[-r[i]:(len(dat)-r[i-1])])
+	for i in range(100,len(dat)/2,100):
+		dat2=dat[:i]+dat[-i:]
+		xt=get_values(dat[-i:])
+		bo=get_values(dat[:i])
+	#for i in range(1,len(r)):
+		#dat2=dat[r[i-1]:r[i]]+dat[-r[i]:(len(dat)-r[i-1])]
+		#bo=get_values(dat[r[i-1]:r[i]])
+		#xt=get_values(dat[-r[i]:(len(dat)-r[i-1])])
 		out=get_comparison(set(dat2))
-		#print "%d\t%.2f\t%.2f\t%.2f\t%.2f"%(i*2,out[0],out[1],out[2],out[3])
-		print "%d\t%.2f\txtal-xtal\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f"%(r[i]*2,out[0],xt[0],xt[1],xt[2],bo[0],bo[1],bo[2])
-		print "%d\t%.2f\tbio-bio\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f"%(r[i]*2,out[1],xt[0],xt[1],xt[2],bo[0],bo[1],bo[2])
-		print "%d\t%.2f\txtal-bio\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f"%(r[i]*2,out[2],xt[0],xt[1],xt[2],bo[0],bo[1],bo[2])
-		print "%d\t%.2f\tbio-xtal\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f"%(r[i]*2,out[3],xt[0],xt[1],xt[2],bo[0],bo[1],bo[2])
-		print "%d\t%.2f\tsame\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f"%(r[i]*2,out[4],xt[0],xt[1],xt[2],bo[0],bo[1],bo[2])
-		print "%d\t%.2f\tdifferent\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f"%(r[i]*2,out[5],xt[0],xt[1],xt[2],bo[0],bo[1],bo[2])
+		print "%d\t%.2f\txtal-xtal\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f"%(i*2,out[0],xt[0],xt[1],xt[2],bo[0],bo[1],bo[2])
+		print "%d\t%.2f\tbio-bio\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f"%(i*2,out[1],xt[0],xt[1],xt[2],bo[0],bo[1],bo[2])
+		print "%d\t%.2f\txtal-bio\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f"%(i*2,out[2],xt[0],xt[1],xt[2],bo[0],bo[1],bo[2])
+		print "%d\t%.2f\tbio-xtal\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f"%(i*2,out[3],xt[0],xt[1],xt[2],bo[0],bo[1],bo[2])
+		print "%d\t%.2f\tsame\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f"%(i*2,out[4],xt[0],xt[1],xt[2],bo[0],bo[1],bo[2])
+		print "%d\t%.2f\tdifferent\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f"%(i*2,out[5],xt[0],xt[1],xt[2],bo[0],bo[1],bo[2])
 
 def get_values(dat):
 	v=[atof(w.split("\t")[-6]) for w in dat]

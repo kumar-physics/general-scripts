@@ -2,7 +2,7 @@ import sys,os,commands
 from numpy import mean
 from string import atof
 def get_data(db):
-	cmd="mysql %s -N -B -e 'select pdbCode,interfaceId,area,gmScore,gm,crScore,cr,csScore,cs,final,pisa,pisaCall,pqs from EppicvsPisa where resolution<2.5 and rfreeValue<0.3 and h1>30 and h2>30 and cs!=\"nopred\" and cr!=\"nopred\" and pisaCall!=\"nopred\" and cs=cr order by area desc'"%(db)
+	cmd="mysql %s -N -B -e 'select pdbCode,interfaceId,area,gmScore,gm,crScore,cr,csScore,cs,final,pisa,pisaCall,pqs from EppicvsPisa where resolution<2.5 and rfreeValue<0.3 and h1>30 and h2>30 and cs!=\"nopred\" and cr!=\"nopred\" and pisaCall!=\"nopred\" and cs=cr and cs=gm order by csScore'"%(db)
 	dat=commands.getoutput(cmd).split("\n")
 	print "datapoints\tpercentage\tcall\txmin\txmax\txmean\tbmin\tbmax\tbmean"
 	r=range(0,len(dat)/2,100)
