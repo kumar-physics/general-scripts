@@ -5,7 +5,7 @@ library(plyr)
 library(reshape2)
 
 #color blind free paletter
-cbPalette <- c("#fc8d62","#66c2a5","#E69F00", "#56B4E9","#999999", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+cbPalette <- c("#fc8d62","#66c2a5", "#56B4E9","#E69F00","#999999", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 #dbconnection
 if(system("hostname",intern=T) == "delilah.psi.ch") { #spencer's system
   system("ssh -fN -L 3307:localhost:3306 -o ExitOnForwardFailure=yes mpc")
@@ -450,9 +450,12 @@ pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette)+
 
 
 autplot=ggplot(pdata2)+scale_fill_manual(values=cbPalette)+
-  geom_bar(aes(x=area,fill=remark),
-           position='identity',
-           stat='bin',binwidth=200,alpha=0.6)+
+  #geom_bar(aes(x=area,fill=remark),
+          # position='identity',
+          # stat='bin',binwidth=200,alpha=0.6)+
+  geom_line(aes(x=area,fill=remark,color=remark),
+            position='identity',
+            stat='bin',binwidth=200,alpha=1.0,size=1)+
   xlim(0,5000)+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab('Count')+
@@ -489,7 +492,7 @@ jpeg("pisa.jpg",width=1200,height=800)
 pisaplot
 dev.off()
 jpeg("auth.jpg",width=1200,height=800)
-grid.arrange(autplot, p2)
+autplot
 dev.off()
 
 jpeg("bench_area.jpg",width=1200,height=800)
@@ -711,10 +714,13 @@ pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette)+
         legend.title=element_blank(),
         legend.position='bottom');pisaplot
 
-autplot=ggplot(pdata2)+scale_fill_manual(values=cbPalette)+
-  geom_bar(aes(x=area,fill=remark),
+autplot=ggplot(pdata2)+scale_fill_manual(values=cbPalette)+scale_color_manual(values=cbPalette)+
+  #geom_bar(aes(x=area,fill=remark,color=remark),
+           #position='identity',
+          # stat='bin',binwidth=200,alpha=0.7)+
+  geom_line(aes(x=area,fill=remark,color=remark),
            position='identity',
-           stat='bin',binwidth=200,alpha=0.6)+
+           stat='bin',binwidth=200,alpha=1.0,size=1)+
   xlim(0,5000)+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab('Count')+
@@ -745,7 +751,7 @@ p2=ggplot()+
 autplot2=grid.arrange(autplot, p2)
 
 pdf("auth.pdf")
-grid.arrange(autplot, p2)
+autplot
 dev.off()
 
 pdf("pisa.pdf")
