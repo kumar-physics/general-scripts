@@ -37,11 +37,11 @@ shinyServer(function(input, output) {
    # bins <- seq(min(ep$area), max(ep$area), length.out = input$bins + 1)
     # draw the histogram with the specified number of bins
    p1<-ggplot(ep2)+
-     geom_density(aes(x=area,fill=res),position='identity',alpha=.5)+
+     geom_bar(aes(x=area,fill=res),bin='stat',position='identity',alpha=.5,binwidth=200)+
      ggtitle(sprintf("xx=%.2f ,bb=%.2f ,xb=%.2f ,bx=%.2f acc=%.2f",xx,bb,xb,bx,xx+bb))+
      xlim(0,5000)
     p2<-ggplot(ep2)+
-     geom_density(aes(x=csScore,fill=cs),,position='identity',alpha=.5)+
+     geom_bar(aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
      ggtitle(sprintf("xtal cutoff=%0.2f,biocutoff=%0.2f",min(subset(ep2,cs=='xtal')$csScore),max(subset(ep2,cs=='bio')$csScore)))
    grid.arrange(p1, p2)
   })

@@ -5,8 +5,7 @@ library(plyr)
 library(reshape2)
 
 #color blind free paletter
-cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-
+cbPalette <- c("#fc8d62","#66c2a5","#E69F00", "#56B4E9","#999999", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 #dbconnection
 if(system("hostname",intern=T) == "delilah.psi.ch") { #spencer's system
   system("ssh -fN -L 3307:localhost:3306 -o ExitOnForwardFailure=yes mpc")
@@ -159,6 +158,7 @@ nmr=fetch(dbSendQuery(mydb,"select (length(c.memberChains)+1)/2+1 chains,count(*
 ep=fetch(dbSendQuery(mydb,"select pdbCode,interfaceId,resolution,rfreeValue,area,gmScore core,gm,cr,cs,final eppic,
   pisa pisa_pdb,authors,pqs,pisaCall pisa_db from EppicvsPisa where resolution<2.5 and rfreeValue<0.3" ),-1)
 
+
 ep$remark='No remark'
 ep$remark[ep$pisa_db=='xtal' & ep$eppic=='xtal']<-'xtal xtal'
 ep$remark[ep$pisa_db=='bio' & ep$eppic=='bio']<-'bio bio'
@@ -175,6 +175,34 @@ pdata$remark<-factor(pdata$remark,levels=c("xtal xtal","bio bio","xtal bio","bio
 pdata$issame="different interface call"
 pdata$issame[pdata$pisa_db==pdata$eppic]="same interface call"
 pdata$issame<-factor(pdata$issame,levels=c("same interface call","different interface call"))
+
+
+epvsaut=fetch(dbSendQuery(mydb,"select pdbCode,interfaceId,operatorType,area,gmScore,gm,crScore,
+                       cr,csScore,cs,final,pisa,authors,pqs from EppicTable 
+                       where resolution<2.5 and rfreeValue<0.3 and resolution>0 
+                       and h1>30 and h2>30 and cs!='nopred' and cr!='nopred' and 
+                       cs=cr and cs=gm and authors is not NULL 
+                       and get_chainlength(pdbCode,chain1)>50 and 
+                       get_chainlength(pdbCode,chain2)>50 order by csScore " ),-1)
+ep2=rbind(epvsaut[1:10000,],epvsaut[(dim(epvsaut)[1]-10000):dim(epvsaut)[1],])
+
+ep2$remark='No remark'
+ep2$remark[ep2$authors=='xtal' & ep2$final=='xtal']<-'xtal xtal'
+ep2$remark[ep2$authors=='bio' & ep2$final=='bio']<-'bio bio'
+ep2$remark[ep2$authors=='bio' & ep2$final=='xtal']<-'xtal bio'
+ep2$remark[ep2$authors=='xtal' & ep2$final=='bio']<-'bio xtal'
+s2<-length(subset(ep2,remark=='xtal xtal' | remark=='bio bio' | remark=='xtal bio' | remark=='bio xtal')$area)
+
+xx2<-100*length(subset(ep2,remark=='xtal xtal')$area)/s2
+bb2<-100*length(subset(ep2,remark=='bio bio')$area)/s2
+xb2<-100*length(subset(ep2,remark=='xtal bio')$area)/s2
+bx2<-100*length(subset(ep2,remark=='bio xtal')$area)/s2
+pdata2=subset(ep2,remark!='No remark')
+pdata2$remark<-factor(pdata2$remark,levels=c("xtal xtal","bio bio","xtal bio","bio xtal"))
+pdata2$issame="different interface call"
+pdata2$issame[pdata2$pisa_db==pdata2$eppic]="same interface call"
+pdata2$issame<-factor(pdata2$issame,levels=c("same interface call","different interface call"))
+
 
 #creating data frames
 janin<-function(x){0.016*exp(-x/260)}
@@ -418,8 +446,50 @@ pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette)+
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
         legend.title=element_blank(),
         legend.position='bottom');pisaplot
+
+
+
+autplot=ggplot(pdata2)+scale_fill_manual(values=cbPalette)+
+  geom_bar(aes(x=area,fill=remark),
+           position='identity',
+           stat='bin',binwidth=200,alpha=0.6)+
+  xlim(0,5000)+
+  xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
+  ylab('Count')+
+  theme(panel.background = element_blank(),
+        text = element_text(size=font_size,color='black'),
+        axis.text=element_text(color='black'),
+        panel.border =element_rect(colour = "black",fill=NA),
+        panel.grid.major = element_line(colour = "gray"),
+        panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
+        legend.title=element_blank(),
+        legend.position='bottom');autplot
+p2=ggplot()+
+  geom_bar(dat=epvsaut,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
+  geom_bar(dat=ep2,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
+  scale_color_manual(values=c(bio_color,xtal_color),name="Eppic final")+
+  scale_fill_manual(values=c(bio_color,xtal_color),name="Eppic final")+
+  xlab('Core surface score')+
+  ylab('Count')+
+  theme(panel.background = element_blank(),
+        text = element_text(size=font_size,color='black'),
+        axis.text=element_text(color='black'),
+        panel.border =element_rect(colour = "black",fill=NA),
+        panel.grid.major = element_line(colour = "gray"),
+        panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
+        legend.title=element_blank(),
+        legend.position='bottom');p2
+#ggtitle(sprintf("xtal cutoff=%0.2f,biocutoff=%0.2f",min(subset(ep2,cs=='xtal')$csScore),max(subset(ep2,cs=='bio')$csScore)))
+autplot2=
+
+
+
+
 jpeg("pisa.jpg",width=1200,height=800)
 pisaplot
+dev.off()
+jpeg("auth.jpg",width=1200,height=800)
+grid.arrange(autplot, p2)
 dev.off()
 
 jpeg("bench_area.jpg",width=1200,height=800)
@@ -641,6 +711,42 @@ pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette)+
         legend.title=element_blank(),
         legend.position='bottom');pisaplot
 
+autplot=ggplot(pdata2)+scale_fill_manual(values=cbPalette)+
+  geom_bar(aes(x=area,fill=remark),
+           position='identity',
+           stat='bin',binwidth=200,alpha=0.6)+
+  xlim(0,5000)+
+  xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
+  ylab('Count')+
+  theme(panel.background = element_blank(),
+        text = element_text(color='black'),
+        axis.text=element_text(color='black'),
+        panel.border =element_rect(colour = "black",fill=NA),
+        panel.grid.major = element_line(colour = "gray"),
+        panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
+        legend.title=element_blank(),
+        legend.position='bottom');autplot
+p2=ggplot()+
+  geom_bar(dat=epvsaut,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
+  geom_bar(dat=ep2,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
+  scale_color_manual(values=c(bio_color,xtal_color),name="Eppic final")+
+  scale_fill_manual(values=c(bio_color,xtal_color),name="Eppic final")+
+  xlab('Core surface score')+
+  ylab('Count')+
+  theme(panel.background = element_blank(),
+        text = element_text(color='black'),
+        axis.text=element_text(color='black'),
+        panel.border =element_rect(colour = "black",fill=NA),
+        panel.grid.major = element_line(colour = "gray"),
+        panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
+        legend.title=element_blank(),
+        legend.position='bottom');p2
+  #ggtitle(sprintf("xtal cutoff=%0.2f,biocutoff=%0.2f",min(subset(ep2,cs=='xtal')$csScore),max(subset(ep2,cs=='bio')$csScore)))
+autplot2=grid.arrange(autplot, p2)
+
+pdf("auth.pdf")
+grid.arrange(autplot, p2)
+dev.off()
 
 pdf("pisa.pdf")
 pisaplot
