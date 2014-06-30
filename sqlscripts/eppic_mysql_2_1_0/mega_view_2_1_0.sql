@@ -232,10 +232,7 @@ inner join SeqCluster as s2 on s2.pdbCode=i.pdbCode and s2.repChain = get_repcha
 inner join Job as j on j.inputName = i.pdbCode and j.uid= p.job_uid where length(j.jobId)=4;
 
 drop table if exists detailedTable;
-create table detailedTable as select * from detailedView;
-
-
-
+create table detailedTable as select * from detailedView
 
 
 
