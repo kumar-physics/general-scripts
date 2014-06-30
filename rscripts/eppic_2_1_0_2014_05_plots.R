@@ -315,7 +315,7 @@ expplot=ggplot(transform(subset(exp,count>400), expMethod = reorder(expMethod, -
         legend.position='bottom');expplot
 
 spacegroupplot=ggplot(transform(spacegroup, spaceGroup = reorder(spaceGroup, -count)),aes(x=spaceGroup,y=count))+
-  geom_bar(aes(fill=assembly),alpha=alpha_value)+
+  geom_bar(aes(fill=assembly),alpha=alpha_value,stat='identity')+
   scale_color_manual(values=c(xtal_color,bio_color),name="Assembly")+
   scale_fill_manual(values=c(xtal_color,bio_color),name="Assembly")+
   xlab('Space group')+
@@ -325,10 +325,10 @@ spacegroupplot=ggplot(transform(spacegroup, spaceGroup = reorder(spaceGroup, -co
         axis.text.x=element_text(color='black',angle=90,hjust=1,vjust=0.5),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
-        legend.position='bottom');
+        legend.position='bottom');spacegroupplot
 
 opplot=ggplot(transform(op, operatorType = reorder(operatorType, -count)),aes(x=operatorType,y=count))+
-  geom_bar(aes(fill=final),alpha=alpha_value)+
+  geom_bar(aes(fill=final),alpha=alpha_value,stat='identity')+
   scale_color_manual(values=c(bio_color,xtal_color),name="Eppic final")+
   scale_fill_manual(values=c(bio_color,xtal_color),name="Eppic final")+
   xlab('Operator type')+
@@ -337,7 +337,7 @@ opplot=ggplot(transform(op, operatorType = reorder(operatorType, -count)),aes(x=
         text = element_text(size=font_size,color='black'),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
-        legend.position='bottom');
+        legend.position='bottom');opplot
 jcolors<-c("#a6611a","#dfc27d","#80cdc1","#018571")
 janinplot=ggplot()+scale_color_manual(values=jcolors)+ #scale_color_brewer(palette="cbPalette") +
    geom_line(data=subset(janindata,area>600),aes(x=area,y=density,color='Janin'),size=1.0)+
@@ -632,7 +632,7 @@ expplot=ggplot(transform(subset(exp,count>400), expMethod = reorder(expMethod, -
         legend.position='bottom');expplot
 
 spacegroupplot=ggplot(transform(spacegroup, spaceGroup = reorder(spaceGroup, -count)),aes(x=spaceGroup,y=count))+
-  geom_bar(aes(fill=assembly),alpha=alpha_value)+
+  geom_bar(aes(fill=assembly),alpha=alpha_value,stat='identity')+
   scale_color_manual(values=c(xtal_color,bio_color),name="Assembly")+
   scale_fill_manual(values=c(xtal_color,bio_color),name="Assembly")+
   xlab('Space group')+
@@ -645,7 +645,7 @@ spacegroupplot=ggplot(transform(spacegroup, spaceGroup = reorder(spaceGroup, -co
         legend.position='bottom');
 
 opplot=ggplot(transform(op, operatorType = reorder(operatorType, -count)),aes(x=operatorType,y=count))+
-  geom_bar(aes(fill=final),alpha=alpha_value)+
+  geom_bar(aes(fill=final),alpha=alpha_value,stat='identity')+
   scale_color_manual(values=c(bio_color,xtal_color),name="Eppic final")+
   scale_fill_manual(values=c(bio_color,xtal_color),name="Eppic final")+
   xlab('Operator type')+
