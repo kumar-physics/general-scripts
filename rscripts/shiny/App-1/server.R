@@ -5,12 +5,7 @@ library(RMySQL)
 library(gridExtra)
 
 shinyServer(function(input, output) {
-  if(system("hostname",intern=T) == "delilah.psi.ch") { #spencer's system
-    system("ssh -fN -L 3307:localhost:3306 -o ExitOnForwardFailure=yes mpc")
-    mydb = dbConnect(MySQL(),group = "client_mpc",dbname="eppic_2_1_0_2014_05")
-  } else {
-    mydb=dbConnect(MySQL(),dbname="eppic_2_1_0_2014_05") #~/.my.cnf file configured with right username and passwd
-  }
+  mydb=dbConnect(MySQL(),dbname="eppic_2_1_0_2014_05") #~/.my.cnf file configured with right username and passwd
   on.exit(dbDisconnect(mydb))
   ep=fetch(dbSendQuery(mydb,"select pdbCode,interfaceId,operatorType,area,gmScore,gm,crScore,
                        cr,csScore,cs,final,pisa,authors,pqs from EppicTable 
