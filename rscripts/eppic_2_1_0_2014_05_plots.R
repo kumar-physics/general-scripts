@@ -200,8 +200,25 @@ bx2<-100*length(subset(ep2,remark=='bio xtal')$area)/s2
 pdata2=subset(ep2,remark!='No remark')
 pdata2$remark<-factor(pdata2$remark,levels=c("xtal xtal","bio bio","xtal bio","bio xtal"))
 pdata2$issame="different interface call"
-pdata2$issame[pdata2$authos==pdata2$final]="same interface call"
+pdata2$issame[pdata2$authors==pdata2$final]="same interface call"
 pdata2$issame<-factor(pdata2$issame,levels=c("same interface call","different interface call"))
+pdata2$remark2[pdata2$remark=='bio xtal']=sprintf("bio xtal (%.2f%%)",bx2)
+pdata2$remark2[pdata2$remark=='bio bio']=sprintf("bio bio (%.2f%%)",bb2)
+pdata2$remark2[pdata2$remark=='xtal xtal']=sprintf("xtal xtal (%.2f%%)",xx2)
+pdata2$remark2[pdata2$remark=='xtal bio']=sprintf("xtal bio (%.2f%%)",xb2)
+pdata2$issame2[pdata2$issame=="different interface call"]=sprintf("different interface call (%.2f%%)",xb2+bx2)
+pdata2$issame2[pdata2$issame=="same interface call"]=sprintf("same interface call (%.2f%%)",bb2+xx2)
+pdata2$remark2<-factor(pdata2$remark2,levels=c(sprintf("xtal xtal (%.2f%%)",xx2),
+                                             sprintf("bio bio (%.2f%%)",bb2),
+                                             sprintf("xtal bio (%.2f%%)",xb2),
+                                             sprintf("bio xtal (%.2f%%)",bx2)))
+pdata2$issame2<-factor(pdata2$issame2,levels=c(sprintf("same interface call (%.2f%%)",bb2+xx2),
+                                               sprintf("different interface call (%.2f%%)",xb2+bx2)))
+                                               
+
+                      
+
+
 
 
 #creating data frames
@@ -457,7 +474,7 @@ autplot=ggplot(pdata2)+scale_fill_manual(values=cbPalette)+
   #geom_bar(aes(x=area,fill=remark),
           # position='identity',
           # stat='bin',binwidth=200,alpha=0.6)+
-  geom_line(aes(x=area,fill=remark,color=remark,linetype=issame),
+  geom_line(aes(x=area,fill=remark2,color=remark2,linetype=issame2),
             position='identity',
             stat='bin',binwidth=200,alpha=1.0,size=1)+
   xlim(0,5000)+
@@ -725,7 +742,7 @@ autplot=ggplot(pdata2)+scale_fill_manual(values=cbPalette)+scale_color_manual(va
   #geom_bar(aes(x=area,fill=remark,color=remark),
            #position='identity',
           # stat='bin',binwidth=200,alpha=0.7)+
-  geom_line(aes(x=area,fill=remark,color=remark),
+  geom_line(aes(x=area,fill=remark2,color=remark2,linetype=issame2),
            position='identity',
            stat='bin',binwidth=200,alpha=1.0,size=1)+
   xlim(0,5000)+
