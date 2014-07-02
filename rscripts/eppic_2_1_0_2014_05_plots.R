@@ -471,6 +471,7 @@ autplot=ggplot(pdata2)+scale_fill_manual(values=cbPalette)+
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
         legend.title=element_blank(),
         legend.position='bottom');autplot
+
 p2=ggplot()+
   geom_bar(dat=epvsaut,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
   geom_bar(dat=ep2,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
@@ -487,7 +488,7 @@ p2=ggplot()+
         legend.title=element_blank(),
         legend.position='bottom');p2
 #ggtitle(sprintf("xtal cutoff=%0.2f,biocutoff=%0.2f",min(subset(ep2,cs=='xtal')$csScore),max(subset(ep2,cs=='bio')$csScore)))
-autplot2=
+
 
 
 
