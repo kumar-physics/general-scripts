@@ -756,23 +756,23 @@ autplot=ggplot(pdata2)+scale_fill_manual(values=cbPalette)+scale_color_manual(va
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
         legend.title=element_blank(),
         legend.position='bottom');autplot
-p2=ggplot()+
-  geom_bar(dat=epvsaut,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
-  geom_bar(dat=ep2,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
-  scale_color_manual(values=c(bio_color,xtal_color),name="Eppic final")+
-  scale_fill_manual(values=c(bio_color,xtal_color),name="Eppic final")+
-  xlab('Core surface score')+
-  ylab('Count')+
-  theme(panel.background = element_blank(),
-        text = element_text(color='black'),
-        axis.text=element_text(color='black'),
-        panel.border =element_rect(colour = "black",fill=NA),
-        panel.grid.major = element_line(colour = "gray"),
-        panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
-        legend.title=element_blank(),
-        legend.position='bottom');p2
-  #ggtitle(sprintf("xtal cutoff=%0.2f,biocutoff=%0.2f",min(subset(ep2,cs=='xtal')$csScore),max(subset(ep2,cs=='bio')$csScore)))
-autplot2=grid.arrange(autplot, p2)
+# p2=ggplot()+
+#   geom_bar(dat=epvsaut,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
+#   geom_bar(dat=ep2,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
+#   scale_color_manual(values=c(bio_color,xtal_color),name="Eppic final")+
+#   scale_fill_manual(values=c(bio_color,xtal_color),name="Eppic final")+
+#   xlab('Core surface score')+
+#   ylab('Count')+
+#   theme(panel.background = element_blank(),
+#         text = element_text(color='black'),
+#         axis.text=element_text(color='black'),
+#         panel.border =element_rect(colour = "black",fill=NA),
+#         panel.grid.major = element_line(colour = "gray"),
+#         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
+#         legend.title=element_blank(),
+#         legend.position='bottom');p2
+#   #ggtitle(sprintf("xtal cutoff=%0.2f,biocutoff=%0.2f",min(subset(ep2,cs=='xtal')$csScore),max(subset(ep2,cs=='bio')$csScore)))
+# autplot2=grid.arrange(autplot, p2)
 
 pdf("auth.pdf")
 autplot
@@ -817,18 +817,18 @@ nmrplot
 dev.off()
 
 
-janinplot2=ggplot()+  scale_color_brewer(palette="Dark2") +
-  geom_line(data=infinite,aes(x=area,y=..count..,color='Infinite assemblies'),stat='bin',binwidth=25,drop=T,size=1.0)+
-  geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>0),aes(x=area,y=..count..,color='Xtal based on evolution'),stat='bin',binwidth=25,drop=T,size=1.0)+
-  geom_line(data=subset(eppic,gm=='xtal' & area>0),aes(x=area,y=..count..,color='Xtal based on geometry'),stat='bin',binwidth=25,drop=T,size=1.0)+
-  xlim(0,2500)+
-  xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
-  ylab("Probability")+
-  theme(panel.background = element_blank(),
-        text = element_text(size=font_size,color='black'),
-        axis.text=element_text(color='black'),
-        panel.border =element_rect(colour = "black",fill=NA),
-        panel.grid.major = element_line(colour = "gray"),
-        panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
-        legend.title=element_blank(),
-        legend.position='bottom');janinplot2
+# janinplot2=ggplot()+  scale_color_brewer(palette="Dark2") +
+#   geom_line(data=infinite,aes(x=area,y=..count..,color='Infinite assemblies'),stat='bin',binwidth=25,drop=T,size=1.0)+
+#   geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>0),aes(x=area,y=..count..,color='Xtal based on evolution'),stat='bin',binwidth=25,drop=T,size=1.0)+
+#   geom_line(data=subset(eppic,gm=='xtal' & area>0),aes(x=area,y=..count..,color='Xtal based on geometry'),stat='bin',binwidth=25,drop=T,size=1.0)+
+#   xlim(0,2500)+
+#   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
+#   ylab("Probability")+
+#   theme(panel.background = element_blank(),
+#         text = element_text(size=font_size,color='black'),
+#         axis.text=element_text(color='black'),
+#         panel.border =element_rect(colour = "black",fill=NA),
+#         panel.grid.major = element_line(colour = "gray"),
+#         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
+#         legend.title=element_blank(),
+#         legend.position='bottom');janinplot2
