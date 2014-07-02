@@ -200,7 +200,7 @@ bx2<-100*length(subset(ep2,remark=='bio xtal')$area)/s2
 pdata2=subset(ep2,remark!='No remark')
 pdata2$remark<-factor(pdata2$remark,levels=c("xtal xtal","bio bio","xtal bio","bio xtal"))
 pdata2$issame="different interface call"
-pdata2$issame[pdata2$pisa_db==pdata2$eppic]="same interface call"
+pdata2$issame[pdata2$authos==pdata2$final]="same interface call"
 pdata2$issame<-factor(pdata2$issame,levels=c("same interface call","different interface call"))
 
 
@@ -457,7 +457,7 @@ autplot=ggplot(pdata2)+scale_fill_manual(values=cbPalette)+
   #geom_bar(aes(x=area,fill=remark),
           # position='identity',
           # stat='bin',binwidth=200,alpha=0.6)+
-  geom_line(aes(x=area,fill=remark,color=remark),
+  geom_line(aes(x=area,fill=remark,color=remark,linetype=issame),
             position='identity',
             stat='bin',binwidth=200,alpha=1.0,size=1)+
   xlim(0,5000)+
