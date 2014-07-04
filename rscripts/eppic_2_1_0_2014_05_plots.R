@@ -200,8 +200,25 @@ bx2<-100*length(subset(ep2,remark=='bio xtal')$area)/s2
 pdata2=subset(ep2,remark!='No remark')
 pdata2$remark<-factor(pdata2$remark,levels=c("xtal xtal","bio bio","xtal bio","bio xtal"))
 pdata2$issame="different interface call"
-pdata2$issame[pdata2$pisa_db==pdata2$eppic]="same interface call"
+pdata2$issame[pdata2$authors==pdata2$final]="same interface call"
 pdata2$issame<-factor(pdata2$issame,levels=c("same interface call","different interface call"))
+pdata2$remark2[pdata2$remark=='bio xtal']=sprintf("bio xtal (%.2f%%)",bx2)
+pdata2$remark2[pdata2$remark=='bio bio']=sprintf("bio bio (%.2f%%)",bb2)
+pdata2$remark2[pdata2$remark=='xtal xtal']=sprintf("xtal xtal (%.2f%%)",xx2)
+pdata2$remark2[pdata2$remark=='xtal bio']=sprintf("xtal bio (%.2f%%)",xb2)
+pdata2$issame2[pdata2$issame=="different interface call"]=sprintf("different interface call (%.2f%%)",xb2+bx2)
+pdata2$issame2[pdata2$issame=="same interface call"]=sprintf("same interface call (%.2f%%)",bb2+xx2)
+pdata2$remark2<-factor(pdata2$remark2,levels=c(sprintf("xtal xtal (%.2f%%)",xx2),
+                                             sprintf("bio bio (%.2f%%)",bb2),
+                                             sprintf("xtal bio (%.2f%%)",xb2),
+                                             sprintf("bio xtal (%.2f%%)",bx2)))
+pdata2$issame2<-factor(pdata2$issame2,levels=c(sprintf("same interface call (%.2f%%)",bb2+xx2),
+                                               sprintf("different interface call (%.2f%%)",xb2+bx2)))
+                                               
+
+                      
+
+
 
 
 #creating data frames
@@ -457,7 +474,7 @@ autplot=ggplot(pdata2)+scale_fill_manual(values=cbPalette)+
   #geom_bar(aes(x=area,fill=remark),
           # position='identity',
           # stat='bin',binwidth=200,alpha=0.6)+
-  geom_line(aes(x=area,fill=remark,color=remark),
+  geom_line(aes(x=area,fill=remark2,color=remark2,linetype=issame2),
             position='identity',
             stat='bin',binwidth=200,alpha=1.0,size=1)+
   xlim(0,5000)+
@@ -470,7 +487,9 @@ autplot=ggplot(pdata2)+scale_fill_manual(values=cbPalette)+
         panel.grid.major = element_line(colour = "gray"),
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
         legend.title=element_blank(),
-        legend.position='bottom');autplot
+        legend.position='bottom',
+        legend.text=element_text(size=font_size));autplot
+
 p2=ggplot()+
   geom_bar(dat=epvsaut,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
   geom_bar(dat=ep2,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
@@ -487,7 +506,7 @@ p2=ggplot()+
         legend.title=element_blank(),
         legend.position='bottom');p2
 #ggtitle(sprintf("xtal cutoff=%0.2f,biocutoff=%0.2f",min(subset(ep2,cs=='xtal')$csScore),max(subset(ep2,cs=='bio')$csScore)))
-autplot2=
+
 
 
 
@@ -724,37 +743,38 @@ autplot=ggplot(pdata2)+scale_fill_manual(values=cbPalette)+scale_color_manual(va
   #geom_bar(aes(x=area,fill=remark,color=remark),
            #position='identity',
           # stat='bin',binwidth=200,alpha=0.7)+
-  geom_line(aes(x=area,fill=remark,color=remark),
+  geom_line(aes(x=area,fill=remark2,color=remark2,linetype=issame2),
            position='identity',
            stat='bin',binwidth=200,alpha=1.0,size=1)+
   xlim(0,5000)+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab('Count')+
   theme(panel.background = element_blank(),
-        text = element_text(color='black'),
+        text = element_text(size=font_size,color='black'),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
         panel.grid.major = element_line(colour = "gray"),
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
         legend.title=element_blank(),
-        legend.position='bottom');autplot
-p2=ggplot()+
-  geom_bar(dat=epvsaut,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
-  geom_bar(dat=ep2,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
-  scale_color_manual(values=c(bio_color,xtal_color),name="Eppic final")+
-  scale_fill_manual(values=c(bio_color,xtal_color),name="Eppic final")+
-  xlab('Core surface score')+
-  ylab('Count')+
-  theme(panel.background = element_blank(),
-        text = element_text(color='black'),
-        axis.text=element_text(color='black'),
-        panel.border =element_rect(colour = "black",fill=NA),
-        panel.grid.major = element_line(colour = "gray"),
-        panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
-        legend.title=element_blank(),
-        legend.position='bottom');p2
-  #ggtitle(sprintf("xtal cutoff=%0.2f,biocutoff=%0.2f",min(subset(ep2,cs=='xtal')$csScore),max(subset(ep2,cs=='bio')$csScore)))
-autplot2=grid.arrange(autplot, p2)
+        legend.position='bottom',
+        legend.text=element_text(size=font_size));autplot
+# p2=ggplot()+
+#   geom_bar(dat=epvsaut,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
+#   geom_bar(dat=ep2,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
+#   scale_color_manual(values=c(bio_color,xtal_color),name="Eppic final")+
+#   scale_fill_manual(values=c(bio_color,xtal_color),name="Eppic final")+
+#   xlab('Core surface score')+
+#   ylab('Count')+
+#   theme(panel.background = element_blank(),
+#         text = element_text(color='black'),
+#         axis.text=element_text(color='black'),
+#         panel.border =element_rect(colour = "black",fill=NA),
+#         panel.grid.major = element_line(colour = "gray"),
+#         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
+#         legend.title=element_blank(),
+#         legend.position='bottom');p2
+#   #ggtitle(sprintf("xtal cutoff=%0.2f,biocutoff=%0.2f",min(subset(ep2,cs=='xtal')$csScore),max(subset(ep2,cs=='bio')$csScore)))
+# autplot2=grid.arrange(autplot, p2)
 
 pdf("auth.pdf")
 autplot
@@ -799,18 +819,18 @@ nmrplot
 dev.off()
 
 
-janinplot2=ggplot()+  scale_color_brewer(palette="Dark2") +
-  geom_line(data=infinite,aes(x=area,y=..count..,color='Infinite assemblies'),stat='bin',binwidth=25,drop=T,size=1.0)+
-  geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>0),aes(x=area,y=..count..,color='Xtal based on evolution'),stat='bin',binwidth=25,drop=T,size=1.0)+
-  geom_line(data=subset(eppic,gm=='xtal' & area>0),aes(x=area,y=..count..,color='Xtal based on geometry'),stat='bin',binwidth=25,drop=T,size=1.0)+
-  xlim(0,2500)+
-  xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
-  ylab("Probability")+
-  theme(panel.background = element_blank(),
-        text = element_text(size=font_size,color='black'),
-        axis.text=element_text(color='black'),
-        panel.border =element_rect(colour = "black",fill=NA),
-        panel.grid.major = element_line(colour = "gray"),
-        panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
-        legend.title=element_blank(),
-        legend.position='bottom');janinplot2
+# janinplot2=ggplot()+  scale_color_brewer(palette="Dark2") +
+#   geom_line(data=infinite,aes(x=area,y=..count..,color='Infinite assemblies'),stat='bin',binwidth=25,drop=T,size=1.0)+
+#   geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>0),aes(x=area,y=..count..,color='Xtal based on evolution'),stat='bin',binwidth=25,drop=T,size=1.0)+
+#   geom_line(data=subset(eppic,gm=='xtal' & area>0),aes(x=area,y=..count..,color='Xtal based on geometry'),stat='bin',binwidth=25,drop=T,size=1.0)+
+#   xlim(0,2500)+
+#   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
+#   ylab("Probability")+
+#   theme(panel.background = element_blank(),
+#         text = element_text(size=font_size,color='black'),
+#         axis.text=element_text(color='black'),
+#         panel.border =element_rect(colour = "black",fill=NA),
+#         panel.grid.major = element_line(colour = "gray"),
+#         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
+#         legend.title=element_blank(),
+#         legend.position='bottom');janinplot2
