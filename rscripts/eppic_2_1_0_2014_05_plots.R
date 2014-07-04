@@ -487,7 +487,8 @@ autplot=ggplot(pdata2)+scale_fill_manual(values=cbPalette)+
         panel.grid.major = element_line(colour = "gray"),
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
         legend.title=element_blank(),
-        legend.position='bottom');autplot
+        legend.position='bottom',
+        legend.text=element_text(size=font_size));autplot
 
 p2=ggplot()+
   geom_bar(dat=epvsaut,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
@@ -749,13 +750,14 @@ autplot=ggplot(pdata2)+scale_fill_manual(values=cbPalette)+scale_color_manual(va
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab('Count')+
   theme(panel.background = element_blank(),
-        text = element_text(color='black'),
+        text = element_text(size=font_size,color='black'),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
         panel.grid.major = element_line(colour = "gray"),
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
         legend.title=element_blank(),
-        legend.position='bottom');autplot
+        legend.position='bottom',
+        legend.text=element_text(size=font_size));autplot
 # p2=ggplot()+
 #   geom_bar(dat=epvsaut,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
 #   geom_bar(dat=ep2,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
