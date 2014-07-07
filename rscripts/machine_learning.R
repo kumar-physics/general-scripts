@@ -18,12 +18,12 @@ bo=fetch(dbSendQuery(mydb,"select * from many_bio where
                      csScore>-40 and csScore<40 and
                      h1>30 and h2>30"),-1)
 
-xt$truth=0
-bo$truth=1
+xt$truth='xtal'
+bo$truth='bio'
 xt$dat='xtal'
 bo$dat='bio'
 train=rbind(xt,bo)
 
-mylogit <- glm(truth ~ gmScore + crScore + csScore, data = train, family = "binomial")
+mylogit <- glm(truth ~ h1 + h2 + area + gmScore + crScore + csScore, data = train, family = "binomial")
 summary(mylogit)
 confint(mylogit)

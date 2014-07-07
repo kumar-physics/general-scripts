@@ -39,7 +39,7 @@ shinyServer(function(input, output) {
 
   output$plot <- renderPlot({
     ggplot(d())+
-      geom_histogram(aes(x=area,color=call,fill=call),binwidth=input$n,position='identity',alpha=0.5)+
+      geom_density(aes(x=area,color=call,fill=call),binwidth=input$n,position='identity',alpha=0.5)+
       xlim(0,5000)
   })
   
