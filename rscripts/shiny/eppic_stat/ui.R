@@ -12,17 +12,17 @@ shinyUI(fluidPage(
   sidebarLayout(
     sidebarPanel(
       radioButtons("dist", "Data to plot:",
-                   c("Geometry" = "gm",
-                     "Core Rim" = "cr",
-                     "Core Surface" = "cs",
-                     "Final" = "final")),
-      br(),
-      
-      sliderInput("n", 
-                  "Area bin size:", 
-                  value = 50,
-                  min = 10, 
-                  max = 1000)
+                   c("Experimental method" = 'expMethod',
+                     "Space group" = 'spaceGroup',
+                     "Operator" = 'operator',
+                     "Operator type" = 'operatorType'))
+#       br(),
+#       
+#       sliderInput("n", 
+#                   "Area bin size:", 
+#                   value = 50,
+#                   min = 10, 
+#                   max = 1000)
     ),
     
     # Show a tabset that includes a plot, summary, and table view
