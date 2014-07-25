@@ -1,4 +1,6 @@
 *~
 *.orig
-.Rproj.user
-.Rhistory
+*.Rproj.user
+*.Rhistory
+*.RData
+*.Rapp.history
