@@ -222,7 +222,7 @@ pdata2$issame2<-factor(pdata2$issame2,levels=c(sprintf("same interface call (%.2
 
 
 #creating data frames
-janin<-function(x){0.016*exp(-(x)/260)}
+janin<-function(x){0.016*exp(-(2.0*x)/260)}
 janindata<-data.frame(area=0:2500,density=janin(0:2500))
 
 jsum=integrate(janin,600,Inf)
@@ -273,6 +273,10 @@ gm$method='Geometry'
 
 roc_data=rbind(gm,cr)
 roc_data=rbind(roc_data,cs)
+
+
+
+
 
 xtal_color="#fc8d62"
 bio_color="#66c2a5"
@@ -355,12 +359,12 @@ opplot=ggplot(transform(op, operatorType = reorder(operatorType, -count)),aes(x=
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');opplot
-jcolors<-c("#a6611a","#dfc27d","#80cdc1","#018571")
+jcolors<-c("#a6611a","#80cdc1","#dfc27d","#018571")
 janinplot=ggplot()+scale_color_manual(values=jcolors)+ #scale_color_brewer(palette="cbPalette") +
    geom_line(data=subset(janindata,area>600),aes(x=area,y=density,color='Janin'),size=1.0)+
    geom_line(data=subset(infinite,area>600),aes(x=area,y=..density..,color='Infinite assemblies'),stat='bin',binwidth=25,drop=T,size=1.0)+
-   geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>600),aes(x=area,y=..density..,color='Xtal based on evolution'),stat='bin',binwidth=25,drop=T,size=1.0)+
-   geom_line(data=subset(eppic,gm=='xtal' & area>600),aes(x=area,y=..density..,color='Xtal based on geometry'),stat='bin',binwidth=25,drop=T,size=1.0)+
+  # geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>600),aes(x=area,y=..density..,color='Xtal based on evolution'),stat='bin',binwidth=25,drop=T,size=1.0)+
+ #  geom_line(data=subset(eppic,gm=='xtal' & area>600),aes(x=area,y=..density..,color='Xtal based on geometry'),stat='bin',binwidth=25,drop=T,size=1.0)+
 #  stat_bin(data=infinite,aes(x=area,color='Infinite assemblies',y=..density..),geom="line",binwidth=25,drop=T,size=1.0) + 
   #geom_histogram(data=infinite,aes(x=area,y=..density..,fill='Infinite assemblies'),binwidth=25,alpha=.5) +
 #  geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on evolution'),stat='bin',size=1.0,drop=T,binwidth=25)+
@@ -677,12 +681,12 @@ opplot=ggplot(transform(op, operatorType = reorder(operatorType, -count)),aes(x=
 
 
 
-jcolors<-c("#a6611a","#dfc27d","#80cdc1","#018571")
+jcolors<-c("#a6611a","#80cdc1","#dfc27d","#018571")
 janinplot=ggplot()+scale_color_manual(values=jcolors)+ #scale_color_brewer(palette="cbPalette") +
   geom_line(data=subset(janindata,area>600),aes(x=area,y=density,color='Janin'),size=1.0)+
   geom_line(data=subset(infinite,area>600),aes(x=area,y=..density..,color='Infinite assemblies'),stat='bin',binwidth=25,drop=T,size=1.0)+
-  geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>600),aes(x=area,y=..density..,color='Xtal based on evolution'),stat='bin',binwidth=25,drop=T,size=1.0)+
-  geom_line(data=subset(eppic,gm=='xtal' & area>600),aes(x=area,y=..density..,color='Xtal based on geometry'),stat='bin',binwidth=25,drop=T,size=1.0)+
+  #geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>600),aes(x=area,y=..density..,color='Xtal based on evolution'),stat='bin',binwidth=25,drop=T,size=1.0)+
+  #geom_line(data=subset(eppic,gm=='xtal' & area>600),aes(x=area,y=..density..,color='Xtal based on geometry'),stat='bin',binwidth=25,drop=T,size=1.0)+
   #  stat_bin(data=infinite,aes(x=area,color='Infinite assemblies',y=..density..),geom="line",binwidth=25,drop=T,size=1.0) + 
   #geom_histogram(data=infinite,aes(x=area,y=..density..,fill='Infinite assemblies'),binwidth=25,alpha=.5) +
   #  geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on evolution'),stat='bin',size=1.0,drop=T,binwidth=25)+
