@@ -199,21 +199,21 @@ xb2<-100*length(subset(ep2,remark=='xtal bio')$area)/s2
 bx2<-100*length(subset(ep2,remark=='bio xtal')$area)/s2
 pdata2=subset(ep2,remark!='No remark')
 pdata2$remark<-factor(pdata2$remark,levels=c("xtal xtal","bio bio","xtal bio","bio xtal"))
-pdata2$issame="different interface call"
-pdata2$issame[pdata2$authors==pdata2$final]="same interface call"
-pdata2$issame<-factor(pdata2$issame,levels=c("same interface call","different interface call"))
+pdata2$issame="different call"
+pdata2$issame[pdata2$authors==pdata2$final]="same call"
+pdata2$issame<-factor(pdata2$issame,levels=c("same call","different call"))
 pdata2$remark2[pdata2$remark=='bio xtal']=sprintf("bio xtal (%.2f%%)",bx2)
 pdata2$remark2[pdata2$remark=='bio bio']=sprintf("bio bio (%.2f%%)",bb2)
 pdata2$remark2[pdata2$remark=='xtal xtal']=sprintf("xtal xtal (%.2f%%)",xx2)
 pdata2$remark2[pdata2$remark=='xtal bio']=sprintf("xtal bio (%.2f%%)",xb2)
-pdata2$issame2[pdata2$issame=="different interface call"]=sprintf("different interface call (%.2f%%)",xb2+bx2)
-pdata2$issame2[pdata2$issame=="same interface call"]=sprintf("same interface call (%.2f%%)",bb2+xx2)
+pdata2$issame2[pdata2$issame=="different call"]=sprintf("different call (%.2f%%)",xb2+bx2)
+pdata2$issame2[pdata2$issame=="same call"]=sprintf("same call (%.2f%%)",bb2+xx2)
 pdata2$remark2<-factor(pdata2$remark2,levels=c(sprintf("xtal xtal (%.2f%%)",xx2),
                                              sprintf("bio bio (%.2f%%)",bb2),
                                              sprintf("xtal bio (%.2f%%)",xb2),
                                              sprintf("bio xtal (%.2f%%)",bx2)))
-pdata2$issame2<-factor(pdata2$issame2,levels=c(sprintf("same interface call (%.2f%%)",bb2+xx2),
-                                               sprintf("different interface call (%.2f%%)",xb2+bx2)))
+pdata2$issame2<-factor(pdata2$issame2,levels=c(sprintf("same call (%.2f%%)",bb2+xx2),
+                                               sprintf("different call (%.2f%%)",xb2+bx2)))
                                                
 
                       
@@ -450,7 +450,9 @@ nmrplot=ggplot(nmr)+
 
 
 
-pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette)+
+pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette,
+                                         labels=c("xtal\nxtal", "bio\nbio", "xtal\nbio","bio\nxtal"),
+                                         name="EPPIC\nPISA")+
   geom_bar(aes(x=area,fill=remark),
             position=position_fill(height=100),stat='bin',binwidth=200)+
   #geom_line(aes(x=area,y=..count..,color=issame,ymax=1),
@@ -469,12 +471,15 @@ pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette)+
         panel.border =element_rect(colour = "black",fill=NA),
         panel.grid.major = element_line(colour = "gray"),
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
-        legend.title=element_blank(),
+        #legend.title=element_blank(),
         legend.position='bottom');pisaplot
 
 
 
-autplot=ggplot(pdata2)+scale_fill_manual(values=cbPalette)+
+autplot=ggplot(pdata2)+scale_color_manual(values=cbPalette,
+                                         labels=c("xtal\nxtal", "bio\nbio", "xtal\nbio","bio\nxtal"),
+                                         name="EPPIC\nauthors")+
+                                scale_linetype_manual(values=c(1,2),name=" ")+
   #geom_bar(aes(x=area,fill=remark),
           # position='identity',
           # stat='bin',binwidth=200,alpha=0.6)+
@@ -490,7 +495,7 @@ autplot=ggplot(pdata2)+scale_fill_manual(values=cbPalette)+
         panel.border =element_rect(colour = "black",fill=NA),
         panel.grid.major = element_line(colour = "gray"),
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
-        legend.title=element_blank(),
+        #legend.title=element_blank(),
         legend.position='bottom',
         legend.text=element_text(size=font_size));autplot
 
@@ -721,7 +726,9 @@ nmrplot=ggplot(nmr)+
         legend.title=element_blank(),
         legend.position='bottom');
 
-pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette)+
+pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette,
+                                         labels=c("xtal\nxtal", "bio\nbio", "xtal\nbio","bio\nxtal"),
+                                         name="EPPIC\nPISA")+
   geom_bar(aes(x=area,fill=remark),
            position=position_fill(height=100),stat='bin',binwidth=200)+
   #geom_line(aes(x=area,y=..count..,color=issame,ymax=1),
@@ -740,10 +747,13 @@ pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette)+
         panel.border =element_rect(colour = "black",fill=NA),
         panel.grid.major = element_line(colour = "gray"),
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
-        legend.title=element_blank(),
+        #legend.title=element_blank(),
         legend.position='bottom');pisaplot
 
-autplot=ggplot(pdata2)+scale_fill_manual(values=cbPalette)+scale_color_manual(values=cbPalette)+
+autplot=ggplot(pdata2)+scale_color_manual(values=cbPalette,
+                                          labels=c("xtal\nxtal", "bio\nbio", "xtal\nbio","bio\nxtal"),
+                                          name="EPPIC\nauthors")+
+  scale_linetype_manual(values=c(1,4),name=" ")+
   #geom_bar(aes(x=area,fill=remark,color=remark),
            #position='identity',
           # stat='bin',binwidth=200,alpha=0.7)+
@@ -759,9 +769,8 @@ autplot=ggplot(pdata2)+scale_fill_manual(values=cbPalette)+scale_color_manual(va
         panel.border =element_rect(colour = "black",fill=NA),
         panel.grid.major = element_line(colour = "gray"),
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
-        legend.title=element_blank(),
-        legend.position='bottom',
-        legend.text=element_text(size=font_size));autplot
+        #legend.title=element_blank(),
+        legend.position='bottom');autplot
 # p2=ggplot()+
 #   geom_bar(dat=epvsaut,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
 #   geom_bar(dat=ep2,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+

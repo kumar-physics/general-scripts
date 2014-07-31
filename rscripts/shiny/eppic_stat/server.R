@@ -11,7 +11,7 @@ shinyServer(function(input, output) {
   output$plot <- renderPlot({
     
     ggplot(ep)+
-      geom_bar(aes(x=(input$dist),color=final,fill=final))+
+      geom_bar(aes(x=input$dist,color=final,fill=final))+
       theme(axis.text.x=element_text(color='black',angle=90,hjust=1,vjust=0.5))
   })
   
