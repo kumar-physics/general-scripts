@@ -14,8 +14,12 @@ if(system("hostname",intern=T) == "delilah.psi.ch") { #spencer's system
   mydb=dbConnect(MySQL(),dbname="eppic_2014_07") #~/.my.cnf file configured with right username and passwd
 }
 
-d=fetch(dbSendQuery(mydb,"select h.queryCoverage,h.seqId,h.chainCluster_uid chain,h.firstTaxon,h.lastTaxon  from Homolog as h 
+d=fetch(dbSendQuery(mydb,"select h.queryCoverage,h.seqId,h.chainCluster_uid chain,h.firstTaxon,h.lastTaxon from Homolog as h 
                     inner join ChainCluster as c on c.uid=h.chainCluster_uid where c.numHomologs>50 and h.queryEnd-h.queryStart>20;"),-1)
+
+d=fetch(dbSendQuery(mydb,"select p.pdbCode,h.queryCoverage,h.seqId,h.chainCluster_uid chain,h.firstTaxon,h.lastTaxon from Homolog as h 
+                    inner join ChainCluster as c on c.uid=h.chainCluster_uid inner join PdbInfo as p on p.pdbCode=c.Pdbcode where p.title like \"%MHC%\" and c.numHomologs>50 and h.queryEnd-h.queryStart>20;"),-1)
+
 
 d$chainname=sprintf("c_%d",d$chain)
 
@@ -45,7 +49,8 @@ plot4=ggplot(subset(d, chain<5000 & queryCoverage>0.8 &
   geom_density(aes(x=seqId,group=chainname,color=firstTaxon));plot4
 
 
-
+plot4=ggplot(subset(d, chain<5000 & queryCoverage>0.8 ))+
+  geom_density(aes(x=seqId,group=chainname,color=pdbCode));plot4
 
 
 
