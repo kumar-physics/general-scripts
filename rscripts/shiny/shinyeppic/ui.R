@@ -1,5 +1,7 @@
 library(ggvis)
-library(shiny)
+library(ggvis)
+
+# For dropdown menu
 actionLink <- function(inputId, ...) {
   tags$a(href='javascript:void',
          id=inputId,
@@ -10,21 +12,37 @@ actionLink <- function(inputId, ...) {
 shinyUI(fluidPage(
   titlePanel("EPPIC explorer"),
   fluidRow(
+    column(3, 
+           sliderInput("res", "Resolution",0, 20, value = c(0.8, 10), step = 0.1)),
     column(3,
+           sliderInput("are", "Interface area", 35, 10000, value = c(800, 1800), step = 10)),
+    column(3, 
+           sliderInput("rfr", "R-free value",0,1,0.3,step=0.1)),
+    column(3,
+           sliderInput("hom", "Number of homologs",0,200,10,step=1))
+  ),
+  fluidRow(
+    column(6,
+           selectInput("xvar", "X-axis variable", axis_vars, selected = "area")),
+    column(6,
+           selectInput("yvar", "Y-axis variable", axis_vars, selected = "csScore"))
+    ),
+  fluidRow(
+    column(6,
+           ggvisOutput("plot3")),
+    column(6,
+           ggvisOutput("plot1"))
+  ),
+  fluidRow(
+    column(6,
            wellPanel(
-             h4("Filter"),
-             sliderInput("ar", "Area",35,10000,value = c(3500,10000), step=10),
-             sliderInput("res", "Resolution", 0, 20, value = c(0.8, 10), step = 0.1),
-             sliderInput("homo", "Number of Homologs", 0,200, 50)
-           ),
-           wellPanel(
-             selectInput("xvar", "X-axis variable", axis_vars, selected = "resolution"),
-             selectInput("yvar", "Y-axis variable", axis_vars, selected = "csScore")
+             span("Number of interfaces plotted:",
+                  textOutput("n_ifaces")
+             )
            )
     ),
-    column(9,
-           ggvisOutput("plot1")
-           )
+    column(6,
+           ggvisOutput("plot2"))   
     )
-  )
+    )
 )
