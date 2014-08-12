@@ -6,7 +6,7 @@ library(shiny)
 
 
 mydb=dbConnect(MySQL(),dbname="eppic_2_1_0_2014_05")
-all_ifaces=fetch(dbSendQuery(mydb,"select * from EppicTable where csScore > -1000 and csScore < 400 limit 10000"),-1)
+all_ifaces=fetch(dbSendQuery(mydb,"select * from EppicTable where csScore > -1000 and csScore < 400 and crScore > -500 and crScore < 400"),-1)
 
 all_ifaces$ID=sprintf("%s-%d",all_ifaces$pdbCode,all_ifaces$interfaceId)
 
@@ -16,14 +16,16 @@ shinyServer(function(input, output, session) {
   # Filter the movies, returning a data frame
   ifaces <- reactive({
     # Due to dplyr issue #318, we need temp variables for input values
-    minres <- input$res[1]
-    maxres <- input$res[2]
-    minare <- input$are[1]
-    maxare <- input$are[2]
-    rfr <- input$rfr
-    hom <- input$hom
+    input$goButton
+    minres <- isolate(input$res[1])
+    maxres <-  isolate(input$res[2])
+    minare <-  isolate(input$are[1])
+    maxare <-  isolate(input$are[2])
+    rfr <-  isolate(input$rfr)
+    hom <-  isolate(input$hom)
     
     # Apply filters
+    
     m <- all_ifaces %>%
       filter(
         resolution >= minres,
@@ -89,6 +91,7 @@ shinyServer(function(input, output, session) {
     # Lables for axes
     xvar_name <- names(axis_vars)[axis_vars == input$xvar]
     yvar_name <- names(axis_vars)[axis_vars == input$yvar]
+    strokeval <- as.symbol(input$color)
     
     # Normally we could do something like props(x = ~BoxOffice, y = ~Reviews),
     # but since the inputs are strings, we need to do a little more work.
@@ -98,7 +101,8 @@ shinyServer(function(input, output, session) {
     ifaces %>%
       ggvis(x = xvar, y = yvar) %>%
       layer_points(size := 50, size.hover := 200,
-                   fillOpacity := 0.2, fillOpacity.hover := 0.5, stroke=~final, key := ~ID) %>%
+                   #fillOpacity := 0.2, fillOpacity.hover := 0.5, 
+                   stroke=strokeval, fill=strokeval, key := ~ID) %>%
       #mark_rect() %>%
       add_tooltip(iface_tooltip, "hover") %>%
       add_axis("x", title = xvar_name) %>%
@@ -118,7 +122,6 @@ shinyServer(function(input, output, session) {
     # but since the inputs are strings, we need to do a little more work.
     xvar <- prop("x", as.symbol(input$xvar))
     yvar <- prop("y", as.symbol(input$yvar))
-    
     ifaces %>%
       ggvis(xvar,fill=~final) %>% 
       group_by(final) %>% 
@@ -141,6 +144,7 @@ shinyServer(function(input, output, session) {
     
     # Normally we could do something like props(x = ~BoxOffice, y = ~Reviews),
     # but since the inputs are strings, we need to do a little more work.
+    
     xvar <- prop("x", as.symbol(input$yvar))
     yvar <- prop("y", as.symbol(input$xvar))
     ifaces %>%
@@ -157,9 +161,10 @@ shinyServer(function(input, output, session) {
       #range = c("orange", "#aaa")) %>%
       set_options(width = 400, height = 400)
   })
-
+ 
 vis %>% bind_shiny("plot1")
 vis2 %>% bind_shiny("plot2")
 vis3 %>% bind_shiny("plot3")
+
 output$n_ifaces <- renderText({ nrow(ifaces()) })
 })

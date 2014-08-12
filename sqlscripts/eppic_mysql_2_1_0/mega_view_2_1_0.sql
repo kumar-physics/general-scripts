@@ -369,7 +369,9 @@ get_score(i.uid,"eppic-cs") csScore,
 get_result(i.uid,"eppic") final,
 get_result2(i.interfaceCluster_uid,"pisa") pisa,
 get_result2(i.interfaceCluster_uid,"authors") authors,
-get_result2(i.interfaceCluster_uid,"pqs") pqs
+get_result2(i.interfaceCluster_uid,"pqs") pqs,
+assembly(p.pdbCode) assembly,
+bio_assembly(p.pdbCode) bio_size
 from Interface as i 
 inner join PdbInfo as p on i.pdbCode = p.pdbCode 
 inner join Job as j on j.inputName = i.pdbCode and j.uid= p.job_uid where length(j.jobId)=4;
@@ -388,8 +390,16 @@ p.pdbCode=e.pdbCode and p.eppic_id=e.interfaceId;
 
 
 
-
-
+create index pdbidx on Assembly(pdbCode);
+DROP FUNCTION IF EXISTS bio_assembly;
+DELIMITER $$
+CREATE FUNCTION bio_assembly(pdb VARCHAR(255)) RETURNS int(11)
+BEGIN
+DECLARE res int(11);
+SET res=(select mmSize from Assembly where method="authors" and pdbCode=pdb);
+return res;
+END $$
+DELIMITER ; 
 
 
 
