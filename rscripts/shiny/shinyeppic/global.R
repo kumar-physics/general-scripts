@@ -20,5 +20,13 @@ color_vars <- c(
   "Area"="area",
   "Space group"="spaceGroup",
   "Operator type"="operatorType",
-  "Operator"="operator"
+  "Operator"="operator",
+  "Assembly"="bio_size_tag",
+  "Authors"="authors",
+  "PISA"="pisa"
   )
+calls <-c(
+  "All"="xtal|bio|nopred",
+  "Xtal"="xtal",
+  "Bio"="bio",
+  "Nopred"="nopred")

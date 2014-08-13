@@ -5,10 +5,11 @@ library(shiny)
 
 
 
-mydb=dbConnect(MySQL(),dbname="eppic_2_1_0_2014_05")
+mydb=dbConnect(MySQL(),dbname="eppic_2014_07")
 all_ifaces=fetch(dbSendQuery(mydb,"select * from EppicTable where csScore > -1000 and csScore < 400 and crScore > -500 and crScore < 400"),-1)
 
 all_ifaces$ID=sprintf("%s-%d",all_ifaces$pdbCode,all_ifaces$interfaceId)
+all_ifaces$bio_size_tag=sprintf("s_%d",all_ifaces$bio_size)
 
 
 shinyServer(function(input, output, session) {
@@ -23,7 +24,13 @@ shinyServer(function(input, output, session) {
     maxare <-  isolate(input$are[2])
     rfr <-  isolate(input$rfr)
     hom <-  isolate(input$hom)
-    
+    minbs <- isolate(input$bs[1])
+    maxbs <- isolate(input$bs[2])
+    finalval <- isolate(input$final)
+    csval<- isolate(input$cs)
+    crval <- isolate(input$cr)
+    authval <- isolate(input$auth)
+    pisaval <- isolate(input$pisa)
     # Apply filters
     
     m <- all_ifaces %>%
@@ -34,7 +41,14 @@ shinyServer(function(input, output, session) {
         area <= maxare,
         rfreeValue <= rfr,
         h1 >= hom,
-        h2 >= hom
+        h2 >= hom,
+        bio_size >= minbs,
+        bio_size <= maxbs,
+        grepl(finalval,final),
+        grepl(csval,cs),
+        grepl(crval,cr),
+        grepl(authval,authors),
+        grepl(pisaval,pisa)
       ) %>%
       arrange(area)
     
