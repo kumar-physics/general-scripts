@@ -25,7 +25,7 @@ shinyUI(fluidPage(
     column(2, 
            sliderInput("rfr", "R-free value",-1,1,value=c(0.0,0.3),step=0.1)),
     column(2,
-           sliderInput("hom", "Homologs",0,200,50,step=1)),
+           sliderInput("hom", "Homologs",0, 4000, value = c(0,400), step=10)),
     column(2,
            sliderInput("bs", "Assembly size", -1, 200, value = c(1, 6), step = 1))
   ),
@@ -55,21 +55,31 @@ shinyUI(fluidPage(
   ),
   fluidRow(
     column(3,
-           selectInput("xvar", "X-axis variable", axis_vars, selected = "area")),
-    column(3,
-           selectInput("yvar", "Y-axis variable", axis_vars, selected = "csScore")),
+           selectInput("xvar", "Distribution of", axis_vars, selected = "area")),
     column(3,
            selectInput("color", "Color by ", color_vars, selected = "final")),
+    column(3, 
+          sliderInput("binwidth", "Bin width",0,100,50,step=0.1)),
     column(3,
-           wellPanel(
-             span("Number of interfaces plotted:",textOutput("n_ifaces")
-             )
-           )
-    )
+       wellPanel(
+         span("Number of interfaces plotted:",textOutput("n_ifaces")
+         )
+       )
+)
+    
     ),
   fluidRow(
-    column(12,
-           ggvisOutput("plot1"))   
-    )
+    column(6,
+           ggvisOutput("plot1")),
+    column(6,
+           ggvisOutput("plot3"))
+#     column(6,
+#            wellPanel(
+#              span("Number of interfaces plotted:",
+#                   textOutput("n_ifaces")
+#              )
+#            )
+#     )
+  )
     )
 )

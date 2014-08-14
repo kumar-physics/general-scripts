@@ -122,6 +122,18 @@ RETURN res;
 END $$
 DELIMITER ;
 
+drop function if exists get_firstTaxon;
+DELIMITER $$
+create function get_firstTaxon(pdb varchar(4),chain varchar(255)) returns varchar(255)
+BEGIN
+DECLARE res VARCHAR(255);
+SET res=(SELECT firstTaxon FROM ChainCluster 
+WHERE pdbCode=pdb 
+AND (repChain LIKE BINARY CONCAT("%",chain,"%") or memberChains LIKE BINARY CONCAT("%",chain,"%")) );
+RETURN res;
+END $$
+DELIMITER ;
+
 
 drop function if exists get_uniprot_id_cutoff;
 DELIMITER $$

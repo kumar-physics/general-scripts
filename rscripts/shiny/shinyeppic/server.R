@@ -6,7 +6,7 @@ library(shiny)
 
 
 mydb=dbConnect(MySQL(),dbname="eppic_2014_07")
-all_ifaces=fetch(dbSendQuery(mydb,"select * from EppicTable where csScore > -1000 and csScore < 400 and crScore > -500 and crScore < 400"),-1)
+all_ifaces=fetch(dbSendQuery(mydb,"select *,abs(cs1-cs2) dcs,abs(cr1-cr2) dcr from EppicTable"),-1)
 
 all_ifaces$ID=sprintf("%s-%d",all_ifaces$pdbCode,all_ifaces$interfaceId)
 all_ifaces$bio_size_tag=sprintf("s_%d",all_ifaces$bio_size)
@@ -18,11 +18,16 @@ shinyServer(function(input, output, session) {
   ifaces <- reactive({
     # Due to dplyr issue #318, we need temp variables for input values
     input$goButton
+    mincs<-isolate(input$csscore[1])
+    maxcs<-isolate(input$csscore[2])
+    mincr<-isolate(input$crscore[1])
+    maxcr<-isolate(input$crscore[2])
     minres <- isolate(input$res[1])
     maxres <-  isolate(input$res[2])
     minare <-  isolate(input$are[1])
     maxare <-  isolate(input$are[2])
-    rfr <-  isolate(input$rfr)
+    minrfr <-  isolate(input$rfr[1])
+    maxrfr <-  isolate(input$rfr[2])
     hom <-  isolate(input$hom)
     minbs <- isolate(input$bs[1])
     maxbs <- isolate(input$bs[2])
@@ -31,15 +36,17 @@ shinyServer(function(input, output, session) {
     crval <- isolate(input$cr)
     authval <- isolate(input$auth)
     pisaval <- isolate(input$pisa)
+    tax1val<- isolate(input$tax1)
+    tax2val<- isolate(input$tax2)
     # Apply filters
-    
     m <- all_ifaces %>%
       filter(
         resolution >= minres,
         resolution <= maxres,
         area >= minare,
         area <= maxare,
-        rfreeValue <= rfr,
+        rfreeValue >= minrfr,
+        rfreeValue <= maxrfr,
         h1 >= hom,
         h2 >= hom,
         bio_size >= minbs,
@@ -48,7 +55,21 @@ shinyServer(function(input, output, session) {
         grepl(csval,cs),
         grepl(crval,cr),
         grepl(authval,authors),
-        grepl(pisaval,pisa)
+        grepl(pisaval,pisa),
+        grepl(tax1val,tax1),
+        grepl(tax2val,tax2),
+        cs1 >= mincs,
+        cs1 <= maxcs,
+        cs2 >= mincs,
+        cs2 <= maxcs,
+        cr1 >= mincr,
+        cr1 <= maxcr,
+        cr2 >= mincr,
+        cr2 <= maxcr,
+        csScore >= mincs,
+        csScore <= maxcs,
+        crScore >= mincr,
+        crScore <= maxcr
       ) %>%
       arrange(area)
     
@@ -124,61 +145,13 @@ shinyServer(function(input, output, session) {
       #add_legend("stroke", title = "Won Oscar", values = c("Yes", "No")) %>%
       #scale_nominal("stroke", domain = c("Yes", "No"),
       #range = c("orange", "#aaa")) %>%
-    set_options(width = 400, height = 400)
+    set_options(width = 1200, height = 1200)
   })
   
-  vis2 <- reactive({
-    # Lables for axes
-    xvar_name <- names(axis_vars)[axis_vars == input$xvar]
-    yvar_name <- names(axis_vars)[axis_vars == input$yvar]
-    
-    # Normally we could do something like props(x = ~BoxOffice, y = ~Reviews),
-    # but since the inputs are strings, we need to do a little more work.
-    xvar <- prop("x", as.symbol(input$xvar))
-    yvar <- prop("y", as.symbol(input$yvar))
-    ifaces %>%
-      ggvis(xvar,fill=~final) %>% 
-      group_by(final) %>% 
-      layer_histograms(stack=FALSE, fillOpacity := 0.5) %>%
-      #layer_point(fill=~final) %>%
-      #mark_rect() %>%
-      #add_tooltip(iface_tooltip, "hover") %>%
-      add_axis("x", title = xvar_name) %>%
-      #add_axis("y", title = yvar_name) %>%
-      #add_legend("stroke", title = "Won Oscar", values = c("Yes", "No")) %>%
-      #scale_nominal("stroke", domain = c("Yes", "No"),
-      #range = c("orange", "#aaa")) %>%
-      set_options(width = 400, height = 400)
-  })
-  
-  vis3 <- reactive({
-    # Lables for axes
-    xvar_name <- names(axis_vars)[axis_vars == input$yvar]
-    yvar_name <- names(axis_vars)[axis_vars == input$xvar]
-    
-    # Normally we could do something like props(x = ~BoxOffice, y = ~Reviews),
-    # but since the inputs are strings, we need to do a little more work.
-    
-    xvar <- prop("x", as.symbol(input$yvar))
-    yvar <- prop("y", as.symbol(input$xvar))
-    ifaces %>%
-      ggvis(xvar,fill=~final) %>% 
-      group_by(final) %>% 
-      layer_histograms(stack=FALSE, fillOpacity := 0.5) %>%
-      #layer_point(fill=~final) %>%
-      #mark_rect() %>%
-      #add_tooltip(iface_tooltip, "hover") %>%
-      add_axis("x", title = xvar_name) %>%
-      #add_axis("y", title = yvar_name) %>%
-      #add_legend("stroke", title = "Won Oscar", values = c("Yes", "No")) %>%
-      #scale_nominal("stroke", domain = c("Yes", "No"),
-      #range = c("orange", "#aaa")) %>%
-      set_options(width = 400, height = 400)
-  })
+ 
  
 vis %>% bind_shiny("plot1")
-vis2 %>% bind_shiny("plot2")
-vis3 %>% bind_shiny("plot3")
+
 
 output$n_ifaces <- renderText({ nrow(ifaces()) })
 })

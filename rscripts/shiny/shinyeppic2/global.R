@@ -10,20 +10,15 @@ axis_vars <- c(
   "Core rim 1"="cr1",
   "Core rim 2"="cr2",
   "delta cs"="dcs",
-  "delta cr"="dcr"
+  "delta cr"="dcr",
+  "Homologs1"="h1",
+  "Homologs2"="h2"
 )
 color_vars <- c(
   "Final call"="final",
   "Core-rim call"="cr",
   "Core-surface call"="cs",
   "GM call"="gm",
-  "Core-surface score"="csScore",
-  "Core-rim score"="crScore",
-  "GM score"="gmScore",
-  "Resolution"="resolution",
-  "Homologs side 1"="h1",
-  "Homologs side 2"="h2",
-  "Area"="area",
   "Space group"="spaceGroup",
   "Operator type"="operatorType",
   "Operator"="operator",
