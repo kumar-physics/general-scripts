@@ -18,17 +18,18 @@ shinyServer(function(input, output, session) {
   ifaces <- reactive({
     # Due to dplyr issue #318, we need temp variables for input values
     input$goButton
-    mincs<-isolate(input$csscore[1])
-    maxcs<-isolate(input$csscore[2])
-    mincr<-isolate(input$crscore[1])
-    maxcr<-isolate(input$crscore[2])
+    mincs<-isolate(input$csmin)
+    maxcs<-isolate(input$csmax)
+    mincr<-isolate(input$crmin)
+    maxcr<-isolate(input$crmax)
     minres <- isolate(input$res[1])
     maxres <-  isolate(input$res[2])
     minare <-  isolate(input$are[1])
     maxare <-  isolate(input$are[2])
     minrfr <-  isolate(input$rfr[1])
     maxrfr <-  isolate(input$rfr[2])
-    hom <-  isolate(input$hom)
+    minhom <-  isolate(input$homin)
+    maxhom <-  isolate(input$homax)
     minbs <- isolate(input$bs[1])
     maxbs <- isolate(input$bs[2])
     finalval <- isolate(input$final)
@@ -47,8 +48,10 @@ shinyServer(function(input, output, session) {
         area <= maxare,
         rfreeValue >= minrfr,
         rfreeValue <= maxrfr,
-        h1 >= hom,
-        h2 >= hom,
+        h1 >= minhom,
+        h2 >= minhom,
+        h1 <= maxhom,
+        h2 <= maxhom,
         bio_size >= minbs,
         bio_size <= maxbs,
         grepl(finalval,final),
@@ -58,14 +61,14 @@ shinyServer(function(input, output, session) {
         grepl(pisaval,pisa),
         grepl(tax1val,tax1),
         grepl(tax2val,tax2),
-        cs1 >= mincs,
-        cs1 <= maxcs,
-        cs2 >= mincs,
-        cs2 <= maxcs,
-        cr1 >= mincr,
-        cr1 <= maxcr,
-        cr2 >= mincr,
-        cr2 <= maxcr,
+#         cs1 >= mincs,
+#         cs1 <= maxcs,
+#         cs2 >= mincs,
+#         cs2 <= maxcs,
+#         cr1 >= mincr,
+#         cr1 <= maxcr,
+#         cr2 >= mincr,
+#         cr2 <= maxcr,
         csScore >= mincs,
         csScore <= maxcs,
         crScore >= mincr,

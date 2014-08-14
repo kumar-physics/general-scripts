@@ -11,12 +11,7 @@ actionLink <- function(inputId, ...) {
 
 shinyUI(fluidPage(
   titlePanel("EPPIC explorer"),
-  fluidRow(
-    column(6, 
-           sliderInput("csscore", "Core surface score",-1000000, 1000000, value = c(-2000, 2000), step = 1)),
-    column(6,
-           sliderInput("crscore", "Core rim score", -1000000, 1000000, value = c(-2000, 2000), step = 1))
-  ),
+  
   fluidRow(
     column(2, 
            sliderInput("res", "Resolution",-1, 50, value = c(0.8, 1.3), step = 0.1)),
@@ -25,9 +20,21 @@ shinyUI(fluidPage(
     column(2, 
            sliderInput("rfr", "R-free value",-1,1,value=c(0.0,0.3),step=0.1)),
     column(2,
-           sliderInput("hom", "Homologs",0, 4000, value = c(0,400), step=10)),
+           sliderInput("bs", "Assembly size", -1, 200, value = c(1, 6), step = 1)),
     column(2,
-           sliderInput("bs", "Assembly size", -1, 200, value = c(1, 6), step = 1))
+           numericInput("homin", "Homologs min", value = 10)),
+    column(2,
+           numericInput("homax", "Homologs max", value = 400))
+  ),
+  fluidRow(
+    column(3,
+           numericInput("csmin", "Core surface min", value = -2000)),
+    column(3,
+           numericInput("csmax", "Core surface max", value = 2000)),
+    column(3,
+           numericInput("crmin", "Core rim min", value = -2000)),
+    column(3,
+           numericInput("crmax", "Core rim max", value = 2000))
   ),
   fluidRow(
     column(2,

@@ -36,7 +36,7 @@ calls <-c(
   "Nopred"="nopred")
 tax<-c(
   "All"="Archaea|Bacteria|Eukaryota|Viruses|unclassified sequences|other sequences|unknown",
-  "All(meaningfull)"="Archaea|Bacteria|Eukaryota|Viruses",
+  "All(meaningful)"="Archaea|Bacteria|Eukaryota|Viruses",
   "Archaea"="Archaea",
   "Bacteria"="Bacteria",
   "Eukaryota"="Eukaryota",
