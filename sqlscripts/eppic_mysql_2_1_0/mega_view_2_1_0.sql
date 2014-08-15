@@ -413,7 +413,20 @@ return res;
 END $$
 DELIMITER ; 
 
-
+DROP FUNCTION IF EXISTS get_title;
+DELIMITER $$
+CREATE FUNCTION get_title(pdb VARCHAR(255)) RETURNS varchar(255)
+BEGIN
+DECLARE res,res1 varchar(255);
+SET res1=(select title from PdbInfo where pdbCode=pdb);
+if ((res1 like "%MHC%") or (res1 like "%histocompatibility%") or (res1 like "%HLA%" and res1 not like "%CHLA%"))  then
+set res="MHC";
+else
+set res="Other";
+end if;
+return res;
+END $$
+DELIMITER ; 
 
 
 
