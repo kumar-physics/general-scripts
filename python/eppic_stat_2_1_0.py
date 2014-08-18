@@ -56,8 +56,9 @@ def get_stat(dbname,total,new,removed,uniprot,rsyncfile):
 	fo.write("<head>\n<link rel=\"stylesheet\" type=\"text/css\" href=\"eppic-static.css\">\n<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,400italic,700italic' rel='stylesheet' type='text/css'>\n</head>\n")
 	fo.write("<body>\n") 
 	fo.write("\t<script type=\"text/javascript\">\n\t\tfunction reloadPage(url) {\n\t\t\twindow.top.location=url;\n\t\t}\n\t</script>\n")
-	fo.write("<div class=\"eppic-iframe-content\">\n")
-	fo.write("<div class=\"eppic-statistics\">\n")
+	fo.write("\t<div class=\"eppic-iframe-content\">\n")
+	fo.write("\t<img class=\"eppic-iframe-top-img\" src=\"resources/images/eppic-logo.png\">\n")
+	fo.write("\t<div class=\"eppic-statistics\">\n")
 	fo.write("\t<h1>EPPIC database statistics as of %s</h1>\n"%(today))
 	fo.write("\t<h3>Based on UniProt_%s and PDB release on %s</h3>\n"%(uniprot,rdate))
 
