@@ -419,7 +419,7 @@ CREATE FUNCTION get_title(pdb VARCHAR(255)) RETURNS varchar(255)
 BEGIN
 DECLARE res,res1 varchar(255);
 SET res1=(select title from PdbInfo where pdbCode=pdb);
-if ((res1 like "%MHC%") or (res1 like "%histocompatibility%") or (res1 like "%HLA%" and res1 not like "%CHLA%"))  then
+if ((res1 like "%MHC%") or (res1 like "%histocompatibility%") or (res1 like "%HLA%" and res1 not like "%CHLA%") or (res1 like "%TCR%") or (res1 like "Immune Receptor"))  then
 set res="MHC";
 else
 set res="Other";
@@ -429,4 +429,4 @@ END $$
 DELIMITER ; 
 
 
-
+update EppicTable set title=get_title(pdbCode);

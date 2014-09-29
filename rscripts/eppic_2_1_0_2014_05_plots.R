@@ -283,7 +283,7 @@ bio_color="#66c2a5"
 font_size=20
 alpha_value=0.75
 #jpeg plots font size 20
-setwd('~/publications/PDBwide_latex/figures/rplots')
+setwd('~/publications/PDBwide_latex/figures/rplots2')
 areavscore=ggplot(subset(eppic,gmScore>0,select =c(area,gmScore,final)))+
   geom_density2d(aes(x=area,y=gmScore,color=final),bins=5000,alpha=alpha_value)+
   scale_color_manual(values=c(bio_color,xtal_color),name="Eppic final")+
@@ -563,7 +563,7 @@ dev.off()
 
 
 #pdf plot font size normal
-setwd('~/publications/PDBwide_latex/figures/rplotspdf')
+setwd('~/publications/PDBwide_latex/figures/rplotspdf2')
 rocplot=ggplot(roc_data)+
   facet_wrap(~method)+
   geom_line(aes(x=1-specificity,y=sensitivity,color=dataset),size=1.0)+
