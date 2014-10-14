@@ -74,6 +74,27 @@ RETURN x;
 END$$
 DELIMITER ;
 
+DROP FUNCTION IF EXISTS get_chainlength;
+DELIMITER $$
+CREATE FUNCTION get_chainlength(pdb varchar(4),chain VARCHAR(255)) RETURNS INT(12)
+BEGIN
+DECLARE x INT(12);
+SET x=(SELECT (pdbEnd-pdbStart)+1
+FROM ChainCluster 
+WHERE pdbCode=pdb 
+AND (repChain LIKE BINARY CONCAT("%",chain,"%") or memberChains LIKE BINARY CONCAT("%",chain,"%")) );
+RETURN x;
+END$$
+DELIMITER ;
+
+
+
+
+
+
+
+
+
 DROP FUNCTION IF EXISTS get_repchain;
 DELIMITER $$
 CREATE FUNCTION get_repchain(pdb varchar(4),chain VARCHAR(255)) RETURNS varchar(255)
@@ -95,6 +116,18 @@ create function get_uniprot_id(pdb varchar(4),chain varchar(255)) returns varcha
 BEGIN
 DECLARE res VARCHAR(255);
 SET res=(SELECT refUniProtId FROM ChainCluster 
+WHERE pdbCode=pdb 
+AND (repChain LIKE BINARY CONCAT("%",chain,"%") or memberChains LIKE BINARY CONCAT("%",chain,"%")) );
+RETURN res;
+END $$
+DELIMITER ;
+
+drop function if exists get_firstTaxon;
+DELIMITER $$
+create function get_firstTaxon(pdb varchar(4),chain varchar(255)) returns varchar(255)
+BEGIN
+DECLARE res VARCHAR(255);
+SET res=(SELECT firstTaxon FROM ChainCluster 
 WHERE pdbCode=pdb 
 AND (repChain LIKE BINARY CONCAT("%",chain,"%") or memberChains LIKE BINARY CONCAT("%",chain,"%")) );
 RETURN res;
@@ -211,10 +244,7 @@ inner join SeqCluster as s2 on s2.pdbCode=i.pdbCode and s2.repChain = get_repcha
 inner join Job as j on j.inputName = i.pdbCode and j.uid= p.job_uid where length(j.jobId)=4;
 
 drop table if exists detailedTable;
-create table detailedTable as select * from detailedView;
-
-
-
+create table detailedTable as select * from detailedView
 
 
 
@@ -351,7 +381,9 @@ get_score(i.uid,"eppic-cs") csScore,
 get_result(i.uid,"eppic") final,
 get_result2(i.interfaceCluster_uid,"pisa") pisa,
 get_result2(i.interfaceCluster_uid,"authors") authors,
-get_result2(i.interfaceCluster_uid,"pqs") pqs
+get_result2(i.interfaceCluster_uid,"pqs") pqs,
+assembly(p.pdbCode) assembly,
+bio_assembly(p.pdbCode) bio_size
 from Interface as i 
 inner join PdbInfo as p on i.pdbCode = p.pdbCode 
 inner join Job as j on j.inputName = i.pdbCode and j.uid= p.job_uid where length(j.jobId)=4;
@@ -370,10 +402,31 @@ p.pdbCode=e.pdbCode and p.eppic_id=e.interfaceId;
 
 
 
+create index pdbidx on Assembly(pdbCode);
+DROP FUNCTION IF EXISTS bio_assembly;
+DELIMITER $$
+CREATE FUNCTION bio_assembly(pdb VARCHAR(255)) RETURNS int(11)
+BEGIN
+DECLARE res int(11);
+SET res=(select mmSize from Assembly where method="authors" and pdbCode=pdb);
+return res;
+END $$
+DELIMITER ; 
+
+DROP FUNCTION IF EXISTS get_title;
+DELIMITER $$
+CREATE FUNCTION get_title(pdb VARCHAR(255)) RETURNS varchar(255)
+BEGIN
+DECLARE res,res1 varchar(255);
+SET res1=(select title from PdbInfo where pdbCode=pdb);
+if ((res1 like "%MHC%") or (res1 like "%histocompatibility%") or (res1 like "%HLA%" and res1 not like "%CHLA%") or (res1 like "%TCR%") or (res1 like "Immune Receptor"))  then
+set res="MHC";
+else
+set res="Other";
+end if;
+return res;
+END $$
+DELIMITER ; 
 
 
-
-
-
-
-
+update EppicTable set title=get_title(pdbCode);

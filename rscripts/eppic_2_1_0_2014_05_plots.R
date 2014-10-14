@@ -5,8 +5,7 @@ library(plyr)
 library(reshape2)
 
 #color blind free paletter
-cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-
+cbPalette <- c("#fc8d62","#66c2a5", "#56B4E9","#E69F00","#999999", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 #dbconnection
 if(system("hostname",intern=T) == "delilah.psi.ch") { #spencer's system
   system("ssh -fN -L 3307:localhost:3306 -o ExitOnForwardFailure=yes mpc")
@@ -156,8 +155,9 @@ nmr=fetch(dbSendQuery(mydb,"select (length(c.memberChains)+1)/2+1 chains,count(*
                       order by chains;"),-1)
 
 
-ep=fetch(dbSendQuery(mydb,"select pdbCode,interfaceId,area,gmScore core,gm,cr,cs,final eppic,
-  pisa pisa_pdb,authors,pqs,pisaCall pisa_db from EppicvsPisa"),-1)
+ep=fetch(dbSendQuery(mydb,"select pdbCode,interfaceId,resolution,rfreeValue,area,gmScore core,gm,cr,cs,final eppic,
+  pisa pisa_pdb,authors,pqs,pisaCall pisa_db from EppicvsPisa where resolution<2.5 and rfreeValue<0.3" ),-1)
+
 
 ep$remark='No remark'
 ep$remark[ep$pisa_db=='xtal' & ep$eppic=='xtal']<-'xtal xtal'
@@ -170,10 +170,64 @@ xx<-100*length(subset(ep,remark=='xtal xtal')$area)/s
 bb<-100*length(subset(ep,remark=='bio bio')$area)/s
 xb<-100*length(subset(ep,remark=='xtal bio')$area)/s
 bx<-100*length(subset(ep,remark=='bio xtal')$area)/s
+pdata=subset(ep,remark!='No remark')
+pdata$remark<-factor(pdata$remark,levels=c("xtal xtal","bio bio","xtal bio","bio xtal"))
+pdata$issame="different interface call"
+pdata$issame[pdata$pisa_db==pdata$eppic]="same interface call"
+pdata$issame<-factor(pdata$issame,levels=c("same interface call","different interface call"))
+
+
+epvsaut=fetch(dbSendQuery(mydb,"select pdbCode,interfaceId,operatorType,area,gmScore,gm,crScore,
+                       cr,csScore,cs,final,pisa,authors,pqs from EppicTable 
+                       where resolution<2.5 and rfreeValue<0.3 and resolution>0 
+                       and h1>30 and h2>30 and cs!='nopred' and cr!='nopred' and 
+                       cs=cr and cs=gm and authors is not NULL 
+                       and get_chainlength(pdbCode,chain1)>50 and 
+                       get_chainlength(pdbCode,chain2)>50 order by csScore " ),-1)
+ep2=rbind(epvsaut[1:10000,],epvsaut[(dim(epvsaut)[1]-10000):dim(epvsaut)[1],])
+
+ep2$remark='No remark'
+ep2$remark[ep2$authors=='xtal' & ep2$final=='xtal']<-'xtal xtal'
+ep2$remark[ep2$authors=='bio' & ep2$final=='bio']<-'bio bio'
+ep2$remark[ep2$authors=='bio' & ep2$final=='xtal']<-'xtal bio'
+ep2$remark[ep2$authors=='xtal' & ep2$final=='bio']<-'bio xtal'
+s2<-length(subset(ep2,remark=='xtal xtal' | remark=='bio bio' | remark=='xtal bio' | remark=='bio xtal')$area)
+
+xx2<-100*length(subset(ep2,remark=='xtal xtal')$area)/s2
+bb2<-100*length(subset(ep2,remark=='bio bio')$area)/s2
+xb2<-100*length(subset(ep2,remark=='xtal bio')$area)/s2
+bx2<-100*length(subset(ep2,remark=='bio xtal')$area)/s2
+pdata2=subset(ep2,remark!='No remark')
+pdata2$remark<-factor(pdata2$remark,levels=c("xtal xtal","bio bio","xtal bio","bio xtal"))
+pdata2$issame="different call"
+pdata2$issame[pdata2$authors==pdata2$final]="same call"
+pdata2$issame<-factor(pdata2$issame,levels=c("same call","different call"))
+pdata2$remark2[pdata2$remark=='bio xtal']=sprintf("bio xtal (%.2f%%)",bx2)
+pdata2$remark2[pdata2$remark=='bio bio']=sprintf("bio bio (%.2f%%)",bb2)
+pdata2$remark2[pdata2$remark=='xtal xtal']=sprintf("xtal xtal (%.2f%%)",xx2)
+pdata2$remark2[pdata2$remark=='xtal bio']=sprintf("xtal bio (%.2f%%)",xb2)
+pdata2$issame2[pdata2$issame=="different call"]=sprintf("different call (%.2f%%)",xb2+bx2)
+pdata2$issame2[pdata2$issame=="same call"]=sprintf("same call (%.2f%%)",bb2+xx2)
+pdata2$remark2<-factor(pdata2$remark2,levels=c(sprintf("xtal xtal (%.2f%%)",xx2),
+                                             sprintf("bio bio (%.2f%%)",bb2),
+                                             sprintf("xtal bio (%.2f%%)",xb2),
+                                             sprintf("bio xtal (%.2f%%)",bx2)))
+pdata2$issame2<-factor(pdata2$issame2,levels=c(sprintf("same call (%.2f%%)",bb2+xx2),
+                                               sprintf("different call (%.2f%%)",xb2+bx2)))
+                                               
+
+                      
+
+
+
 
 #creating data frames
-janin<-function(x){0.016*exp(-x/260)}
+janin<-function(x){0.016*exp(-(2.0*x)/260)}
 janindata<-data.frame(area=0:2500,density=janin(0:2500))
+
+jsum=integrate(janin,600,Inf)
+janindata$density=janindata$density/jsum$value
+
 
 #benchmark data
 data=loadBenchmark("dc")
@@ -220,12 +274,16 @@ gm$method='Geometry'
 roc_data=rbind(gm,cr)
 roc_data=rbind(roc_data,cs)
 
+
+
+
+
 xtal_color="#fc8d62"
 bio_color="#66c2a5"
 font_size=20
 alpha_value=0.75
 #jpeg plots font size 20
-setwd('~/publications/PDBwide_latex/figures/rplots')
+setwd('~/publications/PDBwide_latex/figures/rplots2')
 areavscore=ggplot(subset(eppic,gmScore>0,select =c(area,gmScore,final)))+
   geom_density2d(aes(x=area,y=gmScore,color=final),bins=5000,alpha=alpha_value)+
   scale_color_manual(values=c(bio_color,xtal_color),name="Eppic final")+
@@ -263,7 +321,7 @@ coreplot=ggplot(subset(eppic,area<=5000 & gmScore>0),aes(x=gmScore))+
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');
 
-expplot=ggplot(transform(exp, expMethod = reorder(expMethod, -count)))+
+expplot=ggplot(transform(subset(exp,count>400), expMethod = reorder(expMethod, -count)))+
   geom_bar(aes(x=expMethod,y=count,fill=assembly),alpha=alpha_value,position="dodge",stat='identity')+
   scale_fill_manual(values=c(xtal_color,bio_color),name="Assembly")+
   scale_color_manual(values=c(xtal_color,bio_color),name="Assembly")+
@@ -272,13 +330,13 @@ expplot=ggplot(transform(exp, expMethod = reorder(expMethod, -count)))+
   geom_text(aes(color=assembly,group=assembly,x=expMethod,y=count,label=count),position=position_dodge(1.0),vjust=-0.5)+
   theme(panel.background = element_blank(),
         text = element_text(size=font_size,color='black'),
-        axis.text.x=element_text(color='black',angle=90,hjust=1,vjust=0.5),
+        #axis.text.x=element_text(color='black',angle=90,hjust=1,vjust=0.5),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
-        legend.position='bottom');
+        legend.position='bottom');expplot
 
 spacegroupplot=ggplot(transform(spacegroup, spaceGroup = reorder(spaceGroup, -count)),aes(x=spaceGroup,y=count))+
-  geom_bar(aes(fill=assembly),alpha=alpha_value)+
+  geom_bar(aes(fill=assembly),alpha=alpha_value,stat='identity')+
   scale_color_manual(values=c(xtal_color,bio_color),name="Assembly")+
   scale_fill_manual(values=c(xtal_color,bio_color),name="Assembly")+
   xlab('Space group')+
@@ -288,10 +346,10 @@ spacegroupplot=ggplot(transform(spacegroup, spaceGroup = reorder(spaceGroup, -co
         axis.text.x=element_text(color='black',angle=90,hjust=1,vjust=0.5),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
-        legend.position='bottom');
+        legend.position='bottom');spacegroupplot
 
 opplot=ggplot(transform(op, operatorType = reorder(operatorType, -count)),aes(x=operatorType,y=count))+
-  geom_bar(aes(fill=final),alpha=alpha_value)+
+  geom_bar(aes(fill=final),alpha=alpha_value,stat='identity')+
   scale_color_manual(values=c(bio_color,xtal_color),name="Eppic final")+
   scale_fill_manual(values=c(bio_color,xtal_color),name="Eppic final")+
   xlab('Operator type')+
@@ -300,13 +358,13 @@ opplot=ggplot(transform(op, operatorType = reorder(operatorType, -count)),aes(x=
         text = element_text(size=font_size,color='black'),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
-        legend.position='bottom');
-
-janinplot=ggplot()+  scale_color_brewer(palette="Dark2") +
-   geom_line(data=janindata,aes(x=area,y=density,color='Janin'),size=1.0)+
-   geom_line(data=infinite,aes(x=area,y=..density..,color='Infinite assemblies'),stat='bin',binwidth=25,drop=T,size=1.0)+
-   geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on evolution'),stat='bin',binwidth=25,drop=T,size=1.0)+
-   geom_line(data=subset(eppic,gm=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on geometry'),stat='bin',binwidth=25,drop=T,size=1.0)+
+        legend.position='bottom');opplot
+jcolors<-c("#a6611a","#80cdc1","#dfc27d","#018571")
+janinplot=ggplot()+scale_color_manual(values=jcolors)+ #scale_color_brewer(palette="cbPalette") +
+   geom_line(data=subset(janindata,area>600),aes(x=area,y=density,color='Janin'),size=1.0)+
+   geom_line(data=subset(infinite,area>600),aes(x=area,y=..density..,color='Infinite assemblies'),stat='bin',binwidth=25,drop=T,size=1.0)+
+  # geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>600),aes(x=area,y=..density..,color='Xtal based on evolution'),stat='bin',binwidth=25,drop=T,size=1.0)+
+ #  geom_line(data=subset(eppic,gm=='xtal' & area>600),aes(x=area,y=..density..,color='Xtal based on geometry'),stat='bin',binwidth=25,drop=T,size=1.0)+
 #  stat_bin(data=infinite,aes(x=area,color='Infinite assemblies',y=..density..),geom="line",binwidth=25,drop=T,size=1.0) + 
   #geom_histogram(data=infinite,aes(x=area,y=..density..,fill='Infinite assemblies'),binwidth=25,alpha=.5) +
 #  geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on evolution'),stat='bin',size=1.0,drop=T,binwidth=25)+
@@ -391,23 +449,21 @@ nmrplot=ggplot(nmr)+
         legend.position='bottom');
 
 
-pdata=subset(ep,remark!='No remark')
-pdata$remark<-factor(pdata$remark,levels=c("xtal xtal","bio bio","xtal bio","bio xtal"))
-pdata$issame="different interface call"
-pdata$issame[pdata$pisa_db==pdata$eppic]="same interface call"
-pdata$issame<-factor(pdata$issame,levels=c("same interface call","different interface call"))
-pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette)+
-  geom_bar(aes(x=area,y=(..count..),fill=remark),
+
+pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette,
+                                         labels=c("xtal\nxtal", "bio\nbio", "xtal\nbio","bio\nxtal"),
+                                         name="EPPIC\nPISA")+
+  geom_bar(aes(x=area,fill=remark),
             position=position_fill(height=100),stat='bin',binwidth=200)+
-  geom_line(aes(x=area,y=(..count..),color=issame,ymax = 1),
-            position=position_fill(height=100),stat='bin',binwidth=200)+
+  #geom_line(aes(x=area,y=..count..,color=issame,ymax=1),
+   #         position=position_fill(height=100),stat='bin',binwidth=200)+
   xlim(0,5000)+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab('Ratio of the interface calls with in a bin')+
   annotate("text", label = sprintf("%.2f %%",xx), x = 500, y = 0.3)+
   annotate("text", label = sprintf("%.2f %%",bb), x = 3000, y = 0.5 )+
-  annotate("text", label = sprintf("%.2f %%",xb), x = 1100, y = 0.8)+
-  annotate("text", label = sprintf("%.2f %%",bx), x = 1300, y = 0.97)+
+  annotate("text", label = sprintf("%.2f %%",xb), x = 1100, y = 0.85)+
+  annotate("text", label = sprintf("%.2f %%",bx), x = 1200, y = 0.97)+
   #geom_hline(aes(yintercept=pisaavg,label='average'),linetype="dashed",show_guide=T)+
   theme(panel.background = element_blank(),
         text = element_text(size=font_size,color='black'),
@@ -415,10 +471,60 @@ pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette)+
         panel.border =element_rect(colour = "black",fill=NA),
         panel.grid.major = element_line(colour = "gray"),
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
-        legend.title=element_blank(),
+        #legend.title=element_blank(),
         legend.position='bottom');pisaplot
+
+
+
+autplot=ggplot(pdata2)+scale_color_manual(values=cbPalette,
+                                         labels=c("xtal\nxtal", "bio\nbio", "xtal\nbio","bio\nxtal"),
+                                         name="EPPIC\nauthors")+
+                                scale_linetype_manual(values=c(1,2),name=" ")+
+  #geom_bar(aes(x=area,fill=remark),
+          # position='identity',
+          # stat='bin',binwidth=200,alpha=0.6)+
+  geom_line(aes(x=area,fill=remark2,color=remark2,linetype=issame2),
+            position='identity',
+            stat='bin',binwidth=200,alpha=1.0,size=1)+
+  xlim(0,5000)+
+  xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
+  ylab('Count')+
+  theme(panel.background = element_blank(),
+        text = element_text(size=font_size,color='black'),
+        axis.text=element_text(color='black'),
+        panel.border =element_rect(colour = "black",fill=NA),
+        panel.grid.major = element_line(colour = "gray"),
+        panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
+        #legend.title=element_blank(),
+        legend.position='bottom',
+        legend.text=element_text(size=font_size));autplot
+
+p2=ggplot()+
+  geom_bar(dat=epvsaut,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
+  geom_bar(dat=ep2,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
+  scale_color_manual(values=c(bio_color,xtal_color),name="Eppic final")+
+  scale_fill_manual(values=c(bio_color,xtal_color),name="Eppic final")+
+  xlab('Core surface score')+
+  ylab('Count')+
+  theme(panel.background = element_blank(),
+        text = element_text(size=font_size,color='black'),
+        axis.text=element_text(color='black'),
+        panel.border =element_rect(colour = "black",fill=NA),
+        panel.grid.major = element_line(colour = "gray"),
+        panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
+        legend.title=element_blank(),
+        legend.position='bottom');p2
+#ggtitle(sprintf("xtal cutoff=%0.2f,biocutoff=%0.2f",min(subset(ep2,cs=='xtal')$csScore),max(subset(ep2,cs=='bio')$csScore)))
+
+
+
+
+
 jpeg("pisa.jpg",width=1200,height=800)
 pisaplot
+dev.off()
+jpeg("auth.jpg",width=1200,height=800)
+autplot
 dev.off()
 
 jpeg("bench_area.jpg",width=1200,height=800)
@@ -457,7 +563,7 @@ dev.off()
 
 
 #pdf plot font size normal
-setwd('~/publications/PDBwide_latex/figures/rplotspdf')
+setwd('~/publications/PDBwide_latex/figures/rplotspdf2')
 rocplot=ggplot(roc_data)+
   facet_wrap(~method)+
   geom_line(aes(x=1-specificity,y=sensitivity,color=dataset),size=1.0)+
@@ -539,7 +645,7 @@ coreplot=ggplot(subset(eppic,area<=5000 & gmScore>0),aes(x=gmScore))+
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');
 
-expplot=ggplot(transform(exp, expMethod = reorder(expMethod, -count)))+
+expplot=ggplot(transform(subset(exp,count>400), expMethod = reorder(expMethod, -count)))+
   geom_bar(aes(x=expMethod,y=count,fill=assembly),alpha=alpha_value,position="dodge",stat='identity')+
   scale_fill_manual(values=c(xtal_color,bio_color),name="Assembly")+
   scale_color_manual(values=c(xtal_color,bio_color),name="Assembly")+
@@ -548,13 +654,13 @@ expplot=ggplot(transform(exp, expMethod = reorder(expMethod, -count)))+
   geom_text(aes(color=assembly,group=assembly,x=expMethod,y=count,label=count),position=position_dodge(1.0),vjust=-0.1,size=3)+
   theme(panel.background = element_blank(),
         text = element_text(color='black'),
-        axis.text.x=element_text(color='black',angle=90,hjust=0.8,vjust=0.5),
+        #axis.text.x=element_text(color='black',angle=90,hjust=0.8,vjust=0.5),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');expplot
 
 spacegroupplot=ggplot(transform(spacegroup, spaceGroup = reorder(spaceGroup, -count)),aes(x=spaceGroup,y=count))+
-  geom_bar(aes(fill=assembly),alpha=alpha_value)+
+  geom_bar(aes(fill=assembly),alpha=alpha_value,stat='identity')+
   scale_color_manual(values=c(xtal_color,bio_color),name="Assembly")+
   scale_fill_manual(values=c(xtal_color,bio_color),name="Assembly")+
   xlab('Space group')+
@@ -567,7 +673,7 @@ spacegroupplot=ggplot(transform(spacegroup, spaceGroup = reorder(spaceGroup, -co
         legend.position='bottom');
 
 opplot=ggplot(transform(op, operatorType = reorder(operatorType, -count)),aes(x=operatorType,y=count))+
-  geom_bar(aes(fill=final),alpha=alpha_value)+
+  geom_bar(aes(fill=final),alpha=alpha_value,stat='identity')+
   scale_color_manual(values=c(bio_color,xtal_color),name="Eppic final")+
   scale_fill_manual(values=c(bio_color,xtal_color),name="Eppic final")+
   xlab('Operator type')+
@@ -580,11 +686,12 @@ opplot=ggplot(transform(op, operatorType = reorder(operatorType, -count)),aes(x=
 
 
 
-janinplot=ggplot()+  scale_color_brewer(palette="Dark2") +
-  geom_line(data=janindata,aes(x=area,y=density,color='Janin'),size=1.0)+
-  geom_line(data=infinite,aes(x=area,y=..density..,color='Infinite assemblies'),stat='bin',binwidth=25,drop=T,size=1.0)+
-  geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on evolution'),stat='bin',binwidth=25,drop=T,size=1.0)+
-  geom_line(data=subset(eppic,gm=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on geometry'),stat='bin',binwidth=25,drop=T,size=1.0)+
+jcolors<-c("#a6611a","#80cdc1","#dfc27d","#018571")
+janinplot=ggplot()+scale_color_manual(values=jcolors)+ #scale_color_brewer(palette="cbPalette") +
+  geom_line(data=subset(janindata,area>600),aes(x=area,y=density,color='Janin'),size=1.0)+
+  geom_line(data=subset(infinite,area>600),aes(x=area,y=..density..,color='Infinite assemblies'),stat='bin',binwidth=25,drop=T,size=1.0)+
+  #geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>600),aes(x=area,y=..density..,color='Xtal based on evolution'),stat='bin',binwidth=25,drop=T,size=1.0)+
+  #geom_line(data=subset(eppic,gm=='xtal' & area>600),aes(x=area,y=..density..,color='Xtal based on geometry'),stat='bin',binwidth=25,drop=T,size=1.0)+
   #  stat_bin(data=infinite,aes(x=area,color='Infinite assemblies',y=..density..),geom="line",binwidth=25,drop=T,size=1.0) + 
   #geom_histogram(data=infinite,aes(x=area,y=..density..,fill='Infinite assemblies'),binwidth=25,alpha=.5) +
   #  geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>350),aes(x=area,y=..density..,color='Xtal based on evolution'),stat='bin',size=1.0,drop=T,binwidth=25)+
@@ -595,13 +702,14 @@ janinplot=ggplot()+  scale_color_brewer(palette="Dark2") +
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab("Probability")+
   theme(panel.background = element_blank(),
-        text = element_text(size=font_size,color='black'),
+        text = element_text(color='black'),
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
         panel.grid.major = element_line(colour = "gray"),
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
         legend.title=element_blank(),
-        legend.position='bottom');
+        legend.position='bottom');janinplot
+
 nmrplot=ggplot(nmr)+
   geom_bar(aes(x=chains,y=count),stat='identity',fill='#1b9e77')+
   scale_x_continuous(breaks=1:15)+
@@ -618,23 +726,20 @@ nmrplot=ggplot(nmr)+
         legend.title=element_blank(),
         legend.position='bottom');
 
-pdata=subset(ep,remark!='No remark')
-pdata$remark<-factor(pdata$remark,levels=c("xtal xtal","bio bio","xtal bio","bio xtal"))
-pdata$issame="different interface call"
-pdata$issame[pdata$pisa_db==pdata$eppic]="same interface call"
-pdata$issame<-factor(pdata$issame,levels=c("same interface call","different interface call"))
-pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette)+
-  geom_bar(aes(x=area,y=(..count..),fill=remark),
+pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette,
+                                         labels=c("xtal\nxtal", "bio\nbio", "xtal\nbio","bio\nxtal"),
+                                         name="EPPIC\nPISA")+
+  geom_bar(aes(x=area,fill=remark),
            position=position_fill(height=100),stat='bin',binwidth=200)+
-  geom_line(aes(x=area,y=(..count..),color=issame,ymax = 1),
-            position=position_fill(height=100),stat='bin',binwidth=200)+
+  #geom_line(aes(x=area,y=..count..,color=issame,ymax=1),
+  #         position=position_fill(height=100),stat='bin',binwidth=200)+
   xlim(0,5000)+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
   ylab('Ratio of the interface calls with in a bin')+
   annotate("text", label = sprintf("%.2f %%",xx), x = 500, y = 0.3)+
   annotate("text", label = sprintf("%.2f %%",bb), x = 3000, y = 0.5 )+
-  annotate("text", label = sprintf("%.2f %%",xb), x = 1100, y = 0.8)+
-  annotate("text", label = sprintf("%.2f %%",bx), x = 1300, y = 0.97)+
+  annotate("text", label = sprintf("%.2f %%",xb), x = 1100, y = 0.85)+
+  annotate("text", label = sprintf("%.2f %%",bx), x = 1200, y = 0.97)+
   #geom_hline(aes(yintercept=pisaavg,label='average'),linetype="dashed",show_guide=T)+
   theme(panel.background = element_blank(),
         text = element_text(color='black'),
@@ -642,10 +747,51 @@ pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette)+
         panel.border =element_rect(colour = "black",fill=NA),
         panel.grid.major = element_line(colour = "gray"),
         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
-        legend.title=element_blank(),
-        legend.position='bottom');
+        #legend.title=element_blank(),
+        legend.position='bottom');pisaplot
 
+autplot=ggplot(pdata2)+scale_color_manual(values=cbPalette,
+                                          labels=c("xtal\nxtal", "bio\nbio", "xtal\nbio","bio\nxtal"),
+                                          name="EPPIC\nauthors")+
+  scale_linetype_manual(values=c(1,4),name=" ")+
+  #geom_bar(aes(x=area,fill=remark,color=remark),
+           #position='identity',
+          # stat='bin',binwidth=200,alpha=0.7)+
+  geom_line(aes(x=area,fill=remark2,color=remark2,linetype=issame2),
+           position='identity',
+           stat='bin',binwidth=200,alpha=1.0,size=1)+
+  xlim(0,5000)+
+  xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
+  ylab('Count')+
+  theme(panel.background = element_blank(),
+        text = element_text(size=font_size,color='black'),
+        axis.text=element_text(color='black'),
+        panel.border =element_rect(colour = "black",fill=NA),
+        panel.grid.major = element_line(colour = "gray"),
+        panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
+        #legend.title=element_blank(),
+        legend.position='bottom');autplot
+# p2=ggplot()+
+#   geom_bar(dat=epvsaut,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
+#   geom_bar(dat=ep2,aes(x=csScore,fill=cs),,position='identity',bin='stat',binwidth=0.1,alpha=.5)+
+#   scale_color_manual(values=c(bio_color,xtal_color),name="Eppic final")+
+#   scale_fill_manual(values=c(bio_color,xtal_color),name="Eppic final")+
+#   xlab('Core surface score')+
+#   ylab('Count')+
+#   theme(panel.background = element_blank(),
+#         text = element_text(color='black'),
+#         axis.text=element_text(color='black'),
+#         panel.border =element_rect(colour = "black",fill=NA),
+#         panel.grid.major = element_line(colour = "gray"),
+#         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
+#         legend.title=element_blank(),
+#         legend.position='bottom');p2
+#   #ggtitle(sprintf("xtal cutoff=%0.2f,biocutoff=%0.2f",min(subset(ep2,cs=='xtal')$csScore),max(subset(ep2,cs=='bio')$csScore)))
+# autplot2=grid.arrange(autplot, p2)
 
+pdf("auth.pdf")
+autplot
+dev.off()
 
 pdf("pisa.pdf")
 pisaplot
@@ -685,3 +831,19 @@ pdf("nmr_chains.pdf")
 nmrplot
 dev.off()
 
+
+# janinplot2=ggplot()+  scale_color_brewer(palette="Dark2") +
+#   geom_line(data=infinite,aes(x=area,y=..count..,color='Infinite assemblies'),stat='bin',binwidth=25,drop=T,size=1.0)+
+#   geom_line(data=subset(eppic,cs=='xtal' & cr=='xtal' & area>0),aes(x=area,y=..count..,color='Xtal based on evolution'),stat='bin',binwidth=25,drop=T,size=1.0)+
+#   geom_line(data=subset(eppic,gm=='xtal' & area>0),aes(x=area,y=..count..,color='Xtal based on geometry'),stat='bin',binwidth=25,drop=T,size=1.0)+
+#   xlim(0,2500)+
+#   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
+#   ylab("Probability")+
+#   theme(panel.background = element_blank(),
+#         text = element_text(size=font_size,color='black'),
+#         axis.text=element_text(color='black'),
+#         panel.border =element_rect(colour = "black",fill=NA),
+#         panel.grid.major = element_line(colour = "gray"),
+#         panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
+#         legend.title=element_blank(),
+#         legend.position='bottom');janinplot2
