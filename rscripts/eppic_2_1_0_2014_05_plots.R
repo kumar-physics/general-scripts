@@ -735,7 +735,7 @@ pisaplot=ggplot(pdata)+scale_fill_manual(values=cbPalette,
   #         position=position_fill(height=100),stat='bin',binwidth=200)+
   xlim(0,5000)+
   xlab(expression(paste("Interface area (",ring(A)^"2",")")))+
-  ylab('Ratio of the interface calls with in a bin')+
+  ylab('Fraction of the interface calls within each bin')+
   annotate("text", label = sprintf("%.2f %%",xx), x = 500, y = 0.3)+
   annotate("text", label = sprintf("%.2f %%",bb), x = 3000, y = 0.5 )+
   annotate("text", label = sprintf("%.2f %%",xb), x = 1100, y = 0.85)+
