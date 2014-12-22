@@ -830,7 +830,8 @@ dev.off()
 pdf("nmr_chains.pdf")
 nmrplot
 dev.off()
-
+ggplot(dat3)+
+  geom_bar(aes(x=spaceGroup,y=diff),stat='identity')
 
 # janinplot2=ggplot()+  scale_color_brewer(palette="Dark2") +
 #   geom_line(data=infinite,aes(x=area,y=..count..,color='Infinite assemblies'),stat='bin',binwidth=25,drop=T,size=1.0)+

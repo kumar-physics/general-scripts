@@ -2,9 +2,9 @@
 axis_vars <- c(
   "Resolution"="resolution",
   "Area"="area",
-  "Core surface score" = "csScore",
-  "Core rim score" = "crScore",
-  "GM score"="gmScore",
+  "Core surface score" = "cs",
+  "Core rim score" = "cr",
+  "GM score"="gm",
   "Core surface 1"="cs1",
   "Core surface 2"="cs2",
   "Core rim 1"="cr1",
