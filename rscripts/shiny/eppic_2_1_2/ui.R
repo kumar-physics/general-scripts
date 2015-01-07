@@ -5,7 +5,7 @@ library(shiny)
 
 shinyUI(fluidPage(
   titlePanel(h1("EPPIC Explorer",align="center",style = "color:coral")),
-  
+  fluidRow(h4("UniProt 2014_10",align="center",style = "color:green")),
   fluidRow(
     column(6,
            numericInput("resmin",
@@ -39,11 +39,11 @@ shinyUI(fluidPage(
   fluidRow(
     column(6,
            numericInput("cmin",
-                        label=h5("No. of chain cluster (min)"),
+                        label=h5("No. of chain clusters (min)"),
                         value=1)),
     column(6,
            numericInput("cmax",
-                        label=h5("No. of chain cluster (max)"),
+                        label=h5("No. of chain clusters (max)"),
                         value=1000))
   ),
   fluidRow(
