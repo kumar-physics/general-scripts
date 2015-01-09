@@ -2,18 +2,25 @@ library(ggvis)
 library(RMySQL)
 library(dplyr)
 library(shiny)
-
+# For dropdown menu
+actionLink <- function(inputId, ...) {
+  tags$a(href='javascript:void',
+         id=inputId,
+         class='action-button',
+         ...)
+}
 shinyUI(fluidPage(
   titlePanel(h1("EPPIC Explorer",align="center",style = "color:coral")),
-  fluidRow(h4("UniProt 2014_10",align="center",style = "color:green")),
+  fluidRow(h4("Database: UniProt 2014_10",align="center",style = "color:green")),
+  
   fluidRow(
     column(6,
            numericInput("resmin",
-                         label=h5("Resolution (min)"),
+                         label=h5("Resolution (low) [Å]"),
                          value=50.0)),
     column(6,
            numericInput("resmax",
-                         label=h5("Resolution (max)"),
+                         label=h5("Resolution (high) [Å]"),
                          value=0.0))
   ),
   fluidRow(
@@ -29,11 +36,11 @@ shinyUI(fluidPage(
   fluidRow(
     column(6,
            numericInput("areamin",
-                        label=h5("Interface area (min)"),
+                        label=h5("Interface area (min) [Å²]"),
                         value=1700.0)),
     column(6,
            numericInput("areamax",
-                        label=h5("Interface area (max)"),
+                        label=h5("Interface area (max) [Å²]"),
                         value=1800.00))
   ),
   fluidRow(
@@ -49,31 +56,31 @@ shinyUI(fluidPage(
   fluidRow(
     column(6,
            numericInput("hmin",
-                        label=h5("No. of homologs (min)"),
+                        label=h5("No. of sequence homologs (min)"),
                         value=30)),
     column(6,
            numericInput("hmax",
-                        label=h5("No. of homologs (max)"),
+                        label=h5("No. of sequence homologs (max)"),
                         value=150))
   ),
   fluidRow(
     column(6,
            numericInput("csmin",
-                        label=h5("Core-surface (min)"),
+                        label=h5("Core-surface score (min)"),
                         value=-10)),
     column(6,
            numericInput("csmax",
-                        label=h5("Core-surface (max)"),
+                        label=h5("Core-surface score (max)"),
                         value=50))
   ),
   fluidRow(
     column(6,
            numericInput("crmin",
-                        label=h5("Core-rim (min)"),
+                        label=h5("Core-rim score (min)"),
                         value=0)),
     column(6,
            numericInput("crmax",
-                        label=h5("Core-rim (max)"),
+                        label=h5("Core-rim score (max)"),
                         value=100))
   ),
   fluidRow(

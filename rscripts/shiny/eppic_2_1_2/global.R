@@ -1,7 +1,7 @@
 # Variables that can be put on the x and y axes
 axis_vars <- c(
-  "Resolution"="resolution",
-  "Area"="area",
+  "Resolution [Å]"="resolution",
+  "Area [Å²]"="area",
   "Core surface score" = "cs",
   "Core rim score" = "cr",
   "GM score"="gm",

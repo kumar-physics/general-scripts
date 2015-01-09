@@ -111,6 +111,5 @@ shinyServer(function(input, output, session) {
     #set_options(width = 1200, height = 1200)
   })
   vis %>% bind_shiny("plot1")
-  
   output$n_ifaces <- renderText({ nrow(ifaces()) })
 })
