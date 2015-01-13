@@ -118,12 +118,14 @@ P 64|P 64 2 2|P 65|P 65 2 2|P b c a|R 3|R 3 2")),
   
   
   fluidRow(
-    column(4,
+    column(3,
            selectInput("xvar", "X-axis variable", axis_vars, selected = "area")),
-    column(4,
-           selectInput("yvar", "Y-axis variable", axis_vars, selected = "interfaceId")),
-    column(4,
-           selectInput("color", "Color by ", color_vars, selected = "pdbCode"))
+    column(3,
+           selectInput("yvar", "Y-axis variable", axis_vars, selected = "cs")),
+    column(3,
+           selectInput("color", "Color by ", color_vars, selected = "intid")),
+    column(3,
+	   selectInput("shapevar","Shape by",shape_vars, selected = "operatorType"))
   ),
   fluidRow(
     column(12,

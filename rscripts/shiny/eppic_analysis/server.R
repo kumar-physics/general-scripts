@@ -33,7 +33,7 @@ shinyServer(function(input, output, session) {
     top<-isolate(input$opt)
     et<-isolate(input$exp)
     seqid95<-isolate(all_ifaces[(all_ifaces$pdbCode==idpdb & all_ifaces$interfaceId==idint),]$c95[1])
-    seqid100<-isolate(all_ifaces[(all_ifaces$pdbCode==idpdb & all_ifaces$interfaceId==idint),]$c95[1])
+    seqid100<-isolate(all_ifaces[(all_ifaces$pdbCode==idpdb & all_ifaces$interfaceId==idint),]$c100[1])
     # Apply filters
     m <- all_ifaces %>%
       filter(
@@ -100,16 +100,18 @@ shinyServer(function(input, output, session) {
     strokeval <- as.symbol(input$color)
     xvar <- prop("x", as.symbol(input$xvar))
     yvar <- prop("y", as.symbol(input$yvar))
-    
+    shapeval <- as.symbol(input$shapevar)
     ifaces %>%
       ggvis(x = xvar, y = yvar) %>%
       layer_points(size := 50, size.hover := 200,
                    #fillOpacity := 0.2, fillOpacity.hover := 0.5, 
-                   stroke=strokeval, fill=strokeval, key := ~ID) %>%
+                   stroke=strokeval, fill=strokeval, shape=shapeval,key := ~ID) %>%
       #mark_rect() %>%
       add_tooltip(iface_tooltip, "hover") %>%
       add_axis("x", title = xvar_name) %>%
-      add_axis("y", title = yvar_name)# %>%
+      add_axis("y", title = yvar_name) %>%
+      add_legend(scales = "shape", properties = legend_props(legend = list(x = 950))) %>%
+      set_options(width=800, height=800, duration = 0)
     #add_legend("stroke", title = "Won Oscar", values = c("Yes", "No")) %>%
     #scale_nominal("stroke", domain = c("Yes", "No"),
     #range = c("orange", "#aaa")) %>%

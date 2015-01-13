@@ -36,6 +36,12 @@ color_vars <- c(
   "Interface Id"="intid",
   "PDB ID"="pdbCode"
 )
+shape_vars <- c(
+  "Operator type"="operatorType",
+  "Interface Id"="intid",
+  "PDB ID"="pdbCode",
+  "Spacegroup"="spaceGroup"
+)
 calls <-c(
   "All"="xtal|bio|nopred",
   "Xtal"="xtal",

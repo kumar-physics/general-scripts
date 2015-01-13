@@ -7,7 +7,7 @@ mydb=dbConnect(MySQL(),host="",username="", password="",dbname="eppic_2014_10")
 #mydb=dbConnect(MySQL(),dbname="eppic_2014_10")
 all_ifaces=fetch(dbSendQuery(mydb,"select *,abs(cs1-cs2) dcs,abs(cr1-cr2) dcr from EppicTable"),-1)
 all_ifaces$ID=sprintf("%s-%d",all_ifaces$pdbCode,all_ifaces$interfaceId)
-
+all_ifaces$intid=sprintf("%s",all_ifaces$interfaceId)
 shinyServer(function(input, output, session) {
   
   # Filter the movies, returning a data frame
@@ -95,16 +95,18 @@ shinyServer(function(input, output, session) {
     strokeval <- as.symbol(input$color)
     xvar <- prop("x", as.symbol(input$xvar))
     yvar <- prop("y", as.symbol(input$yvar))
-    
+    shapeval <- as.symbol(input$shapevar)
     ifaces %>%
       ggvis(x = xvar, y = yvar) %>%
       layer_points(size := 50, size.hover := 200,
                    #fillOpacity := 0.2, fillOpacity.hover := 0.5, 
-                   stroke=strokeval, fill=strokeval, key := ~ID) %>%
+                   stroke=strokeval, fill=strokeval, shape=shapeval,key := ~ID) %>%
       #mark_rect() %>%
       add_tooltip(iface_tooltip, "hover") %>%
       add_axis("x", title = xvar_name) %>%
-      add_axis("y", title = yvar_name)# %>%
+      add_axis("y", title = yvar_name) %>%
+      add_legend(scales = "shape", properties = legend_props(legend = list(x = 950))) %>%
+      set_options(width=800, height=800, duration = 0)
     #add_legend("stroke", title = "Won Oscar", values = c("Yes", "No")) %>%
     #scale_nominal("stroke", domain = c("Yes", "No"),
     #range = c("orange", "#aaa")) %>%

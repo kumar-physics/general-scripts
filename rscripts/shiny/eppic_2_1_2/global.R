@@ -1,5 +1,6 @@
 # Variables that can be put on the x and y axes
 axis_vars <- c(
+  "Interface Id"="interfaceId",
   "Resolution [Å]"="resolution",
   "Area [Å²]"="area",
   "Core surface score" = "cs",
@@ -31,7 +32,25 @@ color_vars <- c(
   "PISA"="pisa",
   "First Taxon"="ftaxon1",
   "Last Taxon"="ltaxon1",
-  "Exp. method"="expMethod"
+  "Exp. method"="expMethod",
+  "Interface Id"="intid",
+  "PDB ID"="pdbCode"
+)
+shape_vars <- c(
+  "Final call"="eppic",
+  "Core-rim call"="crcall",
+  "Core-surface call"="cscall",
+  "GM call"="gmcall",
+  "Space group"="spaceGroup",
+  "Operator type"="operatorType",
+  "Operator"="operator",
+  "Authors"="authors",
+  "PISA"="pisa",
+  "First Taxon"="ftaxon1",
+  "Last Taxon"="ltaxon1",
+  "Exp. method"="expMethod",
+  "Interface Id"="intid",
+  "PDB ID"="pdbCode"
 )
 calls <-c(
   "All"="xtal|bio|nopred",
