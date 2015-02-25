@@ -5,7 +5,7 @@ library(shiny)
 
 mydb=dbConnect(MySQL(),host="",username="", password="",dbname="eppic_2014_10")
 #mydb=dbConnect(MySQL(),dbname="eppic_2014_10")
-all_ifaces=fetch(dbSendQuery(mydb,"select *,abs(cs1-cs2) dcs,abs(cr1-cr2) dcr from EppicTable"),-1)
+all_ifaces=fetch(dbSendQuery(mydb,"select *,abs(cs1-cs2) dcs,abs(cr1-cr2) dcr from EppicTable2"),-1)
 all_ifaces$ID=sprintf("%s-%d",all_ifaces$pdbCode,all_ifaces$interfaceId)
 all_ifaces$intid=sprintf("%s",all_ifaces$interfaceId)
 shinyServer(function(input, output, session) {
@@ -13,6 +13,8 @@ shinyServer(function(input, output, session) {
   # Filter the movies, returning a data frame
   ifaces <- reactive({
     input$goButton
+    idpdb<-isolate(input$pdbid)
+    idint<-isolate(input$interfaceid)
     minres <- isolate(input$resmin)
     maxres <- isolate(input$resmax)
     minrf<-isolate(input$rfmin)
@@ -30,6 +32,8 @@ shinyServer(function(input, output, session) {
     vsg <-isolate(input$sgv)
     top<-isolate(input$opt)
     et<-isolate(input$exp)
+    seqid95<-isolate(all_ifaces[(all_ifaces$pdbCode==idpdb & all_ifaces$interfaceId==idint),]$c95[1])
+    seqid100<-isolate(all_ifaces[(all_ifaces$pdbCode==idpdb & all_ifaces$interfaceId==idint),]$c100[1])
     # Apply filters
     m <- all_ifaces %>%
       filter(
@@ -59,7 +63,8 @@ shinyServer(function(input, output, session) {
         cs >= mincs,
         grepl(vsg,spaceGroup),
         grepl(top,operatorType),
-        grepl(et,expMethod)
+        grepl(et,expMethod),
+        (c95 == seqid95 | c100 == seqid100)
       ) %>%
       arrange(area)
     m <- as.data.frame(m)

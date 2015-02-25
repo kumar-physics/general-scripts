@@ -279,22 +279,14 @@ mean.n <- function(x){
   return(c(y = median(x)*0.98, label = round(mean(x),2))) 
   # experiment with the multiplier to find the perfect position
 }
-
-
-mydb=dbConnect(MySQL(),dbname="eppic_2015_01")
-on.exit(dbDisconnect(mydb))
-$sol_content=read.table('/media/baskaran_k/data/solventcontent/solvent.dat',sep="\t")
-dd=fetch(dbSendQuery(mydb,"select pdbCode,ExpMethod,spaceGroup from PdbInfo where length(pdbCode)=4;"),-1)
-
-ss=fetch(dbSendQuery(mydb,"select spaceGroup,count(*) count from PdbInfo where expMethod='X-RAY DIFFRACTION' and length(pdbCode)=4 group by spaceGroup;"),-1)
-
-ssdat=attach_D(ss,1)
-ssplotdat=transform(ssdat, spaceGroup = reorder(spaceGroup, -count))
-
-
+median.n <- function(x){
+  return(c(y = median(x)*0.98, label = round(median(x),2))) 
+  # experiment with the multiplier to find the perfect position
+}
+setwd('/Users/kumaran/Documents/presentations/kumaran/jlbrFeb2015')
+sol_content=read.table('plots/solventcontent/solvent.dat',sep="\t")
 colnames(sol_content)=c('pdb','spaceGroup','ExpMethod','resolution','rfree','solvent')
-dd$solvent=0.55
-dat=subset(attach_D(attach_crystal_system(dd),1),solvent<.95)
+alldat=subset(attach_D(attach_crystal_system(sol_content),1),solvent<.95)
 
 #dat$D=factor(dat$D,levels=c("7","6","5","4"))
 pp=ggplot(ssplotdat)+
@@ -309,11 +301,7 @@ pp=ggplot(ssplotdat)+
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');pp
 
-pdf('/home/baskaran_k/sgplot.pdf')
-pp
-dev.off()
-
-plot1=ggplot(dat,aes(x=D,y=solvent))+
+plot1=ggplot(alldat,aes(x=D,y=solvent))+
   geom_boxplot(aes(color=D),notch=TRUE)+#scale_y_continuous(breaks=-10:20)+
   stat_summary(fun.data = give.n, geom = "text", fun.y = median,size=3) +
   stat_summary(fun.data = mean.n, geom = "text", fun.y = mean, colour = "red",size=3)+
@@ -322,7 +310,7 @@ plot1=ggplot(dat,aes(x=D,y=solvent))+
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');plot1
-plot2=ggplot(dat,aes(x=D,y=solvent))+
+plot2=ggplot(alldat,aes(x=D,y=solvent))+
   geom_violin(aes(color=D),notch=TRUE)+#scale_y_continuous(breaks=-10:20)+
   stat_summary(fun.data = give.n, geom = "text", fun.y = median,size=3) +
   stat_summary(fun.data = mean.n, geom = "text", fun.y = mean, colour = "red",size=3)+
@@ -332,33 +320,40 @@ plot2=ggplot(dat,aes(x=D,y=solvent))+
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');plot2
 
-plot3=ggplot(subset(dat,resolution>0 & resolution<2.5 & rfree>0 & rfree<0.3),aes(x=D,y=solvent))+
+plot3=ggplot(subset(alldat,resolution>0 & resolution<2.5 & rfree>0 & rfree<0.3),aes(x=D,y=solvent))+
   geom_boxplot(aes(color=D),notch=TRUE)+#scale_y_continuous(breaks=-10:20)+
+  geom_violin(aes(color=D),alpha=0.5)+
   stat_summary(fun.data = give.n, geom = "text", fun.y = median,size=3) +
-  ggtitle("All data with resolution and rfree filter")+
+  #ggtitle("All data with resolution and rfree filter")+
+  ylab("Solvent content")+
+  xlab("Number of degrees of freedom")+
   stat_summary(fun.data = mean.n, geom = "text", fun.y = mean, colour = "red",size=3)+
-  theme(axis.text.x=element_text(color='black',angle=90,hjust=1,vjust=0.5),
+  theme(panel.background = element_blank(),
+        axis.text.x=element_text(color='black'),
         axis.text=element_text(color='black'),
+        panel.grid.major = element_line(colour = "gray"),
         panel.border =element_rect(colour = "black",fill=NA),
-        legend.position='bottom');plot3
-plot4=ggplot(subset(dat,resolution>0 & resolution<2.5 & rfree>0 & rfree<0.3),aes(x=D,y=solvent))+
+        legend.position='none');plot3
+plot4=ggplot(subset(alldat,resolution>0 & resolution<2.5 & rfree>0 & rfree<0.3),aes(x=D,y=solvent))+
   geom_violin(aes(color=D),notch=TRUE)+#scale_y_continuous(breaks=-10:20)+
   stat_summary(fun.data = give.n, geom = "text", fun.y = median,size=3) +
   ggtitle("All data with resolution and rfree filter")+
   stat_summary(fun.data = mean.n, geom = "text", fun.y = mean, colour = "red",size=3)+
-  theme(axis.text.x=element_text(color='black',angle=90,hjust=1,vjust=0.5),
+  theme(panel.background = element_blank(),
+        axis.text.x=element_text(color='black'),
         axis.text=element_text(color='black'),
+        panel.grid.major = element_line(colour = "gray"),
         panel.border =element_rect(colour = "black",fill=NA),
-        legend.position='bottom');plot4
+        legend.position='none');plot4
 
 
 
-sol_content=read.table('/media/baskaran_k/data/solventcontent/solvent_singleentity.dat',sep="\t")
+sol_content=read.table('plots/solventcontent/solvent_singleentity.dat',sep="\t")
 colnames(sol_content)=c('pdb','spaceGroup','ExpMethod','resolution','rfree','solvent')
-dat=subset(attach_D(attach_crystal_system(sol_content),1),solvent<.95)
+sedat=subset(attach_D(attach_crystal_system(sol_content),1),solvent<.95)
 
 
-plot5=ggplot(dat,aes(x=D,y=solvent))+
+plot5=ggplot(sedat,aes(x=D,y=solvent))+
   geom_boxplot(aes(color=D),notch=TRUE)+#scale_y_continuous(breaks=-10:20)+
   stat_summary(fun.data = give.n, geom = "text", fun.y = median,size=3) +
   stat_summary(fun.data = mean.n, geom = "text", fun.y = mean, colour = "red",size=3)+
@@ -367,7 +362,7 @@ plot5=ggplot(dat,aes(x=D,y=solvent))+
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');plot5
-plot6=ggplot(dat,aes(x=D,y=solvent))+
+plot6=ggplot(sedat,aes(x=D,y=solvent))+
   geom_violin(aes(color=D),notch=TRUE)+#scale_y_continuous(breaks=-10:20)+
   stat_summary(fun.data = give.n, geom = "text", fun.y = median,size=3) +
   stat_summary(fun.data = mean.n, geom = "text", fun.y = mean, colour = "red",size=3)+
@@ -377,16 +372,22 @@ plot6=ggplot(dat,aes(x=D,y=solvent))+
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');plot6
 
-plot7=ggplot(subset(dat,resolution>0 & resolution<2.5 & rfree>0 & rfree<0.3),aes(x=D,y=solvent))+
+plot7=ggplot(subset(sedat,resolution>0 & resolution<2.5 & rfree>0 & rfree<0.3),aes(x=D,y=solvent))+
   geom_boxplot(aes(color=D),nothc=TRUE)+#scale_y_continuous(breaks=-10:20)+
+  geom_violin(aes(color=D),alpha=0.5)+
   stat_summary(fun.data = give.n, geom = "text", fun.y = median,size=3) +
   stat_summary(fun.data = mean.n, geom = "text", fun.y = mean, colour = "red",size=3)+
-  ggtitle("Single entity data with resolution and rfree filter")+
-  theme(axis.text.x=element_text(color='black',angle=90,hjust=1,vjust=0.5),
+  #ggtitle("All data with resolution and rfree filter")+
+  ylab("Solvent content")+
+  xlab("Number of degrees of freedom")+
+  stat_summary(fun.data = mean.n, geom = "text", fun.y = mean, colour = "red",size=3)+
+  theme(panel.background = element_blank(),
+        axis.text.x=element_text(color='black'),
         axis.text=element_text(color='black'),
+        panel.grid.major = element_line(colour = "gray"),
         panel.border =element_rect(colour = "black",fill=NA),
-        legend.position='bottom');plot7
-plot8=ggplot(subset(dat,resolution>0 & resolution<2.5 & rfree>0 & rfree<0.3),aes(x=D,y=solvent))+
+        legend.position='none');plot7
+plot8=ggplot(subset(sedat,resolution>0 & resolution<2.5 & rfree>0 & rfree<0.3),aes(x=D,y=solvent))+
   geom_violin(aes(color=D),nothc=TRUE)+#scale_y_continuous(breaks=-10:20)+
   stat_summary(fun.data = give.n, geom = "text", fun.y = median,size=3) +
   stat_summary(fun.data = mean.n, geom = "text", fun.y = mean, colour = "red",size=3)+
@@ -396,12 +397,12 @@ plot8=ggplot(subset(dat,resolution>0 & resolution<2.5 & rfree>0 & rfree<0.3),aes
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');plot8
 
-sol_content=read.table('/media/baskaran_k/data/solventcontent/solvent_singlechain.dat',sep="\t")
+sol_content=read.table('plots/solventcontent/solvent_singlechain.dat',sep="\t")
 colnames(sol_content)=c('pdb','spaceGroup','ExpMethod','resolution','rfree','solvent')
-dat=subset(attach_D(attach_crystal_system(sol_content),1),solvent<.95)
+sgdat=subset(attach_D(attach_crystal_system(sol_content),1),solvent<.95)
 
 
-plot9=ggplot(dat,aes(x=D,y=solvent))+
+plot9=ggplot(sgdat,aes(x=D,y=solvent))+
   geom_boxplot(aes(color=D),notch=TRUE)+#scale_y_continuous(breaks=-10:20)+
   stat_summary(fun.data = give.n, geom = "text", fun.y = median,size=3) +
   stat_summary(fun.data = mean.n, geom = "text", fun.y = mean, colour = "red",size=3)+
@@ -410,7 +411,7 @@ plot9=ggplot(dat,aes(x=D,y=solvent))+
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');plot9
-plot10=ggplot(dat,aes(x=D,y=solvent))+
+plot10=ggplot(sgdat,aes(x=D,y=solvent))+
   geom_violin(aes(color=D),notch=TRUE)+#scale_y_continuous(breaks=-10:20)+
   stat_summary(fun.data = give.n, geom = "text", fun.y = median,size=3) +
   stat_summary(fun.data = mean.n, geom = "text", fun.y = mean, colour = "red",size=3)+
@@ -420,16 +421,22 @@ plot10=ggplot(dat,aes(x=D,y=solvent))+
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');plot10
 
-plot11=ggplot(subset(dat,resolution>0 & resolution<2.5 & rfree>0 & rfree<0.3),aes(x=D,y=solvent))+
+plot11=ggplot(subset(sgdat,resolution>0 & resolution<2.5 & rfree>0 & rfree<0.3),aes(x=D,y=solvent))+
   geom_boxplot(aes(color=D),nothc=TRUE)+#scale_y_continuous(breaks=-10:20)+
+  geom_violin(aes(color=D),alpha=0.5)+
   stat_summary(fun.data = give.n, geom = "text", fun.y = median,size=3) +
   stat_summary(fun.data = mean.n, geom = "text", fun.y = mean, colour = "red",size=3)+
-  ggtitle("Single chain data with resolution and rfree filter")+
-  theme(axis.text.x=element_text(color='black',angle=90,hjust=1,vjust=0.5),
+  #ggtitle("All data with resolution and rfree filter")+
+  ylab("Solvent content")+
+  xlab("Number of degrees of freedom")+
+  stat_summary(fun.data = mean.n, geom = "text", fun.y = mean, colour = "red",size=3)+
+  theme(panel.background = element_blank(),
+        axis.text.x=element_text(color='black'),
         axis.text=element_text(color='black'),
+        panel.grid.major = element_line(colour = "gray"),
         panel.border =element_rect(colour = "black",fill=NA),
-        legend.position='bottom');plot11
-plot12=ggplot(subset(dat,resolution>0 & resolution<2.5 & rfree>0 & rfree<0.3),aes(x=D,y=solvent))+
+        legend.position='none');plot11
+plot12=ggplot(subset(sgdat,resolution>0 & resolution<2.5 & rfree>0 & rfree<0.3),aes(x=D,y=solvent))+
   geom_violin(aes(color=D),nothc=TRUE)+#scale_y_continuous(breaks=-10:20)+
   stat_summary(fun.data = give.n, geom = "text", fun.y = median,size=3) +
   stat_summary(fun.data = mean.n, geom = "text", fun.y = mean, colour = "red",size=3)+
@@ -462,20 +469,35 @@ dev.off()
 
 
 
-sol_content=read.table('/media/baskaran_k/data/solventcontent/solvent.dat',sep="\t")
+sol_content=read.table('plots/solventcontent/solvent.dat',sep="\t")
 colnames(sol_content)=c('pdb','spaceGroup','ExpMethod','resolution','rfree','solvent')
 edat=attach_E(attach_E2(subset(attach_D(attach_crystal_system(sol_content),1),solvent<.95)))
 
 eplot=ggplot(subset(edat,resolution>0 & resolution<3 & rfree>0 & rfree<0.3),aes(x=E2,y=solvent))+
-  geom_violin(aes(color=E),notch=TRUE)+#scale_y_continuous(breaks=-10:20)+
+  geom_boxplot(aes(color=E),notch=TRUE)+#scale_y_continuous(breaks=-10:20)+
   stat_summary(fun.data = give.n, geom = "text", fun.y = median,size=2) +
-  stat_summary(fun.data = mean.n, geom = "text", fun.y = mean, colour = "red",size=2)+
-  theme(axis.text.x=element_text(color='black',angle=90,hjust=1,vjust=0.5),
+  ylab("Solvent content")+
+  xlab("Enantiomorphic spacegroups")+
+  stat_summary(fun.data = median.n, geom = "text", fun.y = mean, colour = "red",size=2)+
+  theme(panel.background = element_blank(),
+        axis.text.x=element_text(color='black',angle=90,hjust=1,vjust=0.5),
         axis.text=element_text(color='black'),
+        panel.grid.major = element_line(colour = "gray"),
         panel.border =element_rect(colour = "black",fill=NA),
-        legend.position='bottom');eplot
+        legend.position='none');eplot
 
-setwd('/afs/psi.ch/project/bioinfo2/kumaran/spacegroup/plot221214/')
+pdf('plot3.pdf')
+plot3
+dev.off()
+pdf('plot7.pdf')
+plot7
+dev.off()
+pdf('plot11.pdf')
+plot11
+dev.off()
+pdf('eplot.pdf')
+eplot
+dev.off()
 pdf('spaceGroupvsDplots.pdf')
 plot1
 plot2

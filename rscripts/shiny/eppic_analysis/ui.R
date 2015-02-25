@@ -10,9 +10,18 @@ actionLink <- function(inputId, ...) {
          ...)
 }
 shinyUI(fluidPage(
-  titlePanel(h1("EPPIC Explorer",align="center",style = "color:coral")),
+  titlePanel(h1("EPPIC Analysis",align="center",style = "color:coral")),
   fluidRow(h4("Database: UniProt 2014_10",align="center",style = "color:green")),
-  
+  fluidRow(
+    column(6,
+           textInput("pdbid",
+                        label=h5("PDB ID"),
+                        value="2gs2")),
+    column(6,
+           numericInput("interfaceid",
+                        label=h5("Interface no"),
+                        value=1))
+  ),
   fluidRow(
     column(6,
            numericInput("resmin",
@@ -37,11 +46,11 @@ shinyUI(fluidPage(
     column(6,
            numericInput("areamin",
                         label=h5("Interface area (min) [Å²]"),
-                        value=1700.0)),
+                        value=0.0)),
     column(6,
            numericInput("areamax",
                         label=h5("Interface area (max) [Å²]"),
-                        value=1800.00))
+                        value=180000.00))
   ),
   fluidRow(
     column(6,
@@ -57,7 +66,7 @@ shinyUI(fluidPage(
     column(6,
            numericInput("hmin",
                         label=h5("No. of sequence homologs (min)"),
-                        value=30)),
+                        value=0)),
     column(6,
            numericInput("hmax",
                         label=h5("No. of sequence homologs (max)"),
@@ -107,15 +116,16 @@ P 64|P 64 2 2|P 65|P 65 2 2|P b c a|R 3|R 3 2")),
     
   ),
   
+  
   fluidRow(
     column(3,
            selectInput("xvar", "X-axis variable", axis_vars, selected = "area")),
     column(3,
            selectInput("yvar", "Y-axis variable", axis_vars, selected = "cs")),
     column(3,
-           selectInput("color", "Color by ", color_vars, selected = "eppic")),
+           selectInput("color", "Color by ", color_vars, selected = "intid")),
     column(3,
-           selectInput("shapevar","Shape by",shape_vars, selected = "operatorType"))
+	   selectInput("shapevar","Shape by",shape_vars, selected = "operatorType"))
   ),
   fluidRow(
     column(12,

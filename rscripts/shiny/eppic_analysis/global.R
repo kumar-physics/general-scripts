@@ -37,20 +37,10 @@ color_vars <- c(
   "PDB ID"="pdbCode"
 )
 shape_vars <- c(
-  "Final call"="eppic",
-  "Core-rim call"="crcall",
-  "Core-surface call"="cscall",
-  "GM call"="gmcall",
-  "Space group"="spaceGroup",
   "Operator type"="operatorType",
-  "Operator"="operator",
-  "Authors"="authors",
-  "PISA"="pisa",
-  "First Taxon"="ftaxon1",
-  "Last Taxon"="ltaxon1",
-  "Exp. method"="expMethod",
   "Interface Id"="intid",
-  "PDB ID"="pdbCode"
+  "PDB ID"="pdbCode",
+  "Spacegroup"="spaceGroup"
 )
 calls <-c(
   "All"="xtal|bio|nopred",

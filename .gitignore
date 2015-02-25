@@ -5,3 +5,6 @@
 *.RData
 *.Rapp.history
 .Rproj.user
+.project
+.pydevproject
+.DS_Store
