@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 library(ggplot2)
-
+mydb=dbConnect(MySQL(),dbname="eppic_2015_01")
 
 attach_E=function(dat2,dat=NA){
   dat2$E[dat2$spaceGroup=="P 41"| dat2$spaceGroup=="P 43"]="E01"
@@ -280,10 +280,38 @@ mean.n <- function(x){
   # experiment with the multiplier to find the perfect position
 }
 
-sol_content=read.table('/media/baskaran_k/data/solventcontent/solvent.dat',sep="\t")
-colnames(sol_content)=c('pdb','spaceGroup','ExpMethod','resolution','rfree','solvent')
-dat=subset(attach_D(attach_crystal_system(sol_content),1),solvent<.95)
 
+mydb=dbConnect(MySQL(),dbname="eppic_2015_01")
+on.exit(dbDisconnect(mydb))
+$sol_content=read.table('/media/baskaran_k/data/solventcontent/solvent.dat',sep="\t")
+dd=fetch(dbSendQuery(mydb,"select pdbCode,ExpMethod,spaceGroup from PdbInfo where length(pdbCode)=4;"),-1)
+
+ss=fetch(dbSendQuery(mydb,"select spaceGroup,count(*) count from PdbInfo where expMethod='X-RAY DIFFRACTION' and length(pdbCode)=4 group by spaceGroup;"),-1)
+
+ssdat=attach_D(ss,1)
+ssplotdat=transform(ssdat, spaceGroup = reorder(spaceGroup, -count))
+
+
+colnames(sol_content)=c('pdb','spaceGroup','ExpMethod','resolution','rfree','solvent')
+dd$solvent=0.55
+dat=subset(attach_D(attach_crystal_system(dd),1),solvent<.95)
+
+#dat$D=factor(dat$D,levels=c("7","6","5","4"))
+pp=ggplot(ssplotdat)+
+  geom_bar(aes(x=spaceGroup,y=count,color=D,fill=D),stat='identity')+
+  xlab('Space group')+
+  ylab('Number of PDBs')+
+  scale_y_log10(breaks=c(1,10,100,500,1000,5000,10000,20000))+
+  theme(panel.background = element_blank(),
+        text = element_text(color='black'),
+        axis.text.x=element_text(color='black',angle=90,hjust=1,vjust=0.5),
+        axis.text=element_text(color='black'),
+        panel.border =element_rect(colour = "black",fill=NA),
+        legend.position='bottom');pp
+
+pdf('/home/baskaran_k/sgplot.pdf')
+pp
+dev.off()
 
 plot1=ggplot(dat,aes(x=D,y=solvent))+
   geom_boxplot(aes(color=D),notch=TRUE)+#scale_y_continuous(breaks=-10:20)+
@@ -410,6 +438,28 @@ plot12=ggplot(subset(dat,resolution>0 & resolution<2.5 & rfree>0 & rfree<0.3),ae
         axis.text=element_text(color='black'),
         panel.border =element_rect(colour = "black",fill=NA),
         legend.position='bottom');plot12
+
+plotsol=ggplot(subset(dat,resolution>0 & resolution<2.5 & rfree>0 & rfree<0.3),aes(x=D,y=solvent))+
+  geom_violin(aes(color=D,fill=D),alpha=0.5)+#scale_y_continuous(breaks=-10:20)+
+  geom_boxplot(aes(fill=D),nothc=TRUE,alpha=0.5)+#scale_y_continuous(breaks=-10:20)+
+  stat_summary(fun.data = give.n, geom = "text", fun.y = median,size=3) +
+  stat_summary(fun.data = mean.n, geom = "text", fun.y = mean, colour = "blue",size=3)+
+  #ggtitle("Single chain data with resolution and rfree filter")+
+  xlab("Degrees of freedom")+
+  ylab("Solvent content")+
+  theme(panel.background = element_blank(),
+        text = element_text(color='black'),
+        axis.text=element_text(color='black'),
+        panel.grid.major = element_line(colour = "gray"),
+        panel.grid.minor = element_line(colour = "gray",linetype="dashed"),
+        panel.border =element_rect(colour = "black",fill=NA),
+        legend.title=element_blank(),
+        legend.position="");plotsol
+
+pdf('/home/baskaran_k/solventContent.pdf')
+plotsol
+dev.off()
+
 
 
 sol_content=read.table('/media/baskaran_k/data/solventcontent/solvent.dat',sep="\t")

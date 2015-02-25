@@ -125,10 +125,67 @@ return res;
 end $$
 delimiter ;
 
+drop function if exists get_assembly_mmSize;
+delimiter $$
+create function get_assembly_mmSize(pdb varchar(4),m varchar(255)) returns int(11)
+begin
+declare res int(11);
+set res=(select mmSize from Assembly where pdbCode=pdb and method=m);
+return res;
+end $$
+delimiter ;
+
+drop function if exists get_assembly_stoichiometry;
+delimiter $$
+create function get_assembly_stoichiometry(pdb varchar(4),m varchar(255)) returns varchar(255)
+begin
+declare res varchar(255);
+set res=(select stoichiometry from Assembly where pdbCode=pdb and method=m);
+return res;
+end $$
+delimiter ;
 
 
+drop function if exists get_assembly_pseudoStoichiometry;
+delimiter $$
+create function get_assembly_pseudoStoichiometry(pdb varchar(4),m varchar(255)) returns varchar(255)
+begin
+declare res varchar(255);
+set res=(select pseudoStoichiometry from Assembly where pdbCode=pdb and method=m);
+return res;
+end $$
+delimiter ;
+
+drop function if exists get_assembly_pseudoSymmetry;
+delimiter $$
+create function get_assembly_pseudoSymmetry(pdb varchar(4),m varchar(255)) returns varchar(255)
+begin
+declare res varchar(255);
+set res=(select pseudoSymmetry from Assembly where pdbCode=pdb and method=m);
+return res;
+end $$
+delimiter ;
 
 
+drop function if exists get_assembly_symmetry;
+delimiter $$
+create function get_assembly_symmetry(pdb varchar(4),m varchar(255)) returns varchar(255)
+begin
+declare res varchar(255);
+set res=(select symmetry from Assembly where pdbCode=pdb and method=m);
+return res;
+end $$
+delimiter ;
+
+drop function if exists get_assembly_stoichiometry;
+delimiter $$
+create function get_assembly_stoichiometry(pdb varchar(4),m varchar(255)) returns varchar(255)
+begin
+declare res varchar(255);
+set res=(select stoichiometry from Assembly where pdbCode=pdb and method=m);
+return res;
+end $$
+delimiter ;
 
 
 drop view EppicView2;
@@ -191,6 +248,7 @@ p.spaceGroup,
 p.title,
 p.resolution,
 p.rfreeValue,
+if(p.ncsOpsPresent,'yes','no') ncsOpsPresent,
 i.interfaceId,
 i.clusterId,
 i.chain1,
@@ -203,9 +261,12 @@ get_firsttaxon(p.pdbCode,i.chain1) ftaxon1,
 get_firsttaxon(p.pdbCode,i.chain2) ftaxon2,
 get_lasttaxon(p.pdbCode,i.chain1) ltaxon1,
 get_lasttaxon(p.pdbCode,i.chain2) ltaxon2,
-i.infinite,
+if(i.infinite,'yes','no') infinite,
+if(i.prot1,'yes','no') prot1,
+if(i.prot2,'yes','no') prot2,
 i.operator,
 i.operatorType,
+if (i.isologous,'yes','no') isologous,
 i.area,
 get_score(p.pdbCode,i.interfaceId,'eppic-gm',1) gm1,
 get_score(p.pdbCode,i.interfaceId,'eppic-gm',2) gm2,
@@ -220,9 +281,12 @@ get_call(p.pdbCode,i.interfaceId,'eppic-gm') gmcall,
 get_call(p.pdbCode,i.interfaceId,'eppic-cr') crcall,
 get_call(p.pdbCode,i.interfaceId,'eppic-cs') cscall,
 get_call(p.pdbCode,i.interfaceId,'eppic') eppic,
-get_clustercall(p.pdbCode,i.clusterId,'pisa') pisa,
-get_clustercall(p.pdbCode,i.clusterId,'authors') authors,
-get_clustercall(p.pdbCode,i.clusterId,'pqs') pqs
+get_clustercall(p.pdbCode,i.clusterId,'pdb1') pdbcall,
+get_assembly_mmSize(p.pdbCode,'pdb1') mmSize,
+get_assembly_symmetry(p.pdbCode,'pdb1') symmetry,
+get_assembly_pseudoSymmetry(p.pdbCode,'pdb1') pseudoSymmetry,
+get_assembly_stoichiometry(p.pdbCode,'pdb1') stoichiometry,
+get_assembly_pseudoStoichiometry(p.pdbCode,'pdb1') pseudoStoichiometry
 from PdbInfo as p inner join Interface as i on p.pdbCode=i.pdbCode
 where p.pdbCode is not NULL;
 
