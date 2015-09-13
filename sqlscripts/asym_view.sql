@@ -1,8 +1,8 @@
 DROP VIEW IF EXISTS asym_score;
 CREATE VIEW asym_score AS
 SELECT
-pdbName,
-id,
+pdbCode,
+interfaceId,
 cr1,
 cr2,
 abs(cr1-cr2) cr_diff,
@@ -10,16 +10,23 @@ cs1,
 cs2,
 abs(cs1-cs2) cs_diff,
 operatorType,
-isInfinite,
-homologs1 h1,
-homologs2 h2
-FROM full_table
+infinite,
+h1,
+h2,
+get_seq_clusterid(pdbCode,chain1,95) c95,
+get_seq_clusterid(pdbCode,chain1,100) c100
+FROM EppicTable
 WHERE
 resolution<2.0 AND
-c=1 AND
-RFree < 0.3 AND
-CoreRim!="nopred" AND
-CoreSur!="nopred";
+rfreeValue < 0.3 AND
+crcall!="nopred" AND
+abs(cs1-cs2) < 300 AND
+numChainClusters=1 AND
+cscall!="nopred" order by cs_diff desc;
+
+
+select a.*,e.pdbCode,e.cr1,e.cr2,e.cs1,e.cs2 from asym_score as a
+inner join EppicView2 as e on (a.c100=e.c1_100 or c100=e.c2_100) and e.numChainClusters>1 limit 10;
 
 
 DROP FUNCTION IF EXISTS get_core;

@@ -115,13 +115,33 @@ delimiter ;
 
 drop function if exists get_seq_clusterid;
 delimiter $$
-create function get_seq_clusterid(pdb varchar(4), chain varchar(4),cl varchar(25)) returns varchar(4)
+create function get_seq_clusterid(pdb varchar(4), chain varchar(4),cl varchar(25)) returns INT
 begin
 declare res varchar(4);
+declare res2 int(11);
 set res=(select repChain from ChainCluster where pdbCode=pdb and memberChains like binary CONCAT("%",chain,"%"));
-if (cl==30) then 
-set res2=(select c30 from SeqCluster where pdbCode=pdb and chain
-return res;
+if (cl=30) then 
+set res2=(select c30 from SeqCluster where pdbCode=pdb and repChain=res);
+elseif (cl=40) then
+set res2=(select c40 from SeqCluster where pdbCode=pdb and repChain=res);
+elseif (cl=50) then
+set res2=(select c50 from SeqCluster where pdbCode=pdb and repChain=res);
+elseif (cl=60) then
+set res2=(select c60 from SeqCluster where pdbCode=pdb and repChain=res);
+elseif (cl=70) then
+set res2=(select c70 from SeqCluster where pdbCode=pdb and repChain=res);
+elseif (cl=80) then
+set res2=(select c80 from SeqCluster where pdbCode=pdb and repChain=res);
+elseif (cl=90) then
+set res2=(select c90 from SeqCluster where pdbCode=pdb and repChain=res);
+elseif (cl=95) then
+set res2=(select c95 from SeqCluster where pdbCode=pdb and repChain=res);
+elseif (cl=100) then
+set res2=(select c100 from SeqCluster where pdbCode=pdb and repChain=res);
+else
+set res2=NULL;
+end if;
+return res2;
 end $$
 delimiter ;
 
@@ -233,8 +253,8 @@ get_clustercall(p.pdbCode,i.clusterId,'pqs') pqs,
 s1.c30 c1_30,s1.c40 c1_40,s1.c50 c1_50,s1.c60 c1_60,s1.c70 c1_70,s1.c80 c1_80,s1.c90 c1_90,s1.c95 c1_95,s1.c100 c1_100,
 s2.c30 c2_30,s2.c40 c2_40,s2.c50 c2_50,s2.c60 c2_60,s2.c70 c2_70,s2.c80 c2_80,s2.c90 c2_90,s2.c95 c2_95,s2.c100 c2_100
 from PdbInfo as p inner join Interface as i on p.pdbCode=i.pdbCode
-inner join SeqCluster as s1 on s1.pdbCode=i.pdbCode and binary get_refchain(i.pdbCode,i.chain1) =s1.repChain
-inner join SeqCluster as s2 on s2.pdbCode=i.pdbCode and binary get_refchain(i.pdbCode,i.chain2) =s2.repChain
+inner join SeqCluster as s1 on binary s1.pdbCode= binary i.pdbCode and binary get_refchain(i.pdbCode,i.chain1) =binary s1.repChain
+inner join SeqCluster as s2 on binary s2.pdbCode=binary i.pdbCode and binary get_refchain(i.pdbCode,i.chain2) =binary s2.repChain
 where p.pdbCode is not NULL;
 
 
@@ -248,7 +268,7 @@ p.spaceGroup,
 p.title,
 p.resolution,
 p.rfreeValue,
-if(p.ncsOpsPresent,'yes','no') ncsOpsPresent,
+#if(p.ncsOpsPresent,'yes','no') ncsOpsPresent,
 i.interfaceId,
 i.clusterId,
 i.chain1,
@@ -262,8 +282,8 @@ get_firsttaxon(p.pdbCode,i.chain2) ftaxon2,
 get_lasttaxon(p.pdbCode,i.chain1) ltaxon1,
 get_lasttaxon(p.pdbCode,i.chain2) ltaxon2,
 if(i.infinite,'yes','no') infinite,
-if(i.prot1,'yes','no') prot1,
-if(i.prot2,'yes','no') prot2,
+#if(i.prot1,'yes','no') prot1,
+#if(i.prot2,'yes','no') prot2,
 i.operator,
 i.operatorType,
 if (i.isologous,'yes','no') isologous,
@@ -282,12 +302,8 @@ get_call(p.pdbCode,i.interfaceId,'eppic-cr') crcall,
 get_call(p.pdbCode,i.interfaceId,'eppic-cs') cscall,
 get_call(p.pdbCode,i.interfaceId,'eppic') eppic,
 get_clustercall(p.pdbCode,i.clusterId,'pdb1') pdbcall,
-get_assembly_mmSize(p.pdbCode,'pdb1') mmSize,
-get_assembly_symmetry(p.pdbCode,'pdb1') symmetry,
-get_assembly_pseudoSymmetry(p.pdbCode,'pdb1') pseudoSymmetry,
-get_assembly_stoichiometry(p.pdbCode,'pdb1') stoichiometry,
-get_assembly_pseudoStoichiometry(p.pdbCode,'pdb1') pseudoStoichiometry
-from PdbInfo as p inner join Interface as i on p.pdbCode=i.pdbCode
+get_assembly_mmSize(p.pdbCode,'pdb1') mmSize
+from PdbInfo as p inner join Interface as i on binary p.pdbCode= binary i.pdbCode
 where p.pdbCode is not NULL;
 
 
@@ -306,3 +322,44 @@ where p.pdbCode is not NULL;
             iface1=atof(self.runQuery("select count(*) from PdbInfo as p inner join Interface as i on i.pdbCode=p.pdbCode where p.releaseDate<'%s-12-31' and p.releaseDate>'%d-12-31' and p.expMethod='X-RAY DIFFRACTION'"%(i,i-1))[0][0])
             enty1=atof(self.runQuery("select count(*) from PdbInfo where releaseDate<'%d-12-31' and releaseDate>'%d-12-31' and expMethod='X-RAY DIFFRACTION'"%(i,i-1))[0][0])
             print i,iface,enty,iface/enty,iface1,enty1,iface1/enty1
+
+
+
+| Assembly                |
+| ChainCluster            |
+| Contact                 |
+| DataDownloadTracking    |
+| EppicView               |
+| EppicView2              |
+| Homolog                 |
+| IPAllowed               |
+| IPForbidden             |
+| Interface               |
+| InterfaceCluster        |
+| InterfaceClusterScore   |
+| InterfaceScore          |
+| InterfaceWarning        |
+| Job                     |
+| PdbInfo                 |
+| Residue                 |
+| RunParameters           |
+| SeqCluster              |
+| UniProtRefWarning       |
+| UserSession             |
+| UserSessionJob          |
++-------------------------+
+
+
+ALTER TABLE Assembly CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
+ALTER TABLE ChainCluster CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
+ALTER TABLE Contact CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
+ALTER TABLE DataDownloadTracking CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
+ALTER TABLE Interface CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
+ALTER TABLE nterfaceCluster CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
+ALTER TABLE InterfaceClusterScore CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
+ALTER TABLE InterfaceWarning CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
+ALTER TABLE InterfaceScore CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
+ALTER TABLE Job CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
+ALTER TABLE PdbInfo  CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
+ALTER TABLE SeqCluster CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
+
