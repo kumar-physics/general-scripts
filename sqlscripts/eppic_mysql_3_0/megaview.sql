@@ -121,6 +121,7 @@ declare res varchar(4);
 declare res2 int(11);
 set res=(select repChain from ChainCluster where pdbCode=pdb and memberChains like binary CONCAT("%",chain,"%"));
 if (cl=30) then 
+<<<<<<< HEAD
 set res2=(select c30 from SeqCluster where pdbCode=pdb and binary repChain=res);
 elseif (cl=40) then
 set res2=(select c40 from SeqCluster where pdbCode=pdb and binary repChain=res);
@@ -138,6 +139,25 @@ elseif (cl=95) then
 set res2=(select c95 from SeqCluster where pdbCode=pdb and binary repChain=res);
 elseif (cl=100) then
 set res2=(select c100 from SeqCluster where pdbCode=pdb and binary repChain=res);
+=======
+set res2=(select c30 from SeqCluster where pdbCode=pdb and repChain=res);
+elseif (cl=40) then
+set res2=(select c40 from SeqCluster where pdbCode=pdb and repChain=res);
+elseif (cl=50) then
+set res2=(select c50 from SeqCluster where pdbCode=pdb and repChain=res);
+elseif (cl=60) then
+set res2=(select c60 from SeqCluster where pdbCode=pdb and repChain=res);
+elseif (cl=70) then
+set res2=(select c70 from SeqCluster where pdbCode=pdb and repChain=res);
+elseif (cl=80) then
+set res2=(select c80 from SeqCluster where pdbCode=pdb and repChain=res);
+elseif (cl=90) then
+set res2=(select c90 from SeqCluster where pdbCode=pdb and repChain=res);
+elseif (cl=95) then
+set res2=(select c95 from SeqCluster where pdbCode=pdb and repChain=res);
+elseif (cl=100) then
+set res2=(select c100 from SeqCluster where pdbCode=pdb and repChain=res);
+>>>>>>> 9e3805512874efa4bc223e1d870af87703270785
 else
 set res2=NULL;
 end if;
@@ -302,7 +322,11 @@ get_call(p.pdbCode,i.interfaceId,'eppic-cr') crcall,
 get_call(p.pdbCode,i.interfaceId,'eppic-cs') cscall,
 get_call(p.pdbCode,i.interfaceId,'eppic') eppic,
 get_clustercall(p.pdbCode,i.clusterId,'pdb1') pdbcall,
+<<<<<<< HEAD
 get_assembly_mmSize(p.pdbCode,'pdb1') mmSize,
+=======
+get_assembly_mmSize(p.pdbCode,'pdb1') mmSize
+>>>>>>> 9e3805512874efa4bc223e1d870af87703270785
 from PdbInfo as p inner join Interface as i on binary p.pdbCode= binary i.pdbCode
 where p.pdbCode is not NULL;
 
